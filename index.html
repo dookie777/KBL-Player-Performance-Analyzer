@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basketball Stats Analyzer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { background-color: #121212; color: #FFFFFF; font-family: Arial, sans-serif; }
+  .container { max-width: 1200px; margin: auto; padding: 20px; }
+  h2 { color: #FFA500; }
+  .input-box, .checkbox-group, .table-container { margin: 20px 0; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px; text-align: center; border-bottom: 1px solid #333; }
+  th { background-color: #1e1e1e; }
+  td { background-color: #181818; }
+  .warning { color: #FF5555; }
+  .valid { color: #55FF55; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Basketball Stats Analyzer</h2>
+  
+  <div class="input-box">
+    <input type="text" id="playerSearch" placeholder="Search player..." />
+    <button onclick="searchPlayer()">Search</button>
+  </div>
+
+  <div id="playerResult"></div>
+
+  <div class="checkbox-group">
+    <h3>Select Metrics for Comparison:</h3>
+    <input type="checkbox" value="PTS_avg" checked> Points
+    <input type="checkbox" value="TRB_avg"> Rebounds
+    <input type="checkbox" value="AST_avg"> Assists
+    <input type="checkbox" value="STL_avg"> Steals
+    <input type="checkbox" value="BLK_avg"> Blocks
+    <button onclick="comparePlayers()">Compare</button>
+  </div>
+
+  <canvas id="comparisonChart"></canvas>
+
+  <div class="table-container">
+    <h3>All Players Stats</h3>
+    <table id="statsTable">
+      <thead>
+        <tr>
+          <th>Player</th><th>Team</th><th>G</th><th>PTS_avg</th><th>TRB_avg</th><th>AST_avg</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const playersData = [];
+
+async function loadPlayersData() {
+  const response = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
+  const data = await response.text();
+  const rows = data.split('\n').slice(1);
+
+  rows.forEach(row => {
+    const cols = row.split(',');
+    playersData.push({
+      Season: cols[0], Team: cols[1], Player: cols[2], G: Number(cols[3]),
+      m: Number(cols[4]), s: Number(cols[5]),
+      PTS_avg: Number(cols[7]), TRB_avg: Number(cols[23]),
+      AST_avg: Number(cols[25]), STL_avg: Number(cols[27]), BLK_avg: Number(cols[29])
+    });
+  });
+
+  populateTable();
+}
+
+function populateTable() {
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = '';
+  playersData.forEach(player => {
+    const status = player.G >= 20 ? '<span class="valid">✅</span>' : '<span class="warning">⚠️</span>';
+    const row = `<tr>
+      <td>${player.Player}</td><td>${player.Team}</td><td>${player.G}</td>
+      <td>${player.PTS_avg.toFixed(2)}</td><td>${player.TRB_avg.toFixed(2)}</td>
+      <td>${player.AST_avg.toFixed(2)}</td><td>${status}</td>
+    </tr>`;
+    tableBody.innerHTML += row;
+  });
+}
+
+function searchPlayer() {
+  const query = document.getElementById('playerSearch').value;
+  const player = playersData.find(p => p.Player.toLowerCase().includes(query.toLowerCase()));
+
+  const statusIcon = player.G >= 20 ? '✅' : '⚠️';
+  document.getElementById('playerResult').innerHTML = `
+    <h3>${player.Player} (${player.Team}) ${statusIcon}</h3>
+    <p>Games: ${player.G}, Points Avg: ${player.PTS_avg}, Rebounds Avg: ${player.TRB_avg}, Assists Avg: ${player.AST_avg}, Steals Avg: ${player.STL_avg}, Blocks Avg: ${player.BLK_avg}</p>
+    <p>Average Playtime: ${player.m}m ${player.s}s</p>
+  `;
+}
+
+function comparePlayers() {
+  const checkedMetrics = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value);
+  const selectedPlayers = playersData.slice(0, 3); // For demo, first 3 players
+
+  const datasets = selectedPlayers.map(player => ({
+    label: player.Player,
+    data: checkedMetrics.map(metric => player[metric]),
+    backgroundColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+  }));
+
+  new Chart(document.getElementById('comparisonChart'), {
+    type: 'bar',
+    data: { labels: checkedMetrics, datasets },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+}
+
+loadPlayersData();
+</script>
+</body>
+</html>
