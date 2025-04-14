@@ -180,7 +180,7 @@ function renderTable(data) {
 
   filteredData.forEach(cols => {
     const playerName = cols[2];
-    const status = cols[3] >= 20 ? '✅' : '⚠️';
+    const status = cols[3] >= 14 ? '✅' : '⚠️';
     const playtime = `${cols[4]}분 ${cols[5]}초`;
 
     const row = document.createElement('tr');
