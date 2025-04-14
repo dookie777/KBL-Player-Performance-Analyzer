@@ -5,67 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Basketball Stats Analyzer</title>
 <style>
-  body {
-    background-color: #121212;
-    color: #FFFFFF;
-    font-family: Arial, sans-serif;
-    margin: 0; padding: 0; overflow: hidden;
-  }
-  .container {
-    height: 100vh; display: flex; flex-direction: column;
-    max-width: 1200px; margin: auto; padding: 20px;
-    box-sizing: border-box;
-  }
-  h2, .input-box, .footer { text-align: center; }
-  h2 { color: #FFA500; }
-  .input-box { padding: 10px 0; background-color: #1e1e1e; }
-  .scroll-container {
-    flex: 1; overflow: auto; margin: 10px 0;
-  }
-  table {
-    border-collapse: collapse; white-space: nowrap; width: auto;
-  }
-  th, td {
-    padding: 8px; border-bottom: 1px solid #333;
-    text-align: center; font-size: 0.85rem;
-  }
-  th {
-    background-color: #282828; position: sticky;
-    top: 0; cursor: pointer; z-index: 10;
-  }
-  td { background-color: #181818; }
-
-  /* 선수명, 팀 고정 열 */
-  th:nth-child(1), td:nth-child(1),
-  th:nth-child(2), td:nth-child(2) {
-    position: sticky; left: 0; background-color: #282828; z-index: 20;
-  }
-  th:nth-child(2), td:nth-child(2) { left: 160px; }
-
-  .warning { color: #FF5555; }
-  .valid { color: #55FF55; }
-
-  .footer {
-    padding: 10px; border-top: 1px solid #333; font-size: 0.8rem;
-    color: #888; position: fixed; bottom: 0; left: 0; width: 100%;
-    background-color: #000; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; z-index: 1000;
-  }
-  .footer img { width: 100px; height: auto; margin-bottom: 5px; }
+body {
+  background-color: #121212;
+  color: #FFFFFF;
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0; overflow: hidden;
+}
+.container {
+  height: 100vh; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; max-width: 1200px; margin: auto;
+}
+h2, .input-box, .footer { text-align: center; }
+h2 { color: #FFA500; }
+.input-box { padding: 10px 0; background-color: #1e1e1e; }
+.scroll-container {
+  flex: 1; overflow: auto; margin: 10px 0;
+}
+table {
+  width: 100%; border-collapse: collapse; white-space: nowrap; table-layout: auto;
+}
+th, td {
+  padding: 6px 8px; text-align: center; border-bottom: 1px solid #333; font-size: 0.85rem;
+}
+th {
+  background-color: #282828; position: sticky; top: 0; cursor: pointer; z-index: 10;
+}
+td { background-color: #181818; }
+th:nth-child(1), td:nth-child(1), th:nth-child(2), td:nth-child(2) {
+  position: sticky; left: 0; background-color: #282828; z-index: 20;
+}
+th:nth-child(2), td:nth-child(2) { left: 150px; }
+.warning { color: #FF5555; }
+.valid { color: #55FF55; }
+.highlight { border-bottom: 3px solid #FFA500 !important; }
+.footer {
+  padding: 10px 0; border-top: 1px solid #333; font-size: 0.8rem; color: #888; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #000; display: flex; flex-direction: column; align-items: center; z-index: 1000;
+}
+.footer img { width: 100px; height: auto; margin-bottom: 5px; }
+.sort-arrow { font-size: 0.7rem; }
 </style>
 </head>
-
 <body>
 <div class="container">
   <h2>Basketball Stats Analyzer</h2>
-
   <div class="input-box">
-    <input type="text" id="playerSearch" placeholder="Search player...">
+    <input type="text" id="playerSearch" placeholder="Search player..." />
     <button onclick="searchPlayer()">Search</button>
   </div>
-
   <div class="scroll-container">
-    <table>
+    <table id="statsTable">
       <thead>
         <tr>
           <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
@@ -77,7 +64,6 @@
       <tbody id="tableBody"></tbody>
     </table>
   </div>
-
   <footer class="footer">
     <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true" alt="The Eroom Sports Logo">
     <div>© 2025 The Eroom Sports. All rights reserved.</div>
@@ -85,79 +71,74 @@
 </div>
 
 <script>
-let playersData = [];
+let originalData = [];
 
 async function loadPlayersData() {
   const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
   const data = await res.text();
   const rows = data.split('\n').slice(1);
 
-  rows.forEach(row => {
-    const cols = row.split(',');
-    if(cols.length > 30) {
-      playersData.push({
-        player: cols[2], team: cols[1], games: +cols[3],
-        playtime: `${cols[4]}분 ${cols[5]}초`, pts: +cols[6],
-        pts_avg: +cols[7], fg_pct: cols[10], three_pct: cols[16],
-        ft_pct: cols[19], trb_avg: +cols[23], ast_avg: +cols[25],
-        stl_avg: +cols[27], blk_avg: +cols[29], to: +cols[30],
-      });
-    }
-  });
-  populateTable();
+  originalData = rows.map(row => row.split(',')).filter(cols => cols.length > 30);
+  renderTable(originalData);
 }
 
-function populateTable() {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
-  playersData.forEach(p => {
-    const status = p.games >= 20 ? '✅' : '⚠️';
-    tbody.innerHTML += `<tr>
-      <td>${p.player} <span class="${status=='✅'?'valid':'warning'}">${status}</span></td>
-      <td>${p.team}</td><td>${p.games}</td><td>${p.playtime}</td>
-      <td>${p.pts}</td><td>${p.pts_avg.toFixed(2)}</td>
-      <td>${p.fg_pct}</td><td>${p.three_pct}</td><td>${p.ft_pct}</td>
-      <td>${p.trb_avg.toFixed(2)}</td><td>${p.ast_avg.toFixed(2)}</td>
-      <td>${p.stl_avg.toFixed(2)}</td><td>${p.blk_avg.toFixed(2)}</td>
-      <td>${p.to}</td>
+function renderTable(data) {
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = '';
+
+  data.forEach(cols => {
+    const status = cols[3] >= 20 ? '✅' : '⚠️';
+    const playtime = `${cols[4]}분 ${cols[5]}초`;
+    tableBody.innerHTML += `<tr>
+      <td>${cols[2]} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+      <td>${cols[1]}</td><td>${cols[3]}</td><td>${playtime}</td>
+      <td>${cols[6]}</td><td>${(+cols[7]).toFixed(2)}</td>
+      <td>${cols[10]}</td><td>${cols[16]}</td><td>${cols[19]}</td>
+      <td>${(+cols[23]).toFixed(2)}</td><td>${(+cols[25]).toFixed(2)}</td>
+      <td>${(+cols[27]).toFixed(2)}</td><td>${(+cols[29]).toFixed(2)}</td><td>${cols[30]}</td>
     </tr>`;
   });
 }
 
 function searchPlayer() {
   const query = document.getElementById('playerSearch').value.toLowerCase();
-  const tbody = document.getElementById('tableBody');
-  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const tableBody = document.getElementById('tableBody');
+  const rows = Array.from(tableBody.querySelectorAll('tr'));
   let found = false;
+
   rows.forEach(row => {
-    const playerName = row.cells[0].textContent.toLowerCase();
-    if (playerName.includes(query) && !found) {
-      tbody.prepend(row);
-      row.style.borderBottom = "3px solid #FFA500";
+    row.classList.remove('highlight');
+    if (row.children[0].textContent.toLowerCase().includes(query)) {
       found = true;
-    } else {
-      row.style.borderBottom = "1px solid #333";
+      tableBody.prepend(row);
+      row.classList.add('highlight');
     }
   });
-  if (!found) alert("Player not found");
+
+  if (!found) alert('Player not found');
 }
 
 const sortDirections = {};
-document.querySelectorAll('th').forEach((header, idx) => {
-  header.addEventListener('click', () => {
-    playersData.sort((a, b) => {
-      const keys = Object.keys(a);
-      const key = keys[idx];
-      if (typeof a[key] === 'number') {
-        return (sortDirections[key] = !sortDirections[key]) ?
-          a[key] - b[key] : b[key] - a[key];
-      }
-      return (sortDirections[key] = !sortDirections[key]) ?
-        a[key].localeCompare(b[key]) : b[key].localeCompare(a[key]);
-    });
-    populateTable();
-  });
+document.querySelectorAll('th').forEach((header, index) => {
+  header.innerHTML += ' <span class="sort-arrow">↕</span>';
+  header.addEventListener('click', () => sortTable(index));
 });
+
+function sortTable(columnIndex) {
+  const tableBody = document.getElementById('tableBody');
+  const rows = Array.from(tableBody.querySelectorAll('tr'));
+  const direction = sortDirections[columnIndex] === 'asc' ? 'desc' : 'asc';
+  sortDirections[columnIndex] = direction;
+
+  rows.sort((a, b) => {
+    const aText = a.children[columnIndex].textContent.trim().replace(/[^0-9.]/g, '');
+    const bText = b.children[columnIndex].textContent.trim().replace(/[^0-9.]/g, '');
+    return direction === 'asc' ? aText - bText : bText - aText;
+  });
+
+  tableBody.innerHTML = '';
+  rows.forEach(row => tableBody.appendChild(row));
+}
 
 window.onload = loadPlayersData;
 </script>
