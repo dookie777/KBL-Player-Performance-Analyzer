@@ -284,17 +284,18 @@ function sortTable(i) {
 
   rows.sort((a, b) => {
     let x, y;
-    if (i === 3) { 
-      x = +a.cells[i].getAttribute('data-time');
-      y = +b.cells[i].getAttribute('data-time');
-    } else {
+    if (i === 3) { // 출전시간 열 정렬 로직 (정확히 초 단위 사용)
+      x = parseInt(a.cells[i].getAttribute('data-time'), 10);
+      y = parseInt(b.cells[i].getAttribute('data-time'), 10);
+    } else { // 그 외 일반 숫자 열
       x = parseFloat(a.cells[i].innerText) || 0;
       y = parseFloat(b.cells[i].innerText) || 0;
     }
     return direction === 'asc' ? x - y : y - x;
   }).forEach(r => tableBody.appendChild(r));
-}
 
+  searchPlayer(); // 강조된 선수 유지
+}
 window.onload = loadPlayersData;
 </script></body>
 </html>
