@@ -126,6 +126,14 @@ thead th:nth-child(2) {
   <div class="input-box">
     <input type="text" id="playerSearch" placeholder="Search player..." />
     <button onclick="searchPlayer()">Search</button>
+      <label style="color:#FFA500; margin-left:15px;">
+    <input type="checkbox" id="minGamesCheckbox"> 규정경기 이상만 표시 (14G)
+  </label>
+      <script>
+    document.getElementById('minGamesCheckbox').addEventListener('change', function() {
+      renderTable(originalData);
+    });
+  </script>
   </div>
 <div class="scroll-container">
   <table id="statsTable">
@@ -167,7 +175,10 @@ function renderTable(data) {
   const tableBody = document.getElementById('tableBody');
   tableBody.innerHTML = '';
 
-  data.forEach(cols => {
+  const minGamesOnly = document.getElementById('minGamesCheckbox').checked;
+  const filteredData = minGamesOnly ? data.filter(cols => parseInt(cols[3]) >= 14) : data;
+
+  filteredData.forEach(cols => {
     const playerName = cols[2];
     const status = cols[3] >= 20 ? '✅' : '⚠️';
     const playtime = `${cols[4]}분 ${cols[5]}초`;
@@ -226,27 +237,6 @@ function renderTable(data) {
   });
 }
 
-function searchPlayer() {
-  const query = document.getElementById('playerSearch').value.toLowerCase();
-  const rows = document.querySelectorAll('#tableBody tr');
-  let found = false;
-
-  rows.forEach(row => {
-    const name = row.cells[0].textContent.toLowerCase();
-    row.classList.remove('highlight');
-    row.style.position = '';
-    row.style.top = '';
-    row.style.backgroundColor = '';
-    
-    if (name.includes(query) && query !== "") {
-      found = true;
-      row.classList.add('highlight');
-      fixRow(row);
-    }
-  });
-
-  if (!found) alert("Player not found!");
-}
 
 function fixRow(row) {
   clearFixedRow();
