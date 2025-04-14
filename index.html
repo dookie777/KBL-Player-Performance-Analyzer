@@ -23,60 +23,42 @@
     padding: 20px;
     box-sizing: border-box;
   }
-  h2, .input-box, .checkbox-group, .footer {
+  h2, .input-box, .footer {
     text-align: center;
   }
-  h2 {
-    color: #FFA500;
-  }
-  .input-box, .checkbox-group {
+  h2 { color: #FFA500; }
+  .input-box {
     padding: 10px 0;
     background-color: #1e1e1e;
   }
   .scroll-container {
     flex: 1;
-    overflow: auto; /* 수정: overflow-y → overflow 로 변경 */
+    overflow: auto;
     margin: 10px 0;
   }
   table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: auto; /* 추가: 테이블 자동 너비 */
-    white-space: nowrap; /* 추가: 데이터 줄바꿈 방지 */
+    table-layout: auto;
+    white-space: nowrap;
   }
   th, td {
-    padding: 6px 8px; /* 수정: padding 축소 */
+    padding: 4px 6px;
     text-align: center;
     border-bottom: 1px solid #333;
-    font-size: 0.75rem; /* 수정: 폰트 사이즈 줄임 */
+    font-size: 0.7rem;
   }
   th {
     background-color: #282828;
     position: sticky;
     top: 0;
-    z-index: 10; /* 추가: 헤더 겹침 방지 */
+    z-index: 10;
   }
-  td {
-    background-color: #181818;
-  }
-  /* 선수 이름 열 너비 고정 */
-  th:nth-child(1), td:nth-child(1) {
-    width: 120px;
-    max-width: 120px;
-    min-width: 120px;
-  }
-  /* 팀명 열 너비 고정 */
-  th:nth-child(2), td:nth-child(2) {
-    width: 60px;
-    max-width: 60px;
-    min-width: 60px;
-  }
-  .warning {
-    color: #FF5555;
-  }
-  .valid {
-    color: #55FF55;
-  }
+  td { background-color: #181818; }
+  th:nth-child(1), td:nth-child(1) { width: 120px; }
+  th:nth-child(2), td:nth-child(2) { width: 60px; }
+  .warning { color: #FF5555; }
+  .valid { color: #55FF55; }
   .footer {
     padding: 10px 0;
     border-top: 1px solid #333;
@@ -93,13 +75,8 @@
     align-items: center;
     z-index: 1000;
   }
-  .footer img {
-    width: 100px;
-    height: auto;
-    margin-bottom: 5px;
-  }
+  .footer img { width: 100px; }
 </style>
-
 </head>
 <body>
 <div class="container">
@@ -110,20 +87,14 @@
     <button onclick="searchPlayer()">Search</button>
   </div>
 
-  <div class="checkbox-group">
-    <label><input type="checkbox" value="PTS_avg" checked> Points</label>
-    <label><input type="checkbox" value="TRB_avg"> Rebounds</label>
-    <label><input type="checkbox" value="AST_avg"> Assists</label>
-    <label><input type="checkbox" value="STL_avg"> Steals</label>
-    <label><input type="checkbox" value="BLK_avg"> Blocks</label>
-    <button onclick="comparePlayers()">Compare</button>
-  </div>
-
   <div class="scroll-container">
     <table id="statsTable">
       <thead>
         <tr>
-          <th>Player</th><th>Team</th><th>G</th><th>PTS_avg</th><th>TRB_avg</th><th>AST_avg</th>
+          <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
+          <th>PTS(총득점)</th><th>PTS_avg</th><th>FG%</th>
+          <th>3P%</th><th>FT%</th><th>TRB_avg</th><th>AST_avg</th>
+          <th>STL_avg</th><th>BLK_avg</th><th>TO</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
@@ -137,55 +108,34 @@
 </div>
 
 <script>
-const playersData = [];
-
 async function loadPlayersData() {
-  const response = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
-  const data = await response.text();
+  const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
+  const data = await res.text();
   const rows = data.split('\n').slice(1);
+  const players = rows.map(row => row.split(','));
 
-  rows.forEach(row => {
-    const cols = row.split(',');
-    if(cols.length > 29) {
-      playersData.push({
-        Season: cols[0], Team: cols[1], Player: cols[2], G: Number(cols[3]),
-        m: Number(cols[4]), s: Number(cols[5]),
-        PTS_avg: Number(cols[7]), TRB_avg: Number(cols[23]),
-        AST_avg: Number(cols[25]), STL_avg: Number(cols[27]), BLK_avg: Number(cols[29])
-      });
-    }
-  });
-
-  populateTable();
-}
-
-function populateTable() {
   const tableBody = document.getElementById('tableBody');
   tableBody.innerHTML = '';
-  playersData.forEach(player => {
-    const status = player.G >= 20 ? '<span class="valid">✅</span>' : '<span class="warning">⚠️</span>';
-    const row = `<tr>
-      <td>${player.Player} ${status}</td><td>${player.Team}</td><td>${player.G}</td>
-      <td>${player.PTS_avg.toFixed(2)}</td><td>${player.TRB_avg.toFixed(2)}</td>
-      <td>${player.AST_avg.toFixed(2)}</td>
-    </tr>`;
-    tableBody.innerHTML += row;
+  players.forEach(cols => {
+    if(cols.length > 30) {
+      const status = cols[3] >= 20 ? '<span class="valid">✅</span>' : '<span class="warning">⚠️</span>';
+      const playtime = `${cols[4]}분 ${cols[5]}초`;
+      const row = `<tr>
+        <td>${cols[2]} ${status}</td>
+        <td>${cols[1]}</td><td>${cols[3]}</td><td>${playtime}</td>
+        <td>${cols[6]}</td><td>${Number(cols[7]).toFixed(2)}</td>
+        <td>${cols[10]}</td><td>${cols[16]}</td><td>${cols[19]}</td>
+        <td>${Number(cols[23]).toFixed(2)}</td><td>${Number(cols[25]).toFixed(2)}</td>
+        <td>${Number(cols[27]).toFixed(2)}</td><td>${Number(cols[29]).toFixed(2)}</td>
+        <td>${cols[30]}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    }
   });
 }
 
 function searchPlayer() {
-  const query = document.getElementById('playerSearch').value;
-  const player = playersData.find(p => p.Player.toLowerCase().includes(query.toLowerCase()));
-
-  if (player) {
-    alert(`Player: ${player.Player}\nTeam: ${player.Team}\nGames: ${player.G}\nPoints Avg: ${player.PTS_avg}\nRebounds Avg: ${player.TRB_avg}\nAssists Avg: ${player.AST_avg}\nPlaytime: ${player.m}m ${player.s}s`);
-  } else {
-    alert('Player not found');
-  }
-}
-
-function comparePlayers() {
-  alert('Comparison feature coming soon!');
+  alert('Player search implementation pending.');
 }
 
 window.onload = loadPlayersData;
