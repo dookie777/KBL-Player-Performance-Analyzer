@@ -6,139 +6,178 @@
 <title>Basketball Stats Analyzer</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body {
-    background-color: #121212;
-    color: #FFFFFF;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-  .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-  h2, .input-box, .footer {
-    text-align: center;
-  }
-  h2 { color: #FFA500; }
-  .input-box {
-    padding: 10px 0;
-    background-color: #1e1e1e;
-  }
-  .scroll-container {
-    flex: 1;
-    overflow: auto;
-    margin: 10px 0;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: auto;
-    white-space: nowrap;
-  }
-  th, td {
-    padding: 4px 6px;
-    text-align: center;
-    border-bottom: 1px solid #333;
-    font-size: 0.7rem;
-  }
-  th {
-    background-color: #282828;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  td { background-color: #181818; }
-  th:nth-child(1), td:nth-child(1) { width: 120px; }
-  th:nth-child(2), td:nth-child(2) { width: 60px; }
-  .warning { color: #FF5555; }
-  .valid { color: #55FF55; }
-  .footer {
-    padding: 10px 0;
-    border-top: 1px solid #333;
-    font-size: 0.8rem;
-    color: #888;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #000000;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  .footer img { width: 100px; }
+body {
+  background-color: #121212;
+  color: #FFFFFF;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+h2, .input-box, .footer {
+  text-align: center;
+}
+h2 {
+  color: #FFA500;
+}
+.input-box {
+  padding: 10px 0;
+  background-color: #1e1e1e;
+}
+.scroll-container {
+  flex: 1;
+  overflow: auto;
+  margin: 10px 0;
+}
+table {
+  border-collapse: collapse;
+  table-layout: auto;
+  white-space: nowrap;
+  width: 100%;
+}
+th, td {
+  padding: 6px 8px;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+}
+th {
+  background-color: #282828;
+  position: sticky;
+  top: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+td {
+  background-color: #181818;
+}
+/* 좌측 2개 열 고정 설정 */
+th:nth-child(1), td:nth-child(1),
+th:nth-child(2), td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 20;
+}
+th:nth-child(2), td:nth-child(2) {
+  left: 150px; /* 첫 번째 열의 실제 너비에 맞춰 조정 가능 */
+}
+.warning { color: #FF5555; }
+.valid { color: #55FF55; }
+.footer {
+  padding: 10px 0;
+  border-top: 1px solid #333;
+  font-size: 0.8rem;
+  color: #888;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #000000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.footer img {
+  width: 100px;
+  height: auto;
+  margin-bottom: 5px;
+}
 </style>
-</head>
-<body>
-<div class="container">
-  <h2>Basketball Stats Analyzer</h2>
-
-  <div class="input-box">
-    <input type="text" id="playerSearch" placeholder="Search player..." />
-    <button onclick="searchPlayer()">Search</button>
-  </div>
-
-  <div class="scroll-container">
-    <table id="statsTable">
-      <thead>
-        <tr>
-          <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
-          <th>PTS(총득점)</th><th>PTS_avg</th><th>FG%</th>
-          <th>3P%</th><th>FT%</th><th>TRB_avg</th><th>AST_avg</th>
-          <th>STL_avg</th><th>BLK_avg</th><th>TO</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
-
-  <footer class="footer">
-    <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true" alt="The Eroom Sports Logo">
-    <div>© 2025 The Eroom Sports. All rights reserved.</div>
-  </footer>
-</div>
 
 <script>
 async function loadPlayersData() {
   const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
   const data = await res.text();
   const rows = data.split('\n').slice(1);
-  const players = rows.map(row => row.split(','));
-
   const tableBody = document.getElementById('tableBody');
   tableBody.innerHTML = '';
-  players.forEach(cols => {
+  
+  rows.forEach(row => {
+    const cols = row.split(',');
     if(cols.length > 30) {
       const status = cols[3] >= 20 ? '<span class="valid">✅</span>' : '<span class="warning">⚠️</span>';
       const playtime = `${cols[4]}분 ${cols[5]}초`;
-      const row = `<tr>
+      tableBody.innerHTML += `<tr>
         <td>${cols[2]} ${status}</td>
-        <td>${cols[1]}</td><td>${cols[3]}</td><td>${playtime}</td>
-        <td>${cols[6]}</td><td>${Number(cols[7]).toFixed(2)}</td>
-        <td>${cols[10]}</td><td>${cols[16]}</td><td>${cols[19]}</td>
-        <td>${Number(cols[23]).toFixed(2)}</td><td>${Number(cols[25]).toFixed(2)}</td>
-        <td>${Number(cols[27]).toFixed(2)}</td><td>${Number(cols[29]).toFixed(2)}</td>
+        <td>${cols[1]}</td>
+        <td>${cols[3]}</td>
+        <td>${playtime}</td>
+        <td>${cols[6]}</td>
+        <td>${Number(cols[7]).toFixed(2)}</td>
+        <td>${cols[10]}</td>
+        <td>${cols[16]}</td>
+        <td>${cols[19]}</td>
+        <td>${Number(cols[23]).toFixed(2)}</td>
+        <td>${Number(cols[25]).toFixed(2)}</td>
+        <td>${Number(cols[27]).toFixed(2)}</td>
+        <td>${Number(cols[29]).toFixed(2)}</td>
         <td>${cols[30]}</td>
       </tr>`;
-      tableBody.innerHTML += row;
     }
   });
 }
 
 function searchPlayer() {
-  alert('Player search implementation pending.');
+  const query = document.getElementById('playerSearch').value.toLowerCase();
+  const tableBody = document.getElementById('tableBody');
+  const rows = Array.from(tableBody.querySelectorAll('tr'));
+  
+  let found = false;
+  rows.forEach(row => {
+    const playerName = row.children[0].textContent.toLowerCase();
+    if (playerName.includes(query)) {
+      found = true;
+      tableBody.prepend(row);
+      row.style.borderBottom = "3px solid #FFA500";
+    } else {
+      row.style.borderBottom = "1px solid #333";
+    }
+  });
+  if (!found) alert('Player not found');
 }
 
-window.onload = loadPlayersData;
+const sortDirections = {};
+function sortTable(columnIndex) {
+  const tableBody = document.getElementById('tableBody');
+  const rowsArray = Array.from(tableBody.querySelectorAll('tr'));
+  const isAscending = sortDirections[columnIndex] === 'asc';
+
+  rowsArray.sort((a, b) => {
+    const aText = a.children[columnIndex].textContent.trim();
+    const bText = b.children[columnIndex].textContent.trim();
+    const aNum = parseFloat(aText.replace(/[^0-9.]/g, ''));
+    const bNum = parseFloat(bText.replace(/[^0-9.]/g, ''));
+
+    if (isNaN(aNum) || isNaN(bNum)) {
+      return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    }
+    return isAscending ? aNum - bNum : bNum - aNum;
+  });
+
+  sortDirections[columnIndex] = isAscending ? 'desc' : 'asc';
+  tableBody.innerHTML = '';
+  rowsArray.forEach(row => tableBody.appendChild(row));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadPlayersData();
+  document.querySelectorAll('th').forEach((header, index) => {
+    header.addEventListener('click', () => sortTable(index));
+  });
+});
 </script>
+
 </body>
 </html>
