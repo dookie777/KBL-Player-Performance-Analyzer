@@ -303,6 +303,13 @@ function searchPlayer(){
     alert("Player not found!");
   }
 }
-window.onload = loadPlayersData;
-</script></body>
+window.onload = function() {
+  loadPlayersData();
+
+  const headers = document.querySelectorAll('#statsTable thead th');
+  headers.forEach((header, index) => {
+    sortDirections[index] = 'asc';
+    header.onclick = () => sortTable(index);
+  });
+};</script></body>
 </html>
