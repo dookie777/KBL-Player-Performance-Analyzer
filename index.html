@@ -5,32 +5,68 @@
 <title>Basketball Stats Analyzer</title>
 <style>
 body {
-  background: #121212; color: #FFF;
-  font-family: Arial, sans-serif; margin:0; padding:0; overflow:hidden;
+  background: #121212; 
+  color: #FFF;
+  font-family: Arial, sans-serif; 
+  margin: 0; 
+  padding: 0; 
+  overflow: hidden;
 }
+
 .container {
-  display:flex; flex-direction:column; height:100vh; max-width:1200px; margin:auto; padding:20px;
+  display: flex; 
+  flex-direction: column; 
+  height: 100vh; 
+  max-width: 1200px; 
+  margin: auto; 
+  padding: 20px;
+  box-sizing: border-box;
 }
-h2, .input-box, .footer { text-align:center; }
-h2 { color:#FFA500; }
-.input-box { padding:10px 0; background:#1e1e1e; }
+
+h2, .input-box, .footer { 
+  text-align: center; 
+}
+
+h2 { 
+  color: #FFA500; 
+}
+
+.input-box { 
+  padding: 10px 0; 
+  background: #1e1e1e; 
+}
+
 .scroll-container {
   flex: 1;
   overflow: auto;
   margin: 10px 0;
-  padding-bottom: 60px; /* footer 높이만큼 여유 공간 추가 */
-  max-width: 100%;
+  padding-bottom: 80px; /* footer와 겹치지 않게 여유공간 추가 */
 }
+
 table {
-  border-collapse:collapse; white-space:nowrap; min-width:1500px; 
+  border-collapse: collapse; 
+  white-space: nowrap; 
+  width: auto;
+  min-width: 1500px; /* 좌우 스크롤 활성화 보장 */
 }
+
 th, td {
-  padding:6px 8px; border-bottom:1px solid #333; font-size:0.85rem;
-  background:#181818; color:#FFF; text-align:center;
+  padding: 6px 8px; 
+  border-bottom: 1px solid #333; 
+  font-size: 0.85rem;
+  background: #181818; 
+  color: #FFF; 
+  text-align: center;
 }
+
 th {
-  background:#282828; position:sticky; top:0; cursor:pointer; z-index:10;
+  background: #282828; 
+  position: sticky; 
+  top: 0; 
+  cursor: pointer; 
+  z-index: 10;
 }
+
 th:nth-child(1), td:nth-child(1),
 th:nth-child(2), td:nth-child(2) {
   position: sticky;
@@ -40,11 +76,21 @@ th:nth-child(2), td:nth-child(2) {
 }
 
 th:nth-child(2), td:nth-child(2) {
-  left: 150px;
+  left: 150px; /* 첫 번째 열 너비에 맞춰 두 번째 열 고정 위치 */
 }
 
-.valid {color:#55FF55;} .warning {color:#FF5555;}
-.highlight {border-bottom:3px solid #FFA500 !important;}
+.valid { 
+  color: #55FF55; 
+}
+
+.warning { 
+  color: #FF5555; 
+}
+
+.highlight {
+  border-bottom: 3px solid #FFA500 !important;
+}
+
 .footer {
   padding: 10px 0;
   border-top: 1px solid #333;
@@ -60,12 +106,29 @@ th:nth-child(2), td:nth-child(2) {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  pointer-events: none; /* footer 클릭 무시로 데이터 클릭 방해 방지 */
+  pointer-events: none;
 }
-.footer img { width:100px; height:auto; margin-bottom:5px; }
-.scroll-container::-webkit-scrollbar { height:8px; width:8px; }
-.scroll-container::-webkit-scrollbar-track { background:#282828; }
-.scroll-container::-webkit-scrollbar-thumb { background:#FFA500; border-radius:10px; }
+
+.footer img { 
+  width: 100px; 
+  height: auto; 
+  margin-bottom: 5px; 
+}
+
+/* 스크롤바 스타일 추가 */
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: #282828;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: #FFA500;
+  border-radius: 10px;
+}
 </style>
 </head>
 <body>
