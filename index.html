@@ -61,21 +61,21 @@ th, td {
 th {
   background: #282828; 
   position: sticky; 
-  top: 0;  /* 세로 스크롤 시 제목 행 전체 고정 */
-  z-index: 100; /* 다른 요소 위에 표시 */
+  top: 0; 
   cursor: pointer; 
+  z-index: 101; /* 헤더 최상단에 배치 */
 }
 
 th:nth-child(1), td:nth-child(1),
 th:nth-child(2), td:nth-child(2) {
   position: sticky;
-  left: 0; /* 좌측에서 고정 */
+  left: 0;
   background-color: #282828;
-  z-index: 101; /* 좌우 스크롤 시 이 열들이 항상 위에 표시됨 */
+  z-index: 102; /* 반드시 헤더보다 높은 값으로 설정해야 헤더 위에 나타남 */
 }
 
 th:nth-child(2), td:nth-child(2) {
-  left: 150px; /* 첫 번째 열 너비만큼 밀어서 두 번째 열 고정 */
+  left: 150px;
 }
 .valid { color: #55FF55; }
 .warning { color: #FF5555; }
