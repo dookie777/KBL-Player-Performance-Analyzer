@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Basketball Stats Analyzer</title>
+  <style>
+    body {
+      background: #121212;
+      color: #FFF;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    h2, .tabs { text-align: center; }
+    h2 { color: #FFA500; }
+    .tabs button {
+      background: #282828;
+      color: #FFF;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin: 0 5px;
+    }
+    .tabs button.active { background: #FFA500; }
+    .tab-content { display: none; flex: 1; overflow: auto; }
+    .tab-content.active { display: block; }
+    table { border-collapse: collapse; white-space: nowrap; min-width: 1500px; }
+    thead th { background: #282828; position: sticky; top: 0; cursor: pointer; z-index: 200; }
+    tbody td { background: #181818; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid #333; font-size: 0.85rem; text-align: center; }
+    th:nth-child(1), td:nth-child(1),
+    th:nth-child(2), td:nth-child(2) {
+      position: sticky;
+      left: 0;
+      background-color: #282828;
+      z-index: 300;
+    }
+    th:nth-child(2), td:nth-child(2) { left: 150px; }
+    .highlight { color: #FFFF55 !important; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Basketball Stats Analyzer</h2>
+
+  <div class="tabs">
+    <button class="tab-button active" data-tab="tab-all">전체 선수 통계</button>
+    <button class="tab-button" data-tab="tab-player">선수 개인 검색</button>
+    <button class="tab-button" data-tab="tab-compare">선수 비교</button>
+  </div>
+
+  <div id="tab-all" class="tab-content active">
+    <div id="table-container" style="overflow:auto; height:100%;"></div>
+  </div>
+
+  <div id="tab-player" class="tab-content">
+    <p>여기에 선수 개인 검색 페이지가 들어갑니다.</p>
+  </div>
+
+  <div id="tab-compare" class="tab-content">
+    <p>여기에 선수 비교 페이지가 들어갑니다.</p>
+  </div>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tab-button');
+const contents = document.querySelectorAll('.tab-content');
+
+tabs.forEach(tab => {
+  tab.onclick = () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    contents.forEach(c => c.classList.remove('active'));
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    tab.classList.add('active');
+  };
+});
+
+async function loadTable() {
+  const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
+  const data = await res.text();
+  const rows = data.split('\n').slice(1).map(row => row.split(','));
+
+  let table = `<table><thead><tr>${rows[0].map((_, i) => `<th>컬럼 ${i+1}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(cols => {
+    table += `<tr>${cols.map(col => `<td>${col}</td>`).join('')}</tr>`;
+  });
+  table += `</tbody></table>`;
+
+  document.getElementById('table-container').innerHTML = table;
+}
+
+loadTable();
+</script>
+</body>
+</html>
