@@ -147,14 +147,18 @@ thead th:nth-child(2) {
   </footer>
 </div>
 <script>
-let originalData = [], highlightedPlayer='';
-async function loadPlayersData(){
-  const res=await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
-  const rows=(await res.text()).split('\n').slice(1);
-  originalData=rows.map(row=>row.split(',')).filter(cols=>cols.length>30);
-  originalData.forEach(cols=>{cols.push(parseInt(cols[4])*60+parseInt(cols[5]));});
+let originalData = [], highlightedPlayer = '', fixedRow = null;
+
+async function loadPlayersData() {
+  const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
+  const rows = (await res.text()).split('\n').slice(1);
+  originalData = rows.map(row => row.split(',')).filter(cols => cols.length > 30);
+  originalData.forEach(cols => {
+    cols.push(parseInt(cols[4]) * 60 + parseInt(cols[5]));
+  });
   renderTable(originalData);
 }
+
 function renderTable(data) {
   const tableBody = document.getElementById('tableBody');
   tableBody.innerHTML = '';
@@ -163,11 +167,8 @@ function renderTable(data) {
     const playerName = cols[2];
     const status = cols[3] >= 20 ? '✅' : '⚠️';
     const playtime = `${cols[4]}분 ${cols[5]}초`;
-    const isHighlighted = playerName === highlightedPlayer ? 'highlight' : '';
 
     const row = document.createElement('tr');
-    row.className = isHighlighted;
-
     row.innerHTML = `
       <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
       <td>${cols[1]}</td>
@@ -221,50 +222,75 @@ function renderTable(data) {
   });
 }
 
-function searchPlayer(){
-  const query=document.getElementById('playerSearch').value.toLowerCase();
-  const rows=document.querySelectorAll('#tableBody tr');
-  rows.forEach(row=>{
-    const name=row.cells[0].textContent.toLowerCase();
-    if(name.includes(query) && query!==""){
+function searchPlayer() {
+  const query = document.getElementById('playerSearch').value.toLowerCase();
+  const rows = document.querySelectorAll('#tableBody tr');
+  let found = false;
+
+  rows.forEach(row => {
+    const name = row.cells[0].textContent.toLowerCase();
+    row.classList.remove('highlight');
+    row.style.position = '';
+    row.style.top = '';
+    row.style.backgroundColor = '';
+    
+    if (name.includes(query) && query !== "") {
+      found = true;
       row.classList.add('highlight');
-      document.getElementById('tableBody').prepend(row);
-    } else {
-      row.classList.remove('highlight');
+      fixRow(row);
     }
   });
+
+  if (!found) alert("Player not found!");
 }
 
-const sortDirections={};
-document.querySelectorAll('th').forEach((h,i)=>{
-  h.onclick=()=>sortTable(i);
+function fixRow(row) {
+  clearFixedRow();
+  fixedRow = row.cloneNode(true);
+  fixedRow.style.position = 'sticky';
+  fixedRow.style.top = '34px'; /* 헤더 높이에 맞추어 조정 */
+  fixedRow.style.backgroundColor = '#FFA500';
+  fixedRow.style.zIndex = '500';
+
+  const releaseBtn = document.createElement('button');
+  releaseBtn.textContent = '해제';
+  releaseBtn.style.marginLeft = '10px';
+  releaseBtn.onclick = clearFixedRow;
+
+  fixedRow.cells[0].appendChild(releaseBtn);
+
+  document.querySelector('#statsTable thead').after(fixedRow);
+}
+
+function clearFixedRow() {
+  if (fixedRow) fixedRow.remove();
+  fixedRow = null;
+}
+
+const sortDirections = {};
+document.querySelectorAll('th').forEach((h, i) => {
+  h.onclick = () => sortTable(i);
 });
 
-function sortTable(i){
-  const tableBody=document.getElementById('tableBody');
-  const rows=[...tableBody.rows];
-  const direction=sortDirections[i]==='asc'?'desc':'asc';
-  sortDirections[i]=direction;
+function sortTable(i) {
+  const tableBody = document.getElementById('tableBody');
+  const rows = [...tableBody.rows];
+  const direction = sortDirections[i] === 'asc' ? 'desc' : 'asc';
+  sortDirections[i] = direction;
 
-  rows.sort((a,b)=>{
-    let x,y;
-    if(i===3){ //출전시간 열 (분초를 초로 환산)
-      x=+a.cells[i].getAttribute('data-time');
-      y=+b.cells[i].getAttribute('data-time');
+  rows.sort((a, b) => {
+    let x, y;
+    if (i === 3) { 
+      x = +a.cells[i].getAttribute('data-time');
+      y = +b.cells[i].getAttribute('data-time');
     } else {
-      x=parseFloat(a.cells[i].innerText)||0;
-      y=parseFloat(b.cells[i].innerText)||0;
+      x = parseFloat(a.cells[i].innerText) || 0;
+      y = parseFloat(b.cells[i].innerText) || 0;
     }
-    return direction==='asc'?x-y:y-x;
-  }).forEach(r=>{
-    tableBody.appendChild(r);
-  });
-
-  //선수 검색후 강조 유지
-  searchPlayer();
+    return direction === 'asc' ? x - y : y - x;
+  }).forEach(r => tableBody.appendChild(r));
 }
 
-window.onload=loadPlayersData;
-</script>
-</body>
+window.onload = loadPlayersData;
+</script></body>
 </html>
