@@ -12,7 +12,6 @@ body {
   padding: 0;
   overflow: hidden;
 }
-
 .container {
   display: flex;
   flex-direction: column;
@@ -22,53 +21,35 @@ body {
   padding: 20px;
   box-sizing: border-box;
 }
-
-h2, .input-box, .footer { 
-  text-align: center; 
-}
-
-h2 { 
-  color: #FFA500; 
-}
-
-.input-box { 
-  padding: 10px 0; 
-  background: #1e1e1e; 
-}
-
+h2, .input-box, .footer { text-align: center; }
+h2 { color: #FFA500; }
+.input-box { padding: 10px 0; background: #1e1e1e; }
 .scroll-container {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden; /* 기본 테이블은 좌우 스크롤 금지 */
+  overflow: auto;
   margin: 10px 0;
-  padding-bottom: 80px; /* footer 공간 확보 */
-  position: relative;
+  padding-bottom: 80px;
 }
-
 table {
-  border-collapse: collapse; 
-  white-space: nowrap; 
-  width: auto;
+  border-collapse: collapse;
+  white-space: nowrap;
   min-width: 1500px;
 }
-
 th, td {
-  padding: 6px 8px; 
-  border-bottom: 1px solid #333; 
+  padding: 6px 8px;
+  border-bottom: 1px solid #333;
   font-size: 0.85rem;
-  background: #181818; 
-  color: #FFF; 
+  background: #181818;
+  color: #FFF;
   text-align: center;
 }
-
 th {
-  background: #282828; 
-  position: sticky; 
-  top: 0; 
-  cursor: pointer; 
-  z-index: 10;
+  background: #282828;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  cursor: pointer;
 }
-
 th:nth-child(1), td:nth-child(1),
 th:nth-child(2), td:nth-child(2) {
   position: sticky;
@@ -76,15 +57,10 @@ th:nth-child(2), td:nth-child(2) {
   background-color: #282828;
   z-index: 20;
 }
-
-th:nth-child(2), td:nth-child(2) {
-  left: 150px;
-}
-
+th:nth-child(2), td:nth-child(2) { left: 150px; }
 .valid { color: #55FF55; }
 .warning { color: #FF5555; }
 .highlight { border-bottom: 3px solid #FFA500 !important; }
-
 .footer {
   padding: 10px 0;
   border-top: 1px solid #333;
@@ -94,38 +70,18 @@ th:nth-child(2), td:nth-child(2) {
   bottom: 0;
   left: 0;
   width: 100%;
-  background-color: #000000;
+  background-color: #000;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   pointer-events: none;
 }
-
 .footer img { width: 100px; height: auto; margin-bottom: 5px; }
-
-.top-scrollbar {
-  overflow-x: auto;
-  overflow-y: hidden;
-  height: 20px;
-  margin-bottom: 4px;
-}
-.top-scrollbar div {
-  height: 1px;
-  width: 1500px; /* 테이블 min-width와 동일하게 설정 */
-}
-
-.top-scrollbar::-webkit-scrollbar, .scroll-container::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
-}
-.top-scrollbar::-webkit-scrollbar-track, .scroll-container::-webkit-scrollbar-track {
-  background: #282828;
-}
-.top-scrollbar::-webkit-scrollbar-thumb, .scroll-container::-webkit-scrollbar-thumb {
-  background-color: #FFA500;
-  border-radius: 10px;
-}
+.scroll-container::-webkit-scrollbar { height: 8px; width: 8px; }
+.scroll-container::-webkit-scrollbar-track { background: #282828; }
+.scroll-container::-webkit-scrollbar-thumb { background: #FFA500; border-radius: 10px; }
 </style>
 </head>
 <body>
@@ -135,72 +91,67 @@ th:nth-child(2), td:nth-child(2) {
     <input type="text" id="playerSearch" placeholder="Search player..." />
     <button onclick="searchPlayer()">Search</button>
   </div>
-
-  <!-- 정확히 여기 스크롤바 추가됨 -->
-  <div class="top-scrollbar" onscroll="syncScroll(this)">
-    <div></div>
-  </div>
-
-  <div class="scroll-container" id="tableContainer" onscroll="syncScroll(this)">
+  <div class="scroll-container">
     <table id="statsTable">
       <thead>
         <tr>
           <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
-          <th>PTS(총득점)</th><th>PTS_avg</th><th>FG</th><th>FGA</th><th>FG%</th>
-          <th>2P</th><th>2PA</th><th>2P%</th><th>3P</th><th>3PA</th><th>3P%</th>
-          <th>FT</th><th>FTA</th><th>FT%</th><th>ORB</th><th>DRB</th><th>TRB</th>
-          <th>TRB_avg</th><th>AST</th><th>AST_avg</th><th>STL</th><th>STL_avg</th>
-          <th>BLK</th><th>BLK_avg</th><th>TO</th><th>PF</th><th>WS</th><th>OWS</th>
-          <th>DWS</th><th>PER</th><th>TS%</th><th>eFG%</th><th>USG%</th>
-          <th>Off Rating</th><th>Def Rating</th><th>Eff/Game</th><th>Eff/40min</th>
-          <th>ORB%</th><th>DRB%</th><th>AST%</th><th>STL%</th><th>BLK%</th><th>TOV%</th>
+          <th>PTS(총득점)</th><th>PTS_avg</th><th>FG%</th><th>3P%</th><th>FT%</th>
+          <th>TRB_avg</th><th>AST_avg</th><th>STL_avg</th><th>BLK_avg</th><th>TO</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
-
   <footer class="footer">
-    <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true" alt="Eroom Sports Logo">
+    <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true">
     <div>© 2025 The Eroom Sports. All rights reserved.</div>
   </footer>
 </div>
-
 <script>
-let originalData = [];
-async function loadPlayersData() {
-  const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
-  const data = await res.text();
-  const rows = data.split('\n').slice(1);
-  originalData = rows.map(r => r.split(',')).filter(c => c.length > 30);
-  originalData.forEach(cols => {
-    cols.push(parseInt(cols[4])*60 + parseInt(cols[5]));
-  });
+let originalData = [], highlightedPlayer='';
+async function loadPlayersData(){
+  const res=await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
+  const rows=(await res.text()).split('\n').slice(1);
+  originalData=rows.map(row=>row.split(',')).filter(cols=>cols.length>30);
+  originalData.forEach(cols=>{cols.push(parseInt(cols[4])*60+parseInt(cols[5]));});
   renderTable(originalData);
 }
-
-function renderTable(data) {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
-  data.forEach(cols => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${cols[2]}</td><td>${cols[1]}</td>
-        <td>${cols[3]}</td><td data-time="${cols[49]}">${cols[4]}분 ${cols[5]}초</td>
-        <td>${cols[6]}</td><td>${(+cols[7]).toFixed(2)}</td>
-        <!-- 이하 동일 데이터 생략 (모두 동일하게 유지) -->
-      </tr>`;
+function renderTable(data){
+  tableBody.innerHTML='';
+  data.forEach(cols=>{
+    const row=document.createElement('tr');
+    row.className=cols[2]===highlightedPlayer?'highlight':'';
+    row.innerHTML=`
+      <td>${cols[2]}<span class="${cols[3]>=20?'valid':'warning'}">${cols[3]>=20?'✅':'⚠️'}</span></td>
+      <td>${cols[1]}</td><td>${cols[3]}</td><td data-time="${cols[49]}">${cols[4]}분 ${cols[5]}초</td>
+      <td>${cols[6]}</td><td>${(+cols[7]).toFixed(2)}</td><td>${cols[10]}</td>
+      <td>${cols[16]}</td><td>${cols[19]}</td><td>${(+cols[23]).toFixed(2)}</td>
+      <td>${(+cols[25]).toFixed(2)}</td><td>${(+cols[27]).toFixed(2)}</td>
+      <td>${(+cols[29]).toFixed(2)}</td><td>${cols[30]}</td>`;
+    tableBody.appendChild(row);
   });
 }
-
-function syncScroll(el) {
-  const other = el.classList.contains('top-scrollbar') ?
-                document.getElementById('tableContainer') :
-                document.querySelector('.top-scrollbar');
-  other.scrollLeft = el.scrollLeft;
+function searchPlayer(){
+  const query=playerSearch.value.toLowerCase(), rows=tableBody.querySelectorAll('tr');
+  rows.forEach(row=>{
+    const match=row.children[0].textContent.toLowerCase().includes(query);
+    row.classList.toggle('highlight',match);
+    if(match)tableBody.prepend(row),highlightedPlayer=row.children[0].textContent.split(' ')[0];
+  });
 }
-
-window.onload = loadPlayersData;
+const sortDirections={};
+document.querySelectorAll('th').forEach((h,i)=>h.onclick=()=>sortTable(i));
+function sortTable(i){
+  const dir=sortDirections[i]==='asc'?'desc':'asc'; sortDirections[i]=dir;
+  [...tableBody.rows].sort((a,b)=>{
+    let x=i===3?+a.cells[i].dataset.time:+a.cells[i].innerText,
+    y=i===3?+b.cells[i].dataset.time:+b.cells[i].innerText;
+    return dir==='asc'?x-y:y-x;
+  }).forEach(r=>tableBody.appendChild(r));
+  searchPlayer();
+}
+window.onload=loadPlayersData;
 </script>
 </body>
 </html>
