@@ -28,7 +28,21 @@ h2 { color: #FFA500; }
   flex: 1;
   overflow: auto;
   margin: 10px 0;
-  padding-bottom: 80px;
+  padding-bottom: 100px; /* footer와 겹침방지 충분한 여유공간 추가 */
+  position: relative;
+}
+
+/* 스크롤바를 테이블 바로 위(선수검색 바로 아래)에 배치 */
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.scroll-container::-webkit-scrollbar-track {
+  background: #282828;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #FFA500;
+  border-radius: 10px;
 }
 table {
   border-collapse: collapse;
@@ -121,54 +135,115 @@ async function loadPlayersData(){
   originalData.forEach(cols=>{cols.push(parseInt(cols[4])*60+parseInt(cols[5]));});
   renderTable(originalData);
 }
-function renderTable(data){
-  tableBody.innerHTML='';
-  data.forEach(cols=>{
-    const row=document.createElement('tr');
-    row.className=cols[2]===highlightedPlayer?'highlight':'';
-    row.innerHTML=`
-      <td>${cols[2]}<span class="${cols[3]>=20?'valid':'warning'}">${cols[3]>=20?'✅':'⚠️'}</span></td>
-      <td>${cols[1]}</td><td>${cols[3]}</td><td data-time="${cols[49]}">${cols[4]}분 ${cols[5]}초</td>
-      <td>${cols[6]}</td><td>${(+cols[7]).toFixed(2)}</td><td>${cols[10]}</td>
-      <td>${cols[16]}</td><td>${cols[19]}</td><td>${(+cols[23]).toFixed(2)}</td>
-      <td>${(+cols[25]).toFixed(2)}</td><td>${(+cols[27]).toFixed(2)}</td>
-      <td>${(+cols[29]).toFixed(2)}</td><td>${cols[30]}</td>`;
+function renderTable(data) {
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = '';
+
+  data.forEach(cols => {
+    const playerName = cols[2];
+    const status = cols[3] >= 20 ? '✅' : '⚠️';
+    const playtime = `${cols[4]}분 ${cols[5]}초`;
+    const isHighlighted = playerName === highlightedPlayer ? 'highlight' : '';
+
+    const row = document.createElement('tr');
+    row.className = isHighlighted;
+
+    row.innerHTML = `
+      <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+      <td>${cols[1]}</td>
+      <td>${cols[3]}</td>
+      <td data-time="${cols[49]}">${playtime}</td>
+      <td>${cols[6]}</td>
+      <td>${(+cols[7]).toFixed(2)}</td>
+      <td>${cols[8]}</td>
+      <td>${cols[9]}</td>
+      <td>${cols[10]}</td>
+      <td>${cols[11]}</td>
+      <td>${cols[12]}</td>
+      <td>${cols[13]}</td>
+      <td>${cols[14]}</td>
+      <td>${cols[15]}</td>
+      <td>${cols[16]}</td>
+      <td>${cols[17]}</td>
+      <td>${cols[18]}</td>
+      <td>${cols[19]}</td>
+      <td>${cols[20]}</td>
+      <td>${cols[21]}</td>
+      <td>${cols[22]}</td>
+      <td>${(+cols[23]).toFixed(2)}</td>
+      <td>${cols[24]}</td>
+      <td>${(+cols[25]).toFixed(2)}</td>
+      <td>${cols[26]}</td>
+      <td>${(+cols[27]).toFixed(2)}</td>
+      <td>${cols[28]}</td>
+      <td>${(+cols[29]).toFixed(2)}</td>
+      <td>${cols[30]}</td>
+      <td>${cols[31]}</td>
+      <td>${cols[32]}</td>
+      <td>${cols[33]}</td>
+      <td>${cols[34]}</td>
+      <td>${cols[35]}</td>
+      <td>${cols[36]}</td>
+      <td>${cols[37]}</td>
+      <td>${cols[38]}</td>
+      <td>${cols[39]}</td>
+      <td>${cols[40]}</td>
+      <td>${cols[41]}</td>
+      <td>${cols[42]}</td>
+      <td>${cols[43]}</td>
+      <td>${cols[44]}</td>
+      <td>${cols[45]}</td>
+      <td>${cols[46]}</td>
+      <td>${cols[47]}</td>
+      <td>${cols[48]}</td>
+    `;
     tableBody.appendChild(row);
   });
 }
+
 function searchPlayer(){
-  const query=playerSearch.value.toLowerCase(), rows=tableBody.querySelectorAll('tr');
+  const query=document.getElementById('playerSearch').value.toLowerCase();
+  const rows=document.querySelectorAll('#tableBody tr');
   rows.forEach(row=>{
-    const match=row.children[0].textContent.toLowerCase().includes(query);
-    row.classList.toggle('highlight',match);
-    if(match)tableBody.prepend(row),highlightedPlayer=row.children[0].textContent.split(' ')[0];
+    const name=row.cells[0].textContent.toLowerCase();
+    if(name.includes(query) && query!==""){
+      row.classList.add('highlight');
+      document.getElementById('tableBody').prepend(row);
+    } else {
+      row.classList.remove('highlight');
+    }
   });
 }
-const sortDirections = {};
-document.querySelectorAll('th').forEach((h, i) => h.onclick = () => sortTable(i));
 
-function sortTable(i) {
-  const tableBody = document.getElementById('tableBody');
-  const rowsArray = Array.from(tableBody.rows);
-  const dir = sortDirections[i] === 'asc' ? 'desc' : 'asc';
-  sortDirections[i] = dir;
+const sortDirections={};
+document.querySelectorAll('th').forEach((h,i)=>{
+  h.onclick=()=>sortTable(i);
+});
 
-  rowsArray.sort((a, b) => {
-    let x = i === 3 ? +a.cells[i].dataset.time : parseFloat(a.cells[i].innerText) || 0,
-        y = i === 3 ? +b.cells[i].dataset.time : parseFloat(b.cells[i].innerText) || 0;
-    return dir === 'asc' ? x - y : y - x;
-  });
+function sortTable(i){
+  const tableBody=document.getElementById('tableBody');
+  const rows=[...tableBody.rows];
+  const direction=sortDirections[i]==='asc'?'desc':'asc';
+  sortDirections[i]=direction;
 
-  rowsArray.forEach(r => {
-    const playerName = r.cells[0].textContent.split(' ')[0];
-    if (highlightedPlayer && playerName === highlightedPlayer) {
-      r.classList.add('highlight');
+  rows.sort((a,b)=>{
+    let x,y;
+    if(i===3){ //출전시간 열 (분초를 초로 환산)
+      x=+a.cells[i].getAttribute('data-time');
+      y=+b.cells[i].getAttribute('data-time');
     } else {
-      r.classList.remove('highlight');
+      x=parseFloat(a.cells[i].innerText)||0;
+      y=parseFloat(b.cells[i].innerText)||0;
     }
+    return direction==='asc'?x-y:y-x;
+  }).forEach(r=>{
     tableBody.appendChild(r);
   });
+
+  //선수 검색후 강조 유지
+  searchPlayer();
 }
+
 window.onload=loadPlayersData;
 </script>
 </body>
