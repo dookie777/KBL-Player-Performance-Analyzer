@@ -117,7 +117,17 @@ thead th:nth-child(2) {
 .highlight, .highlight td, .highlight span {
   color: #FFFF55 !important;
   font-weight: bold;
-}  
+} 
+  div[style*="overflow-x:auto"]::-webkit-scrollbar {
+  height: 8px;
+}
+div[style*="overflow-x:auto"]::-webkit-scrollbar-track {
+  background: #282828;
+}
+div[style*="overflow-x:auto"]::-webkit-scrollbar-thumb {
+  background: #FFA500;
+  border-radius: 10px;
+}
 </style>
 </head>
 <body>
