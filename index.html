@@ -44,20 +44,24 @@ th, td {
   text-align: center;
 }
 th {
-  background: #282828;
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  cursor: pointer;
+  background: #282828; 
+  position: sticky; 
+  top: 0; 
+  cursor: pointer; 
+  z-index: 100; /* 수정된 값: 제목 행이 밀리지 않도록 고정 */
 }
+
 th:nth-child(1), td:nth-child(1),
 th:nth-child(2), td:nth-child(2) {
   position: sticky;
   left: 0;
   background-color: #282828;
-  z-index: 20;
+  z-index: 101; /* 수정된 값: 좌측 고정 열이 항상 제목 위에 표시 */
 }
-th:nth-child(2), td:nth-child(2) { left: 150px; }
+
+th:nth-child(2), td:nth-child(2) {
+  left: 150px;
+}
 .valid { color: #55FF55; }
 .warning { color: #FF5555; }
 .highlight { border-bottom: 3px solid #FFA500 !important; }
@@ -140,16 +144,30 @@ function searchPlayer(){
     if(match)tableBody.prepend(row),highlightedPlayer=row.children[0].textContent.split(' ')[0];
   });
 }
-const sortDirections={};
-document.querySelectorAll('th').forEach((h,i)=>h.onclick=()=>sortTable(i));
-function sortTable(i){
-  const dir=sortDirections[i]==='asc'?'desc':'asc'; sortDirections[i]=dir;
-  [...tableBody.rows].sort((a,b)=>{
-    let x=i===3?+a.cells[i].dataset.time:+a.cells[i].innerText,
-    y=i===3?+b.cells[i].dataset.time:+b.cells[i].innerText;
-    return dir==='asc'?x-y:y-x;
-  }).forEach(r=>tableBody.appendChild(r));
-  searchPlayer();
+const sortDirections = {};
+document.querySelectorAll('th').forEach((h, i) => h.onclick = () => sortTable(i));
+
+function sortTable(i) {
+  const tableBody = document.getElementById('tableBody');
+  const rowsArray = Array.from(tableBody.rows);
+  const dir = sortDirections[i] === 'asc' ? 'desc' : 'asc';
+  sortDirections[i] = dir;
+
+  rowsArray.sort((a, b) => {
+    let x = i === 3 ? +a.cells[i].dataset.time : parseFloat(a.cells[i].innerText) || 0,
+        y = i === 3 ? +b.cells[i].dataset.time : parseFloat(b.cells[i].innerText) || 0;
+    return dir === 'asc' ? x - y : y - x;
+  });
+
+  rowsArray.forEach(r => {
+    const playerName = r.cells[0].textContent.split(' ')[0];
+    if (highlightedPlayer && playerName === highlightedPlayer) {
+      r.classList.add('highlight');
+    } else {
+      r.classList.remove('highlight');
+    }
+    tableBody.appendChild(r);
+  });
 }
 window.onload=loadPlayersData;
 </script>
