@@ -145,8 +145,9 @@ div[style*="overflow-x:auto"]::-webkit-scrollbar-thumb {
     });
   </script>
 </div>
-<div style="overflow-x:auto; overflow-y:hidden;" onscroll="document.querySelector('.scroll-container').scrollLeft=this.scrollLeft;">
-<div style="width:2500px; height:1px;"></div>
+<div style="overflow-x:auto; overflow-y:hidden; background:#282828;" 
+     onscroll="document.querySelector('.scroll-container').scrollLeft=this.scrollLeft;">
+  <div id="scroll-sync" style="height:1px;"></div>
 </div>
 
 <div class="scroll-container" onscroll="document.querySelector('[style*=overflow-x]').scrollLeft=this.scrollLeft;">
@@ -337,6 +338,11 @@ function sortTable(i) {
 
   searchPlayer(); // 강조된 선수 유지
 }
+
+  window.addEventListener('load', () => {
+  const tableWidth = document.getElementById('statsTable').offsetWidth;
+  document.getElementById('scroll-sync').style.width = tableWidth + 'px';
+});
   
 </script></body>
 </html>
