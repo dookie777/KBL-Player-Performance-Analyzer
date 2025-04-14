@@ -31,10 +31,18 @@ th, td {
 th {
   background:#282828; position:sticky; top:0; cursor:pointer; z-index:10;
 }
-th:nth-child(-n+2), td:nth-child(-n+2) {
-  position:sticky; left:0; background:#282828; z-index:20;
+th:nth-child(1), td:nth-child(1),
+th:nth-child(2), td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 20;
 }
-th:nth-child(2), td:nth-child(2) { left:150px; }
+
+th:nth-child(2), td:nth-child(2) {
+  left: 150px;
+}
+
 .valid {color:#55FF55;} .warning {color:#FF5555;}
 .highlight {border-bottom:3px solid #FFA500 !important;}
 .footer {
