@@ -44,8 +44,8 @@ thead th {
   background: #282828;
   position: sticky;
   top: 0;
-  z-index: 10; /* 헤더 최상단에 명확히 고정 */
   cursor: pointer;
+  z-index: 200; /* ✅ 정확한 수정값 */
 }
 
 tbody td {
@@ -66,11 +66,11 @@ th:nth-child(2), td:nth-child(2) {
   position: sticky;
   left: 0;
   background-color: #282828;
-  z-index: 20; /* 헤더보다 높게 설정하여 위에 표시 */
+  z-index: 300; /* ✅ 정확한 수정값 */
 }
 
 th:nth-child(2), td:nth-child(2) {
-  left: 150px; /* 첫 번째 열 너비에 맞춰 고정 */
+  left: 150px;
 }
 
 .valid { color: #55FF55; }
