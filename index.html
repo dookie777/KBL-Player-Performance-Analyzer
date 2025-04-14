@@ -102,7 +102,17 @@ th:nth-child(2), td:nth-child(2) {
   height: auto;
   margin-bottom: 5px;
 }
-/* 여기까지 끝 */
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+.scroll-container::-webkit-scrollbar-track {
+  background: #282828;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: #FFA500;
+  border-radius: 10px;
+}
+
 </style>
 
 </style>
@@ -179,6 +189,7 @@ th:nth-child(2), td:nth-child(2) {
 
 <script>
 let originalData = [];
+let highlightedPlayer = '';  // 검색된 선수 이름 기억
 
 async function loadPlayersData() {
   const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
@@ -186,6 +197,12 @@ async function loadPlayersData() {
   const rows = data.split('\n').slice(1);
 
   originalData = rows.map(row => row.split(',')).filter(cols => cols.length > 30);
+  
+  // 초로 환산한 시간 추가
+  originalData.forEach(cols => {
+    cols.push(parseInt(cols[4]) * 60 + parseInt(cols[5])); // [49]번 인덱스에 초로 환산한 시간 저장
+  });
+
   renderTable(originalData);
 }
 
@@ -196,11 +213,12 @@ function renderTable(data) {
   data.forEach(cols => {
     const status = cols[3] >= 20 ? '✅' : '⚠️';
     const playtime = `${cols[4]}분 ${cols[5]}초`;
+    const playerName = cols[2];
 
-    tableBody.innerHTML += `<tr>
-      <td>${cols[2]} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+    tableBody.innerHTML += `<tr ${playerName === highlightedPlayer ? 'style="border-bottom: 3px solid #FFA500;"' : ''}>
+      <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
       <td>${cols[1]}</td>
-      <td>${cols[3]}</td><td>${playtime}</td><td>${cols[6]}</td>
+      <td>${cols[3]}</td><td data-time="${cols[49]}">${playtime}</td><td>${cols[6]}</td>
       <td>${(+cols[7]).toFixed(2)}</td><td>${cols[8]}</td><td>${cols[9]}</td><td>${cols[10]}</td>
       <td>${cols[11]}</td><td>${cols[12]}</td><td>${cols[13]}</td><td>${cols[14]}</td><td>${cols[15]}</td>
       <td>${cols[16]}</td><td>${cols[17]}</td><td>${cols[18]}</td><td>${cols[19]}</td><td>${cols[20]}</td>
@@ -214,7 +232,6 @@ function renderTable(data) {
   });
 }
 
-
 function searchPlayer() {
   const query = document.getElementById('playerSearch').value.toLowerCase();
   const tableBody = document.getElementById('tableBody');
@@ -222,11 +239,13 @@ function searchPlayer() {
   let found = false;
 
   rows.forEach(row => {
-    row.classList.remove('highlight');
-    if (row.children[0].textContent.toLowerCase().includes(query)) {
+    const playerName = row.children[0].textContent.toLowerCase();
+    row.style.borderBottom = "1px solid #333";
+    if (playerName.includes(query)) {
       found = true;
+      highlightedPlayer = row.children[0].textContent.split(' ')[0];  // 강조된 선수 이름 기억
       tableBody.prepend(row);
-      row.classList.add('highlight');
+      row.style.borderBottom = "3px solid #FFA500";
     }
   });
 
@@ -246,27 +265,34 @@ function sortTable(columnIndex) {
   sortDirections[columnIndex] = direction;
 
   rowsArray.sort((a, b) => {
-    const aCell = a.children[columnIndex].textContent.trim();
-    const bCell = b.children[columnIndex].textContent.trim();
-
-    const aNum = parseFloat(aCell.replace(/[^\d.-]/g, ''));
-    const bNum = parseFloat(bCell.replace(/[^\d.-]/g, ''));
-
-    if (!isNaN(aNum) && !isNaN(bNum)) {
-      return direction === 'asc' ? aNum - bNum : bNum - aNum;
+    let aCell, bCell;
+    if(columnIndex === 3){ //출전시간 열인 경우 초로 환산하여 정렬
+      aCell = +a.children[columnIndex].getAttribute('data-time');
+      bCell = +b.children[columnIndex].getAttribute('data-time');
+    }else{
+      aCell = parseFloat(a.children[columnIndex].textContent.replace(/[^\d.-]/g, '')) || a.children[columnIndex].textContent;
+      bCell = parseFloat(b.children[columnIndex].textContent.replace(/[^\d.-]/g, '')) || b.children[columnIndex].textContent;
     }
 
-    return direction === 'asc'
-      ? aCell.localeCompare(bCell)
-      : bCell.localeCompare(aCell);
+    if (!isNaN(aCell) && !isNaN(bCell)) {
+      return direction === 'asc' ? aCell - bCell : bCell - aCell;
+    }
+    return direction === 'asc' ? aCell.localeCompare(bCell) : bCell.localeCompare(aCell);
   });
 
   tableBody.innerHTML = '';
-  rowsArray.forEach(row => tableBody.appendChild(row));
+  rowsArray.forEach(row => {
+    if (row.children[0].textContent.includes(highlightedPlayer)) {
+      row.style.borderBottom = "3px solid #FFA500"; //정렬 후에도 유지
+    } else {
+      row.style.borderBottom = "1px solid #333";
+    }
+    tableBody.appendChild(row);
+  });
 }
 
-
 window.onload = loadPlayersData;
+
 </script>
 </body>
 </html>
