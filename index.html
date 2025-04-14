@@ -6,51 +6,54 @@
 <title>Basketball Stats Analyzer</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body { background-color: #121212; color: #FFFFFF; font-family: Arial, sans-serif; }
-  .container { max-width: 1200px; margin: auto; padding: 20px; }
+  body { background-color: #121212; color: #FFFFFF; font-family: Arial, sans-serif; margin: 0; padding: 0; overflow: hidden; }
+  .container { display: flex; flex-direction: column; height: 100vh; max-width: 1200px; margin: auto; padding: 20px; box-sizing: border-box; }
+  h2, .input-box, .checkbox-group, .footer { text-align: center; }
   h2 { color: #FFA500; }
-  .input-box, .checkbox-group, .table-container { margin: 20px 0; }
+  .input-box, .checkbox-group { padding: 10px 0; background-color: #1e1e1e; }
+  .scroll-container { flex: 1; overflow-y: auto; margin: 10px 0; }
   table { width: 100%; border-collapse: collapse; }
   th, td { padding: 10px; text-align: center; border-bottom: 1px solid #333; }
-  th { background-color: #1e1e1e; }
+  th { background-color: #282828; position: sticky; top: 0; }
   td { background-color: #181818; }
   .warning { color: #FF5555; }
   .valid { color: #55FF55; }
+  .footer { padding: 10px; background-color: #1e1e1e; }
+  .footer img { height: 30px; vertical-align: middle; }
 </style>
 </head>
 <body>
 <div class="container">
   <h2>Basketball Stats Analyzer</h2>
-  
+
   <div class="input-box">
     <input type="text" id="playerSearch" placeholder="Search player..." />
     <button onclick="searchPlayer()">Search</button>
   </div>
 
-  <div id="playerResult"></div>
-
   <div class="checkbox-group">
-    <h3>Select Metrics for Comparison:</h3>
-    <input type="checkbox" value="PTS_avg" checked> Points
-    <input type="checkbox" value="TRB_avg"> Rebounds
-    <input type="checkbox" value="AST_avg"> Assists
-    <input type="checkbox" value="STL_avg"> Steals
-    <input type="checkbox" value="BLK_avg"> Blocks
+    <label><input type="checkbox" value="PTS_avg" checked> Points</label>
+    <label><input type="checkbox" value="TRB_avg"> Rebounds</label>
+    <label><input type="checkbox" value="AST_avg"> Assists</label>
+    <label><input type="checkbox" value="STL_avg"> Steals</label>
+    <label><input type="checkbox" value="BLK_avg"> Blocks</label>
     <button onclick="comparePlayers()">Compare</button>
   </div>
 
-  <canvas id="comparisonChart"></canvas>
-
-  <div class="table-container">
-    <h3>All Players Stats</h3>
+  <div class="scroll-container">
     <table id="statsTable">
       <thead>
         <tr>
-          <th>Player</th><th>Team</th><th>G</th><th>PTS_avg</th><th>TRB_avg</th><th>AST_avg</th><th>Status</th>
+          <th>Player</th><th>Team</th><th>G</th><th>PTS_avg</th><th>TRB_avg</th><th>AST_avg</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
+  </div>
+
+  <div class="footer">
+    <img src="https://via.placeholder.com/150x30?text=더이룸스포츠" alt="더이룸스포츠 로고">
+    <p>All rights reserved © 더이룸스포츠</p>
   </div>
 </div>
 
@@ -81,9 +84,9 @@ function populateTable() {
   playersData.forEach(player => {
     const status = player.G >= 20 ? '<span class="valid">✅</span>' : '<span class="warning">⚠️</span>';
     const row = `<tr>
-      <td>${player.Player}</td><td>${player.Team}</td><td>${player.G}</td>
+      <td>${player.Player} ${status}</td><td>${player.Team}</td><td>${player.G}</td>
       <td>${player.PTS_avg.toFixed(2)}</td><td>${player.TRB_avg.toFixed(2)}</td>
-      <td>${player.AST_avg.toFixed(2)}</td><td>${status}</td>
+      <td>${player.AST_avg.toFixed(2)}</td>
     </tr>`;
     tableBody.innerHTML += row;
   });
@@ -93,29 +96,15 @@ function searchPlayer() {
   const query = document.getElementById('playerSearch').value;
   const player = playersData.find(p => p.Player.toLowerCase().includes(query.toLowerCase()));
 
-  const statusIcon = player.G >= 20 ? '✅' : '⚠️';
-  document.getElementById('playerResult').innerHTML = `
-    <h3>${player.Player} (${player.Team}) ${statusIcon}</h3>
-    <p>Games: ${player.G}, Points Avg: ${player.PTS_avg}, Rebounds Avg: ${player.TRB_avg}, Assists Avg: ${player.AST_avg}, Steals Avg: ${player.STL_avg}, Blocks Avg: ${player.BLK_avg}</p>
-    <p>Average Playtime: ${player.m}m ${player.s}s</p>
-  `;
+  if (player) {
+    alert(`Player: ${player.Player}\nTeam: ${player.Team}\nGames: ${player.G}\nPoints Avg: ${player.PTS_avg}\nRebounds Avg: ${player.TRB_avg}\nAssists Avg: ${player.AST_avg}\nPlaytime: ${player.m}m ${player.s}s`);
+  } else {
+    alert('Player not found');
+  }
 }
 
 function comparePlayers() {
-  const checkedMetrics = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value);
-  const selectedPlayers = playersData.slice(0, 3); // For demo, first 3 players
-
-  const datasets = selectedPlayers.map(player => ({
-    label: player.Player,
-    data: checkedMetrics.map(metric => player[metric]),
-    backgroundColor: '#' + Math.floor(Math.random()*16777215).toString(16),
-  }));
-
-  new Chart(document.getElementById('comparisonChart'), {
-    type: 'bar',
-    data: { labels: checkedMetrics, datasets },
-    options: { responsive: true, scales: { y: { beginAtZero: true } } }
-  });
+  alert('Comparison feature coming soon!');
 }
 
 loadPlayersData();
