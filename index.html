@@ -253,7 +253,7 @@ function fixRow(row) {
   fixedRow = row.cloneNode(true);
   fixedRow.style.position = 'sticky';
   fixedRow.style.top = '34px'; /* 헤더 높이에 맞추어 조정 */
-  fixedRow.style.backgroundColor = '#FFA500';
+fixedRow.style.backgroundColor = 'transparent';
   fixedRow.style.zIndex = '500';
 
   const releaseBtn = document.createElement('button');
