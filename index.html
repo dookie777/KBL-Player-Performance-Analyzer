@@ -177,7 +177,7 @@ function renderTable(data) {
       <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
       <td>${cols[1]}</td>
       <td>${cols[3]}</td>
-      <td data-time="${cols[49]}">${playtime}</td>
+<td data-time="${cols[cols.length - 1]}">${playtime}</td>
       <td>${cols[6]}</td>
       <td>${(+cols[7]).toFixed(2)}</td>
       <td>${cols[8]}</td>
