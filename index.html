@@ -250,6 +250,11 @@ function renderTable(data) {
     `;
     tableBody.appendChild(row);
   });
+  // ✅ 데이터 모두 추가한 뒤 최종 1번만 실행
+  setTimeout(() => {
+    const tableWidth = document.getElementById('statsTable').offsetWidth;
+    document.getElementById('scroll-sync').style.width = tableWidth + 'px';
+  }, 200);
 }
 
 
@@ -338,11 +343,6 @@ function sortTable(i) {
 
   searchPlayer(); // 강조된 선수 유지
 }
-
-  window.addEventListener('load', () => {
-  const tableWidth = document.getElementById('statsTable').offsetWidth;
-  document.getElementById('scroll-sync').style.width = tableWidth + 'px';
-});
   
 </script></body>
 </html>
