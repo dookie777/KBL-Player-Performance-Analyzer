@@ -15,7 +15,11 @@ h2, .input-box, .footer { text-align:center; }
 h2 { color:#FFA500; }
 .input-box { padding:10px 0; background:#1e1e1e; }
 .scroll-container {
-  flex:1; overflow:auto; margin:10px 0; padding-bottom:50px;
+  flex: 1;
+  overflow: auto;
+  margin: 10px 0;
+  padding-bottom: 60px; /* footer 높이만큼 여유 공간 추가 */
+  max-width: 100%;
 }
 table {
   border-collapse:collapse; white-space:nowrap; min-width:1500px; 
@@ -34,8 +38,21 @@ th:nth-child(2), td:nth-child(2) { left:150px; }
 .valid {color:#55FF55;} .warning {color:#FF5555;}
 .highlight {border-bottom:3px solid #FFA500 !important;}
 .footer {
-  padding:10px; border-top:1px solid #333; font-size:0.8rem; color:#888;
-  position:fixed; bottom:0; left:0; width:100%; background:#000;
+  padding: 10px 0;
+  border-top: 1px solid #333;
+  font-size: 0.8rem;
+  color: #888;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #000000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  pointer-events: none; /* footer 클릭 무시로 데이터 클릭 방해 방지 */
 }
 .footer img { width:100px; height:auto; margin-bottom:5px; }
 .scroll-container::-webkit-scrollbar { height:8px; width:8px; }
@@ -75,50 +92,112 @@ th:nth-child(2), td:nth-child(2) { left:150px; }
 </div>
 
 <script>
-let originalData=[],highlightedPlayer='';
-async function loadPlayersData(){
-  const res=await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
-  const data=await res.text();
-  originalData=data.split('\n').slice(1).map(r=>r.split(',')).filter(c=>c.length>30).map(c=>{
-    c[49]=+c[4]*60+(+c[5]);return c;
+let originalData = [];
+let highlightedPlayer = '';
+
+async function loadPlayersData() {
+  const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
+  const data = await res.text();
+  const rows = data.split('\n').slice(1);
+
+  originalData = rows.map(row => row.split(',')).filter(cols => cols.length > 30);
+
+  originalData.forEach(cols => {
+    cols.push(parseInt(cols[4]) * 60 + parseInt(cols[5])); // 초 단위 환산
   });
+
   renderTable(originalData);
 }
-function renderTable(data){
-  const t=document.getElementById('tableBody');t.innerHTML='';
-  data.forEach(c=>{
-    const s=c[3]>=20?'✅':'⚠️',p=`${c[4]}분 ${c[5]}초`,n=c[2];
-    const r=document.createElement('tr');
-    if(n===highlightedPlayer)r.classList.add('highlight');
-    r.innerHTML=`<td>${n} <span class="${c[3]>=20?'valid':'warning'}">${s}</span></td>`+
-      `<td>${c[1]}</td><td>${c[3]}</td><td data-time="${c[49]}">${p}</td>`+
-      c.slice(6,49).map((v,i)=>`<td>${(i==1||i==17||i==19||i==21||i==23||i==25||i==27)?(+v).toFixed(2):v}</td>`).join('');
-    t.appendChild(r);
+
+function renderTable(data) {
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = '';
+
+  data.forEach(cols => {
+    const playerName = cols[2];
+    const status = cols[3] >= 20 ? '✅' : '⚠️';
+    const playtime = `${cols[4]}분 ${cols[5]}초`;
+    const isHighlighted = playerName === highlightedPlayer ? 'highlight' : '';
+
+    const row = document.createElement('tr');
+    row.className = isHighlighted;
+
+    row.innerHTML = `
+      <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+      <td>${cols[1]}</td>
+      <td>${cols[3]}</td><td data-time="${cols[49]}">${playtime}</td><td>${cols[6]}</td>
+      <td>${(+cols[7]).toFixed(2)}</td><td>${cols[8]}</td><td>${cols[9]}</td><td>${cols[10]}</td>
+      <td>${cols[11]}</td><td>${cols[12]}</td><td>${cols[13]}</td><td>${cols[14]}</td><td>${cols[15]}</td>
+      <td>${cols[16]}</td><td>${cols[17]}</td><td>${cols[18]}</td><td>${cols[19]}</td><td>${cols[20]}</td>
+      <td>${cols[21]}</td><td>${cols[22]}</td><td>${(+cols[23]).toFixed(2)}</td><td>${cols[24]}</td>
+      <td>${(+cols[25]).toFixed(2)}</td><td>${cols[26]}</td><td>${(+cols[27]).toFixed(2)}</td><td>${cols[28]}</td>
+      <td>${(+cols[29]).toFixed(2)}</td><td>${cols[30]}</td><td>${cols[31]}</td><td>${cols[32]}</td><td>${cols[33]}</td>
+      <td>${cols[34]}</td><td>${cols[35]}</td><td>${cols[36]}</td><td>${cols[37]}</td><td>${cols[38]}</td>
+      <td>${cols[39]}</td><td>${cols[40]}</td><td>${cols[41]}</td><td>${cols[42]}</td><td>${cols[43]}</td>
+      <td>${cols[44]}</td><td>${cols[45]}</td><td>${cols[46]}</td><td>${cols[47]}</td><td>${cols[48]}</td>
+    `;
+    tableBody.appendChild(row);
   });
 }
-function searchPlayer(){
-  const q=document.getElementById('playerSearch').value.toLowerCase(),t=document.getElementById('tableBody');
-  const rows=Array.from(t.querySelectorAll('tr'));let f=false;
-  rows.forEach(r=>{
-    r.classList.remove('highlight');
-    const n=r.children[0].textContent.toLowerCase();
-    if(n.includes(q)){highlightedPlayer=r.children[0].textContent.split(' ')[0];r.classList.add('highlight');t.prepend(r);f=true;}
+
+function searchPlayer() {
+  const query = document.getElementById('playerSearch').value.toLowerCase();
+  const tableBody = document.getElementById('tableBody');
+  const rows = tableBody.querySelectorAll('tr');
+  let found = false;
+
+  rows.forEach(row => {
+    const playerName = row.children[0].textContent.toLowerCase();
+    if (playerName.includes(query)) {
+      highlightedPlayer = row.children[0].textContent.split(' ')[0];
+      row.classList.add('highlight');
+      tableBody.prepend(row);
+      found = true;
+    } else {
+      row.classList.remove('highlight');
+    }
   });
-  if(!f)alert('Player not found');
+
+  if (!found) alert('Player not found');
 }
-const sortDirections={};
-document.querySelectorAll('th').forEach((h,i)=>h.onclick=()=>sortTable(i));
-function sortTable(i){
-  const t=document.getElementById('tableBody'),rows=Array.from(t.querySelectorAll('tr')),
-  d=sortDirections[i]==='asc'?'desc':'asc';sortDirections[i]=d;
-  rows.sort((a,b)=>{
-    const ac=i==3?+a.children[i].dataset.time:parseFloat(a.children[i].textContent)||0,
-    bc=i==3?+b.children[i].dataset.time:parseFloat(b.children[i].textContent)||0;
-    return d==='asc'?ac-bc:bc-ac;
+
+const sortDirections = {};
+document.querySelectorAll('th').forEach((header, index) => {
+  header.addEventListener('click', () => sortTable(index));
+});
+
+function sortTable(columnIndex) {
+  const tableBody = document.getElementById('tableBody');
+  const rowsArray = Array.from(tableBody.querySelectorAll('tr'));
+  const direction = sortDirections[columnIndex] === 'asc' ? 'desc' : 'asc';
+  sortDirections[columnIndex] = direction;
+
+  rowsArray.sort((a, b) => {
+    let aCell, bCell;
+
+    if (columnIndex === 3) { // 출전시간 정렬(초로 환산)
+      aCell = +a.children[columnIndex].dataset.time;
+      bCell = +b.children[columnIndex].dataset.time;
+    } else {
+      aCell = parseFloat(a.children[columnIndex].textContent) || 0;
+      bCell = parseFloat(b.children[columnIndex].textContent) || 0;
+    }
+    return direction === 'asc' ? aCell - bCell : bCell - aCell;
   });
-  rows.forEach(r=>t.appendChild(r));
+
+  rowsArray.forEach(row => {
+    const playerName = row.children[0].textContent.split(' ')[0];
+    if (playerName === highlightedPlayer) {
+      row.classList.add('highlight');
+    } else {
+      row.classList.remove('highlight');
+    }
+    tableBody.appendChild(row);
+  });
 }
-window.onload=loadPlayersData;
+
+window.onload = loadPlayersData;
+
 </script>
 </body>
 </html>
