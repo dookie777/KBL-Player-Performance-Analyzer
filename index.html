@@ -1,348 +1,383 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Basketball Stats Analyzer</title>
-<style>
-body {
-  background: #121212;
-  color: #FFF;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-.container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-  box-sizing: border-box;
-}
-h2, .input-box, .footer { text-align: center; }
-h2 { color: #FFA500; }
-.input-box { padding: 10px 0; background: #1e1e1e; }
-
-.scroll-container {
-  flex: 1;
-  overflow: auto;
-  margin: 10px 0;
-  padding-bottom: 100px; /* footer 여유 확보 */
-  position: relative;
-  height: calc(100% - 120px); /* 명확한 높이 지정 */
-}
-
-table {
-  border-collapse: collapse;
-  white-space: nowrap;
-  min-width: 1500px;
-}
-
-thead th {
-  background: #282828;
-  position: sticky;
-  top: 0;
-  cursor: pointer;
-  z-index: 200; /* ✅ 정확한 수정값 */
-}
-
-tbody td {
-  background: #181818;
-}
-
-th, td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #333;
-  font-size: 0.85rem;
-  color: #FFF;
-  text-align: center;
-}
-
-/* 좌측 고정 열 설정 확실히 조정 */
-th:nth-child(1), td:nth-child(1),
-th:nth-child(2), td:nth-child(2) {
-  position: sticky;
-  left: 0;
-  background-color: #282828;
-  z-index: 300; /* ✅ 정확한 수정값 */
-}
-
-th:nth-child(2), td:nth-child(2) {
-  left: 150px;
-}
-
-.valid { color: #55FF55; }
-.warning { color: #FF5555; }
-.highlight { border-bottom: 3px solid #FFA500 !important; }
-
-.footer {
-  padding: 10px 0;
-  border-top: 1px solid #333;
-  font-size: 0.8rem;
-  color: #888;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #000;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.footer img { width: 100px; height: auto; margin-bottom: 5px; }
-
-.scroll-container::-webkit-scrollbar { height: 8px; width: 8px; }
-.scroll-container::-webkit-scrollbar-track { background: #282828; }
-.scroll-container::-webkit-scrollbar-thumb { background: #FFA500; border-radius: 10px; }
-
-thead th:nth-child(1), 
-thead th:nth-child(2) {
-  position: sticky;
-  top: 0;
-  left: 0;
-  background-color: #282828;
-  z-index: 400; /* 가장 높게 설정 */
-}
-
-thead th:nth-child(2) {
-  left: 150px; /* 두 번째 열 위치 유지 */
-}  
-/* 고정된 선수 행 폰트 컬러를 노란색으로 변경 */
-.highlight, .highlight td, .highlight span {
-  color: #FFFF55 !important;
-  font-weight: bold;
-} 
-  div[style*="overflow-x:auto"]::-webkit-scrollbar {
-  height: 8px;
-}
-div[style*="overflow-x:auto"]::-webkit-scrollbar-track {
-  background: #282828;
-}
-div[style*="overflow-x:auto"]::-webkit-scrollbar-thumb {
-  background: #FFA500;
-  border-radius: 10px;
-}
-</style>
-</head>
-<body>
-<div class="container">
-  <h2>Basketball Stats Analyzer</h2>
-<div class="input-box">
-  <input type="text" id="playerSearch" placeholder="Search player..." />
-  <button onclick="searchPlayer()">Search</button>
-  <label style="color:#FFA500; margin-left:15px;">
-    <input type="checkbox" id="minGamesCheckbox"> 규정경기 이상만 표시 (14G)
-  </label>
-  <script>
-    document.getElementById('minGamesCheckbox').addEventListener('change', function() {
-      renderTable(originalData);
-    });
-  </script>
-</div>
-<div style="overflow-x:auto; overflow-y:hidden; background:#282828;" 
-     onscroll="document.querySelector('.scroll-container').scrollLeft=this.scrollLeft;">
-  <div id="scroll-sync" style="height:1px;"></div>
-</div>
-
-<div class="scroll-container" onscroll="document.querySelector('[style*=overflow-x]').scrollLeft=this.scrollLeft;">
-  <table id="statsTable">
-    <thead>
-      <tr>
-        <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
-        <th>PTS(총득점)</th><th>PTS_avg</th><th>FG</th><th>FGA</th><th>FG%</th>
-        <th>2P</th><th>2PA</th><th>2P%</th><th>3P</th><th>3PA</th><th>3P%</th>
-        <th>FT</th><th>FTA</th><th>FT%</th><th>ORB</th><th>DRB</th><th>TRB</th>
-        <th>TRB_avg</th><th>AST</th><th>AST_avg</th><th>STL</th><th>STL_avg</th>
-        <th>BLK</th><th>BLK_avg</th><th>TO</th><th>PF</th><th>WS</th><th>OWS</th>
-        <th>DWS</th><th>PER</th><th>TS%</th><th>eFG%</th><th>USG%</th>
-        <th>Off Rating</th><th>Def Rating</th><th>Eff/Game</th><th>Eff/40min</th>
-        <th>ORB%</th><th>DRB%</th><th>AST%</th><th>STL%</th><th>BLK%</th><th>TOV%</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-</div>
-  <footer class="footer">
-    <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true">
-    <div>© 2025 The Eroom Sports. All rights reserved.</div>
-  </footer>
-</div>
-<script>
-let originalData = [], highlightedPlayer = '', fixedRow = null;
-
-async function loadPlayersData() {
-  const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
-  const rows = (await res.text()).split('\n').slice(1);
-  originalData = rows.map(row => row.split(',')).filter(cols => cols.length > 30);
-  originalData.forEach(cols => {
-    cols.push(parseInt(cols[4]) * 60 + parseInt(cols[5]));
-  });
-  renderTable(originalData);
-}
-
-function renderTable(data) {
-  const tableBody = document.getElementById('tableBody');
-  tableBody.innerHTML = '';
-
-  const minGamesOnly = document.getElementById('minGamesCheckbox').checked;
-  const filteredData = minGamesOnly ? data.filter(cols => parseInt(cols[3]) >= 14) : data;
-
-  filteredData.forEach(cols => {
-    const playerName = cols[2];
-    const status = cols[3] >= 14 ? '✅' : '⚠️';
-    const playtime = `${cols[4]}분 ${cols[5]}초`;
-
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
-      <td>${cols[1]}</td>
-      <td>${cols[3]}</td>
-<td data-time="${cols[cols.length - 1]}">${playtime}</td>
-      <td>${cols[6]}</td>
-      <td>${(+cols[7]).toFixed(2)}</td>
-      <td>${cols[8]}</td>
-      <td>${cols[9]}</td>
-      <td>${cols[10]}</td>
-      <td>${cols[11]}</td>
-      <td>${cols[12]}</td>
-      <td>${cols[13]}</td>
-      <td>${cols[14]}</td>
-      <td>${cols[15]}</td>
-      <td>${cols[16]}</td>
-      <td>${cols[17]}</td>
-      <td>${cols[18]}</td>
-      <td>${cols[19]}</td>
-      <td>${cols[20]}</td>
-      <td>${cols[21]}</td>
-      <td>${cols[22]}</td>
-      <td>${(+cols[23]).toFixed(2)}</td>
-      <td>${cols[24]}</td>
-      <td>${(+cols[25]).toFixed(2)}</td>
-      <td>${cols[26]}</td>
-      <td>${(+cols[27]).toFixed(2)}</td>
-      <td>${cols[28]}</td>
-      <td>${(+cols[29]).toFixed(2)}</td>
-      <td>${cols[30]}</td>
-      <td>${cols[31]}</td>
-      <td>${cols[32]}</td>
-      <td>${cols[33]}</td>
-      <td>${cols[34]}</td>
-      <td>${cols[35]}</td>
-      <td>${cols[36]}</td>
-      <td>${cols[37]}</td>
-      <td>${cols[38]}</td>
-      <td>${cols[39]}</td>
-      <td>${cols[40]}</td>
-      <td>${cols[41]}</td>
-      <td>${cols[42]}</td>
-      <td>${cols[43]}</td>
-      <td>${cols[44]}</td>
-      <td>${cols[45]}</td>
-      <td>${cols[46]}</td>
-      <td>${cols[47]}</td>
-      <td>${cols[48]}</td>
-    `;
-    tableBody.appendChild(row);
-  });
-  // ✅ 데이터 모두 추가한 뒤 최종 1번만 실행
-  setTimeout(() => {
-    const tableWidth = document.getElementById('statsTable').offsetWidth;
-    document.getElementById('scroll-sync').style.width = tableWidth + 'px';
-  }, 200);
-}
-
-
-function fixRow(row) {
-  clearFixedRow();
-  fixedRow = row.cloneNode(true);
-  fixedRow.style.position = 'sticky';
-  fixedRow.style.top = '34px'; /* 헤더 높이에 맞추어 조정 */
-fixedRow.style.backgroundColor = '#000000'; // 검정색 적용
-  fixedRow.style.zIndex = '500';
-
-  const releaseBtn = document.createElement('button');
-  releaseBtn.textContent = '해제';
-  releaseBtn.style.marginLeft = '10px';
-  releaseBtn.onclick = clearFixedRow;
-
-  fixedRow.cells[0].appendChild(releaseBtn);
-
-  document.querySelector('#statsTable thead').after(fixedRow);
-}
-
-function clearFixedRow() {
-  if (fixedRow) fixedRow.remove();
-  fixedRow = null;
-}
-
-const sortDirections = {};
-document.querySelectorAll('th').forEach((h, i) => {
-  h.onclick = () => sortTable(i);
-});
-
-function searchPlayer(){
-  const query = document.getElementById('playerSearch').value.toLowerCase().trim();
-
-  if (query === "") { 
-    clearFixedRow();
-    return; // 검색어 없으면 함수 종료
-  }
-
-  const rows = document.querySelectorAll('#tableBody tr');
-  let found = false;
-
-  rows.forEach(row => {
-    const name = row.cells[0].textContent.toLowerCase();
-    row.classList.remove('highlight');
-    
-    if (name.includes(query)){
-      found = true;
-      row.classList.add('highlight');
-      fixRow(row);
-    }
-  });
-
-  if (!found) {
-    clearFixedRow(); // 없으면 기존 고정 행도 해제
-    alert("Player not found!");
-  }
-}
-window.onload = function() {
-  loadPlayersData();
-
-  const headers = document.querySelectorAll('#statsTable thead th');
-  headers.forEach((header, index) => {
-    sortDirections[index] = 'asc';
-    header.onclick = () => sortTable(index);
-  });
-};
-
-function sortTable(i) {
-  const tableBody = document.getElementById('tableBody');
-  const rows = [...tableBody.rows];
-  const direction = sortDirections[i] === 'asc' ? 'desc' : 'asc';
-  sortDirections[i] = direction;
-
-  rows.sort((a, b) => {
-    let x, y;
-    if (i === 3) { // 출전시간 열 (정확히 초 단위 사용)
-      x = parseInt(a.cells[i].getAttribute('data-time'), 10);
-      y = parseInt(b.cells[i].getAttribute('data-time'), 10);
-    } else {
-      x = parseFloat(a.cells[i].innerText) || 0;
-      y = parseFloat(b.cells[i].innerText) || 0;
-    }
-    return direction === 'asc' ? x - y : y - x;
-  }).forEach(r => tableBody.appendChild(r));
-
-  searchPlayer(); // 강조된 선수 유지
-}
-  
-</script></body>
-</html>
+ <html lang="en">
+ <head>
+ <meta charset="UTF-8">
+ <title>Basketball Stats Analyzer</title>
+ <style>
+ body {
+   background: #121212;
+   color: #FFF;
+   font-family: Arial, sans-serif;
+   margin: 0;
+   padding: 0;
+   overflow: hidden;
+ }
+ .container {
+   display: flex;
+   flex-direction: column;
+   height: 100vh;
+   max-width: 1200px;
+   margin: auto;
+   padding: 20px;
+   box-sizing: border-box;
+ }
+ h2, .tabs { text-align: center; }
+ h2 { color: #FFA500; }
+ .tabs button {
+   background: #282828;
+   color: #FFF;
+   padding: 10px 20px;
+   border: none;
+   cursor: pointer;
+   margin: 0 5px;
+   font-weight: bold; /* 글자 볼드 처리 */
+   width: 160px; /* 박스 크기 동일하게 고정 */
+ }
+ .tabs button.active { background: ; }
+ .tab-content { display: none; flex: 1; overflow: auto; }
+ .tabs button.active {
+   background: #E0E0E0; /* 밝은 회색 */
+   color: #000; /* 글자 검은색 */
+ }
+   .tab-content { display: none; flex: 1; overflow: auto; }
+ .tab-content.active { display: block; }
+ table { border-collapse: collapse; white-space: nowrap; min-width: 1500px; }
+ thead th { background: #282828; position: sticky; top: 0; cursor: pointer; z-index: 200; }
+ tbody td { background: #181818; }
+ th, td { padding: 6px 8px; border-bottom: 1px solid #333; font-size: 0.85rem; text-align: center; }
+ th:nth-child(1), td:nth-child(1),
+ th:nth-child(2), td:nth-child(2) {
+   position: sticky;
+   left: 0;
+   background-color: #282828;
+   z-index: 300;
+ }
+ th:nth-child(2), td:nth-child(2) { left: 150px; }
+ .valid { color: #55FF55; }
+ .warning { color: #FF5555; }
+ .highlight { border-bottom: 3px solid  !important; }
+ .footer {
+   padding: 10px 0;
+   border-top: 1px solid #333;
+   font-size: 0.8rem;
+   color: #888;
+   position: fixed;
+   bottom: 0;
+   left: 0;
+   width: 100%;
+   background-color: #000;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   z-index: 1000;
+   pointer-events: none;
+ }
+ .footer img { width: 100px; height: auto; margin-bottom: 5px; }
+ .scroll-container::-webkit-scrollbar { height: 8px; width: 8px; }
+ .scroll-container::-webkit-scrollbar-track { background: #282828; }
+ .scroll-container::-webkit-scrollbar-thumb { background: #CED4DA; border-radius: 10px; }
+ .highlight, .highlight td, .highlight span { color: #FFFF55 !important; font-weight: bold; }
+ .input-box {
+   margin: 20px 0; /* 검색창 위아래 여백 넉넉히 추가 */
+   margin: 20px 0; 
+   text-align: center;
+ }
+ 
+ #playerSearch {
+   width: 250px; /* 검색창 길이를 길게 설정 */
+   height: 30px; /* 높이를 키워 가독성 향상 */
+   padding: 5px 10px; /* 내부 패딩 추가로 여유롭게 */
+   font-size: 1rem; /* 폰트 사이즈 확대 */
+   border-radius: 5px; /* 모서리를 둥글게 처리 */
+   border: none; /* 테두리 없애고 깔끔하게 */
+   width: 250px;
+   height: 30px;
+   padding: 5px 10px;
+   font-size: 1rem;
+   border-radius: 5px;
+   border: none;
+ }
+ 
+ .input-box button {
+   height: 42px; /* 버튼 높이를 검색창과 동일하게 맞춤 */
+   padding: 5px 15px; /* 좌우 여백 적절히 추가 */
+   font-size: 1rem; /* 버튼 글씨 사이즈 확대 */
+   cursor: pointer; /* 커서를 포인터로 명확히 표시 */
+   border-radius: 5px; /* 모서리 둥글게 처리 */
+   background-color: #FFA500; /* 버튼 배경색 강조 */
+   color: #121212; /* 버튼 글씨 색상 선명하게 변경 */
+   border: none; /* 버튼 테두리 제거 */
+   height: 42px;
+   padding: 5px 15px;
+   font-size: 0.9rem; /* SEARCH 글자 한 포인트 낮춤 */
+   font-weight: bold; /* 볼드체 처리 */
+   cursor: pointer;
+   border-radius: 5px;
+   background-color: #88c2dd; /* 밝은 하늘색 */
+   color: #121212;
+   border: none;
+ }
+ 
+ .input-box label {
+   font-size: 0.9rem; /* 체크박스 라벨 글씨 크기 약간 확대 */
+   vertical-align: middle; /* 체크박스와 세로 정렬 */
+   font-size: 0.9rem;
+   color: #FFF; /* 글자 색깔 흰색으로 변경 */
+   margin-left: 15px;
+ }
+ .scroll-container {
+   overflow: auto;
+   position: relative;
+   height: calc(100% - 180px);
+ .scroll-container::-webkit-scrollbar-thumb { 
+   background: #555; /* 구분될 수 있는 회색 */
+   border-radius: 10px; 
+ }
+ 
+ thead th:nth-child(1), thead th:nth-child(2) {
+   position: sticky;
+   top: 0;
+   background-color: #282828;
+   z-index: 400;
+ }
+ 
+ thead th:nth-child(2) {
+   left: 150px;
+ }
+ 
+ .fixed-row {
+   position: sticky !important;
+   top: 34px !important;
+   background-color: #000 !important;
+   z-index: 500 !important;
+ }
+ 
+ </style>
+ </head>
+ <body>
+ <div class="container">
+   <h2>Basketball Stats Analyzer</h2>
+   <div class="tabs">
+     <button class="tab-button active" data-tab="tab-all">전체 선수 통계</button>
+     <button class="tab-button" data-tab="tab-player">선수 개인 검색</button>
+     <button class="tab-button" data-tab="tab-compare">선수 비교</button>
+   </div>
+ 
+   <div id="tab-all" class="tab-content active">
+ <div class="input-box" style="text-align:center;">
+   <input type="text" id="playerSearch" placeholder="Search player..." />
+   <button onclick="searchPlayer()">Search</button>
+   <label style="color:#FFFFFF; margin-left:15px;">
+     <input type="checkbox" id="minGamesCheckbox"> 규정 경기 이상만 표시(14G)
+   </label>
+ </div>
+ 
+     <div class="scroll-container" onscroll="document.querySelector('[style*=overflow-x]').scrollLeft=this.scrollLeft;">
+       <table id="statsTable">
+         <thead>
+           <tr>
+             <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
+             <th>PTS(총득점)</th><th>PTS_avg</th><th>FG</th><th>FGA</th><th>FG%</th>
+             <th>2P</th><th>2PA</th><th>2P%</th><th>3P</th><th>3PA</th><th>3P%</th>
+             <th>FT</th><th>FTA</th><th>FT%</th><th>ORB</th><th>DRB</th><th>TRB</th>
+             <th>TRB_avg</th><th>AST</th><th>AST_avg</th><th>STL</th><th>STL_avg</th>
+             <th>BLK</th><th>BLK_avg</th><th>TO</th><th>PF</th><th>WS</th><th>OWS</th>
+             <th>DWS</th><th>PER</th><th>TS%</th><th>eFG%</th><th>USG%</th>
+             <th>Off Rating</th><th>Def Rating</th><th>Eff/Game</th><th>Eff/40min</th>
+             <th>ORB%</th><th>DRB%</th><th>AST%</th><th>STL%</th><th>BLK%</th><th>TOV%</th>
+           </tr>
+         </thead>
+         <tbody id="tableBody"></tbody>
+       </table>
+     </div>
+     <footer class="footer">
+       <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true">
+       <div>© 2025 The Eroom Sports. All rights reserved.</div>
+     </footer>
+   </div>
+   <div id="tab-player" class="tab-content"><p>선수 개인 검색 페이지</p></div>
+   <div id="tab-compare" class="tab-content"><p>선수 비교 페이지</p></div>
+ </div>
+ <script>
+ const tabs = document.querySelectorAll('.tab-button');
+ const contents = document.querySelectorAll('.tab-content');
+ 
+ tabs.forEach(tab => {
+   tab.onclick = () => {
+     tabs.forEach(t => t.classList.remove('active'));
+     contents.forEach(c => c.classList.remove('active'));
+     document.getElementById(tab.dataset.tab).classList.add('active');
+     tab.classList.add('active');
+   };
+ });
+ 
+ let originalData = [], highlightedPlayer = '', fixedRow = null;
+ 
+ async function loadPlayersData() {
+   const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
+   const rows = (await res.text()).split('\n').slice(1);
+   originalData = rows.map(row => row.split(',')).filter(cols => cols.length > 30);
+   originalData.forEach(cols => {
+     cols.push(parseInt(cols[4]) * 60 + parseInt(cols[5]));
+   });
+   renderTable(originalData);
+ }
+ 
+ function renderTable(data) {
+   const tableBody = document.getElementById('tableBody');
+   tableBody.innerHTML = '';
+ 
+   const minGamesOnly = document.getElementById('minGamesCheckbox').checked;
+   const filteredData = minGamesOnly ? data.filter(cols => parseInt(cols[3]) >= 14) : data;
+ 
+   filteredData.forEach(cols => {
+     const playerName = cols[2];
+     const status = cols[3] >= 14 ? '✅' : '⚠️';
+     const playtime = `${cols[4]}분 ${cols[5]}초`;
+ 
+     const row = document.createElement('tr');
+     row.innerHTML = `
+       <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+       <td>${cols[1]}</td>
+       <td>${cols[3]}</td>
+       <td data-time="${cols[cols.length - 1]}">${playtime}</td>
+       <td>${cols[6]}</td>
+       <td>${(+cols[7]).toFixed(2)}</td>
+       <td>${cols[8]}</td>
+       <td>${cols[9]}</td>
+       <td>${cols[10]}</td>
+       <td>${cols[11]}</td>
+       <td>${cols[12]}</td>
+       <td>${cols[13]}</td>
+       <td>${cols[14]}</td>
+       <td>${cols[15]}</td>
+       <td>${cols[16]}</td>
+       <td>${cols[17]}</td>
+       <td>${cols[18]}</td>
+       <td>${cols[19]}</td>
+       <td>${cols[20]}</td>
+       <td>${cols[21]}</td>
+       <td>${cols[22]}</td>
+       <td>${(+cols[23]).toFixed(2)}</td>
+       <td>${cols[24]}</td>
+       <td>${(+cols[25]).toFixed(2)}</td>
+       <td>${cols[26]}</td>
+       <td>${(+cols[27]).toFixed(2)}</td>
+       <td>${cols[28]}</td>
+       <td>${(+cols[29]).toFixed(2)}</td>
+       <td>${cols[30]}</td>
+       <td>${cols[31]}</td>
+       <td>${cols[32]}</td>
+       <td>${cols[33]}</td>
+       <td>${cols[34]}</td>
+       <td>${cols[35]}</td>
+       <td>${cols[36]}</td>
+       <td>${cols[37]}</td>
+       <td>${cols[38]}</td>
+       <td>${cols[39]}</td>
+       <td>${cols[40]}</td>
+       <td>${cols[41]}</td>
+       <td>${cols[42]}</td>
+       <td>${cols[43]}</td>
+       <td>${cols[44]}</td>
+       <td>${cols[45]}</td>
+       <td>${cols[46]}</td>
+       <td>${cols[47]}</td>
+       <td>${cols[48]}</td>
+     `;
+     tableBody.appendChild(row);
+   });
+ 
+   setTimeout(() => {
+     const tableWidth = document.getElementById('statsTable').offsetWidth;
+     document.getElementById('scroll-sync').style.width = tableWidth + 'px';
+   }, 200);
+ }
+ 
+ function searchPlayer(){
+   const query = document.getElementById('playerSearch').value.toLowerCase().trim();
+   clearFixedRow();
+   const rows = document.querySelectorAll('#tableBody tr');
+   let found = false;
+   rows.forEach(row => {
+     const name = row.cells[0].textContent.toLowerCase();
+     row.classList.remove('highlight');
+     if (name.includes(query)){
+       found = true;
+       row.classList.add('highlight');
+       fixRow(row);
+     }
+   });
+   if (!found) alert("Player not found!");
+ }
+ 
+ function fixRow(row) {
+   clearFixedRow();
+   fixedRow = row.cloneNode(true);
+   fixedRow.classList.add('fixed-row', 'highlight');
+   fixedRow.style.position = 'sticky';
+   fixedRow.style.top = '34px';
+   fixedRow.style.backgroundColor = '#000';
+   fixedRow.style.zIndex = '500';
+ 
+   const releaseBtn = document.createElement('button');
+   releaseBtn.textContent = '해제';
+   releaseBtn.style.marginLeft = '10px';
+   releaseBtn.onclick = () => {
+     clearFixedRow();
+     document.getElementById('playerSearch').value = "";
+   };
+ 
+   fixedRow.cells[0].appendChild(releaseBtn);
+   document.querySelector('#statsTable thead').after(fixedRow);
+ }
+ 
+ function clearFixedRow() {
+   if (fixedRow) {
+     const originalRows = document.querySelectorAll('#tableBody tr');
+     originalRows.forEach(row => row.classList.remove('highlight'));
+     fixedRow.remove();
+   }
+   fixedRow = null;
+ }
+ 
+ const sortDirections = {};
+ document.querySelectorAll('#statsTable th').forEach((header, index) => {
+   sortDirections[index] = 'asc';
+   header.onclick = () => sortTable(index);
+ });
+ 
+ function sortTable(i) {
+   const tableBody = document.getElementById('tableBody');
+   const rows = [...tableBody.rows];
+   const direction = sortDirections[i] === 'asc' ? 'desc' : 'asc';
+   sortDirections[i] = direction;
+ 
+   rows.sort((a, b) => {
+     let x, y;
+     if (i === 3) {
+       x = parseInt(a.cells[i].getAttribute('data-time'), 10);
+       y = parseInt(b.cells[i].getAttribute('data-time'), 10);
+     } else {
+       x = parseFloat(a.cells[i].innerText) || 0;
+       y = parseFloat(b.cells[i].innerText) || 0;
+     }
+     return direction === 'asc' ? x - y : y - x;
+   }).forEach(row => tableBody.appendChild(row));
+ 
+   const currentSearch = document.getElementById('playerSearch').value.trim();
+   if (currentSearch !== "") searchPlayer(); 
+   else clearFixedRow(); 
+ }
+ 
+ window.onload = loadPlayersData;
+ 
+ document.getElementById('minGamesCheckbox').addEventListener('change', function() {
+   renderTable(originalData);
+ });
+ </script>
+ 
+ 
+ </body>
+ </html>
