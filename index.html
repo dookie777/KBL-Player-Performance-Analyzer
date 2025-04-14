@@ -311,5 +311,28 @@ window.onload = function() {
     sortDirections[index] = 'asc';
     header.onclick = () => sortTable(index);
   });
-};</script></body>
+};
+
+function sortTable(i) {
+  const tableBody = document.getElementById('tableBody');
+  const rows = [...tableBody.rows];
+  const direction = sortDirections[i] === 'asc' ? 'desc' : 'asc';
+  sortDirections[i] = direction;
+
+  rows.sort((a, b) => {
+    let x, y;
+    if (i === 3) { // 출전시간 열 (정확히 초 단위 사용)
+      x = parseInt(a.cells[i].getAttribute('data-time'), 10);
+      y = parseInt(b.cells[i].getAttribute('data-time'), 10);
+    } else {
+      x = parseFloat(a.cells[i].innerText) || 0;
+      y = parseFloat(b.cells[i].innerText) || 0;
+    }
+    return direction === 'asc' ? x - y : y - x;
+  }).forEach(r => tableBody.appendChild(r));
+
+  searchPlayer(); // 강조된 선수 유지
+}
+  
+</script></body>
 </html>
