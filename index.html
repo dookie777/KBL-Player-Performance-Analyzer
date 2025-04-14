@@ -62,7 +62,7 @@ th {
   position: sticky; 
   top: 0; 
   cursor: pointer; 
-  z-index: 100; /* 수정된 값: 제목 행이 밀리지 않도록 고정 */
+  z-index: 200; /* z-index를 더 높게 수정하여 제목행을 항상 상단에 고정 */
 }
 
 th:nth-child(1), td:nth-child(1),
@@ -70,7 +70,7 @@ th:nth-child(2), td:nth-child(2) {
   position: sticky;
   left: 0;
   background-color: #282828;
-  z-index: 101; /* 수정된 값: 좌측 고정 열이 항상 제목 위에 표시 */
+  z-index: 201; /* 첫 번째, 두 번째 열의 z-index를 제목행보다 더 높게 설정 */
 }
 
 th:nth-child(2), td:nth-child(2) {
