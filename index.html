@@ -101,6 +101,19 @@ th:nth-child(2), td:nth-child(2) {
 .scroll-container::-webkit-scrollbar-track { background: #282828; }
 .scroll-container::-webkit-scrollbar-thumb { background: #FFA500; border-radius: 10px; }
 
+thead th:nth-child(1), 
+thead th:nth-child(2) {
+  position: sticky;
+  top: 0;
+  left: 0;
+  background-color: #282828;
+  z-index: 400; /* 가장 높게 설정 */
+}
+
+thead th:nth-child(2) {
+  left: 150px; /* 두 번째 열 위치 유지 */
+}  
+  
 </style>
 </head>
 <body>
