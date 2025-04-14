@@ -18,8 +18,8 @@
   td { background-color: #181818; }
   .warning { color: #FF5555; }
   .valid { color: #55FF55; }
-  .footer { padding: 10px; background-color: #1e1e1e; }
-  .footer img { height: 30px; vertical-align: middle; }
+  .footer { padding: 10px 0; border-top: 1px solid #333; font-size: 0.8rem; color: #888; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #000000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+  .footer img { width: 100px; height: auto; margin-bottom: 5px; }
 </style>
 </head>
 <body>
@@ -51,11 +51,10 @@
     </table>
   </div>
 
-<footer style="padding: 10px 0; border-top: 1px solid #333; font-size: 0.8rem; color: #888; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #000000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;">
-  <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true"
-       alt="The Eroom Sports Logo"
-       style="width: 100px; height: auto; margin-bottom: 5px;">
-  <div>© 2025 The Eroom Sports. All rights reserved.</div>
+  <footer class="footer">
+    <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true" alt="The Eroom Sports Logo">
+    <div>© 2025 The Eroom Sports. All rights reserved.</div>
+  </footer>
 </div>
 
 <script>
@@ -68,12 +67,14 @@ async function loadPlayersData() {
 
   rows.forEach(row => {
     const cols = row.split(',');
-    playersData.push({
-      Season: cols[0], Team: cols[1], Player: cols[2], G: Number(cols[3]),
-      m: Number(cols[4]), s: Number(cols[5]),
-      PTS_avg: Number(cols[7]), TRB_avg: Number(cols[23]),
-      AST_avg: Number(cols[25]), STL_avg: Number(cols[27]), BLK_avg: Number(cols[29])
-    });
+    if(cols.length > 29) {
+      playersData.push({
+        Season: cols[0], Team: cols[1], Player: cols[2], G: Number(cols[3]),
+        m: Number(cols[4]), s: Number(cols[5]),
+        PTS_avg: Number(cols[7]), TRB_avg: Number(cols[23]),
+        AST_avg: Number(cols[25]), STL_avg: Number(cols[27]), BLK_avg: Number(cols[29])
+      });
+    }
   });
 
   populateTable();
@@ -108,7 +109,7 @@ function comparePlayers() {
   alert('Comparison feature coming soon!');
 }
 
-loadPlayersData();
+window.onload = loadPlayersData;
 </script>
 </body>
 </html>
