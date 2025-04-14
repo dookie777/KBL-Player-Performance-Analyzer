@@ -6,21 +6,100 @@
 <title>Basketball Stats Analyzer</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body { background-color: #121212; color: #FFFFFF; font-family: Arial, sans-serif; margin: 0; padding: 0; overflow: hidden; }
-  .container { display: flex; flex-direction: column; height: 100vh; max-width: 1200px; margin: auto; padding: 20px; box-sizing: border-box; }
-  h2, .input-box, .checkbox-group, .footer { text-align: center; }
-  h2 { color: #FFA500; }
-  .input-box, .checkbox-group { padding: 10px 0; background-color: #1e1e1e; }
-  .scroll-container { flex: 1; overflow-y: auto; margin: 10px 0; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 10px; text-align: center; border-bottom: 1px solid #333; }
-  th { background-color: #282828; position: sticky; top: 0; }
-  td { background-color: #181818; }
-  .warning { color: #FF5555; }
-  .valid { color: #55FF55; }
-  .footer { padding: 10px 0; border-top: 1px solid #333; font-size: 0.8rem; color: #888; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #000000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
-  .footer img { width: 100px; height: auto; margin-bottom: 5px; }
+  body {
+    background-color: #121212;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  h2, .input-box, .checkbox-group, .footer {
+    text-align: center;
+  }
+  h2 {
+    color: #FFA500;
+  }
+  .input-box, .checkbox-group {
+    padding: 10px 0;
+    background-color: #1e1e1e;
+  }
+  .scroll-container {
+    flex: 1;
+    overflow: auto; /* 수정: overflow-y → overflow 로 변경 */
+    margin: 10px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto; /* 추가: 테이블 자동 너비 */
+    white-space: nowrap; /* 추가: 데이터 줄바꿈 방지 */
+  }
+  th, td {
+    padding: 6px 8px; /* 수정: padding 축소 */
+    text-align: center;
+    border-bottom: 1px solid #333;
+    font-size: 0.75rem; /* 수정: 폰트 사이즈 줄임 */
+  }
+  th {
+    background-color: #282828;
+    position: sticky;
+    top: 0;
+    z-index: 10; /* 추가: 헤더 겹침 방지 */
+  }
+  td {
+    background-color: #181818;
+  }
+  /* 선수 이름 열 너비 고정 */
+  th:nth-child(1), td:nth-child(1) {
+    width: 120px;
+    max-width: 120px;
+    min-width: 120px;
+  }
+  /* 팀명 열 너비 고정 */
+  th:nth-child(2), td:nth-child(2) {
+    width: 60px;
+    max-width: 60px;
+    min-width: 60px;
+  }
+  .warning {
+    color: #FF5555;
+  }
+  .valid {
+    color: #55FF55;
+  }
+  .footer {
+    padding: 10px 0;
+    border-top: 1px solid #333;
+    font-size: 0.8rem;
+    color: #888;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #000000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .footer img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 5px;
+  }
 </style>
+
 </head>
 <body>
 <div class="container">
