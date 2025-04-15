@@ -85,13 +85,16 @@ thead th {
 #tab-all th:nth-child(1), #tab-all td:nth-child(1),
 #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
   position: sticky;
-  top: 0;
+  left: 0;
   background-color: #282828;
   z-index: 300;
 }
 
-#tab-all th:nth-child(1), #tab-all td:nth-child(1) { left: 0; }
 #tab-all th:nth-child(2), #tab-all td:nth-child(2) { left: 150px; }
+
+#tab-all th:nth-child(1), #tab-all th:nth-child(2) {
+  top: 0; /* 헤더만 top을 적용해야 합니다 */
+}
 
 /* 🔥 검색 입력창 고정 최종본 */
 #tab-all .input-box {
