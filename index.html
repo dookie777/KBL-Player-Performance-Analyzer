@@ -282,40 +282,6 @@ thead th {
 #tab-all td:nth-child(2) {
   left: 150px; /* 2열 정확히 고정 */
 }
-/* ✅ 완벽 해결: 가로 스크롤 활성화 및 1,2열 고정 */
-#tab-all .scroll-container {
-  overflow: auto !important;
-  height: calc(100vh - 250px) !important;
-}
-
-#tab-all table {
-  min-width: max-content !important;
-  width: max-content !important;
-}
-
-/* 헤더 행 상단 고정 유지 및 1,2열 고정 정확 설정 */
-#tab-all th:nth-child(1), #tab-all td:nth-child(1) {
-  position: sticky;
-  left: 0;
-  background-color: #282828 !important;
-  z-index: 500;
-}
-
-#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
-  position: sticky;
-  left: 150px;
-  background-color: #282828 !important;
-  z-index: 500;
-}
-
-/* 상단 헤더 고정 명확히 설정 */
-#tab-all thead th {
-  position: sticky;
-  top: 0;
-  background-color: #282828 !important;
-  z-index: 600;
-}
-
     
   </style>
 </head>
