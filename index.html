@@ -261,33 +261,26 @@ thead th {
   min-width: max-content !important;
   width: max-content !important;
 }
-/* ✅ 최종 해결: 1,2열 정확히 고정 및 가로 스크롤 활성화 */
-#tab-all .scroll-container {
-  overflow: auto !important;
-  height: calc(100vh - 250px) !important;
-}
-
-#tab-all table {
-  min-width: max-content !important;
-  width: max-content !important;
-}
-
-/* 1열 완벽 고정 */
+/* ✅ 최종 긴급해결: 1,2열 완벽 고정 */
 #tab-all th:nth-child(1),
-#tab-all td:nth-child(1) {
+#tab-all th:nth-child(2) {
   position: sticky;
-  left: 0;
+  top: 0; /* 필수 */
   z-index: 500;
   background-color: #282828 !important;
 }
 
-/* 2열 완벽 고정 */
-#tab-all th:nth-child(2),
+#tab-all td:nth-child(1),
 #tab-all td:nth-child(2) {
   position: sticky;
-  left: 150px;
-  z-index: 500;
+  left: 0; /* 1열 고정 */
+  z-index: 400;
   background-color: #282828 !important;
+}
+
+#tab-all th:nth-child(2),
+#tab-all td:nth-child(2) {
+  left: 150px; /* 2열 정확히 고정 */
 }
 
     
