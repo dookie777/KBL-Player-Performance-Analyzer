@@ -296,7 +296,44 @@ thead th {
 
 #tab-all table {
   min-width: max-content; /* 테이블 최소 너비 확보하여 가로스크롤 생성 */
-}    
+}  
+
+    /* ✅ 최종 확정된 전체 선수 통계 탭 가로스크롤 정상 복구 */
+#tab-all .scroll-container {
+  overflow: auto !important;
+  height: calc(100vh - 250px) !important;
+}
+
+#tab-all table {
+  min-width: max-content !important;
+}
+
+/* ✅ 최종 확정된 선수 개인 검색 탭 세로스크롤 스타일 통일 */
+#tab-player .stats-container {
+  overflow-y: auto !important;
+  height: calc(100vh - 250px) !important;
+  padding-right: 10px !important;
+}
+
+/* ✅ 최종 확정된 선수 개인 검색 탭 스크롤바 스타일 통일 */
+#tab-player .stats-container::-webkit-scrollbar {
+  width: 10px !important;
+}
+
+#tab-player .stats-container::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 5px !important;
+}
+
+#tab-player .stats-container::-webkit-scrollbar-thumb {
+  background: #555 !important;
+  border-radius: 5px !important;
+  border: 2px solid #121212 !important;
+}
+
+#tab-player .stats-container::-webkit-scrollbar-thumb:hover {
+  background: #FFA500 !important;
+}
   </style>
 </head>
 <body>
