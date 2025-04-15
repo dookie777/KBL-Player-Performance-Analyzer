@@ -260,6 +260,16 @@ thead th {
   min-width: max-content !important;
   width: max-content !important;
 }
+    /* ✅ 긴급 가로스크롤 해결 코드 (명확한 높이 지정 필수) */
+#tab-all .scroll-container {
+  overflow: auto !important;
+  height: calc(100vh - 250px) !important; /* 정확한 높이값 필수! */
+}
+
+#tab-all table {
+  min-width: max-content !important;
+  width: max-content !important;
+}
   </style>
 </head>
 <body>
