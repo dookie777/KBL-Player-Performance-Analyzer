@@ -260,35 +260,45 @@ thead th {
 }
 /* 가로스크롤 정상 복구 ("전체 선수 통계" 탭) */
 #tab-all .scroll-container {
-  overflow: auto;
-  height: calc(100vh - 250px); /* 세로 크기 명시로 가로스크롤 정상화 */
-}
-
-/* 선수 개인 검색 탭 세로스크롤 스타일 ("전체 선수 통계"와 동일하게 변경) */
-#tab-player .stats-container {
-  overflow-y: auto !important;
+  overflow: auto !important;
   height: calc(100vh - 250px) !important;
 }
 
-#tab-player .stats-container::-webkit-scrollbar {
-  width: 10px !important;
+#tab-all table {
+  min-width: max-content !important;
 }
 
+/* 선수 개인 검색 탭 세로스크롤 디자인 정상화 */
+#tab-player .stats-container {
+  overflow-y: auto !important;
+  height: calc(100vh - 250px) !important;
+  padding-right: 10px !important;
+}
+
+/* 두 탭의 스크롤바 통일 */
+#tab-all .scroll-container::-webkit-scrollbar,
+#tab-player .stats-container::-webkit-scrollbar {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+#tab-all .scroll-container::-webkit-scrollbar-track,
 #tab-player .stats-container::-webkit-scrollbar-track {
   background: #121212 !important;
   border-radius: 5px !important;
 }
 
+#tab-all .scroll-container::-webkit-scrollbar-thumb,
 #tab-player .stats-container::-webkit-scrollbar-thumb {
   background: #555 !important;
   border-radius: 5px !important;
   border: 2px solid #121212 !important;
 }
 
+#tab-all .scroll-container::-webkit-scrollbar-thumb:hover,
 #tab-player .stats-container::-webkit-scrollbar-thumb:hover {
   background: #FFA500 !important;
 }
-
 
 #tab-all {
   overflow-x: auto !important; /* 반드시 가로스크롤 복구 */
