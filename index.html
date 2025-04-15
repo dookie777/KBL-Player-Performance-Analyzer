@@ -262,7 +262,49 @@
   background: #CED4DA;
   border-radius: 10px;
 }
+/* ✅ 1열, 2열(선수 이름, 팀) 고정 문제 해결 */
+#tab-all th:nth-child(1),
+#tab-all td:nth-child(1),
+#tab-all th:nth-child(2),
+#tab-all td:nth-child(2) {
+  position: sticky;
+  background-color: #282828;
+  z-index: 300;
+}
 
+#tab-all th:nth-child(1), 
+#tab-all td:nth-child(1) {
+  left: 0;
+}
+
+#tab-all th:nth-child(2), 
+#tab-all td:nth-child(2) {
+  left: 150px;
+}
+
+/* ✅ 전체 선수 통계 탭 검색 입력란 및 서치 버튼 고정 */
+#tab-all .input-box {
+  position: sticky;
+  top: 0;
+  background: #121212;
+  z-index: 500;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
+}
+
+/* ✅ 스크롤바 디자인 정상화 */
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.scroll-container::-webkit-scrollbar-track {
+  background: #282828;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 10px;
+}
   </style>
 </head>
 <body>
