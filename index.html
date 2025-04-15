@@ -251,7 +251,15 @@ thead th {
   border-bottom: 1px solid rgba(255,255,255,0.2);
   font-size: 0.9rem;
 }
+/* ✅ 가로스크롤 긴급 복구 코드 (명확하고 즉각적인 해결) */
+#tab-all .scroll-container {
+  overflow: auto !important;
+}
 
+#tab-all table {
+  min-width: max-content !important;
+  width: max-content !important;
+}
   </style>
 </head>
 <body>
