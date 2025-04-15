@@ -152,7 +152,183 @@
    background-color: #000 !important;
    z-index: 500 !important;
  }
- 
+  body {
+      background: #121212;
+      color: #FFF;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+.tab-content {
+  overflow-y: auto;
+  height: calc(100vh - 100px);
+}
+
+    input, button {
+      padding: 8px 15px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: none;
+      margin: 10px;
+    }
+    button {
+      cursor: pointer;
+      background-color: #FFA500;
+      color: #121212;
+      font-weight: bold;
+    }
+    .player-name {
+      font-size: 2rem;
+      color: #FFF;
+      font-weight: bold;
+      margin: 15px 0 5px 0;
+      text-align: center;
+    }
+    .team-name {
+      font-size: 1rem;
+      color: #FFF;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+  overflow-y: auto;
+  height: calc(100vh - 250px); /* 약간 여유 높이 조정 추천 */
+}
+
+.card {
+  background-color: rgba(255,255,255,0.05); /* 거의 투명한 흰색 배경 */
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  box-sizing: border-box;
+  min-height: 350px; /* 카드 세로 길이 조정 (원하는 길이로 조절 가능) */
+
+}
+.card.primary:nth-child(2) {
+  min-height: 420px; /* 슈팅 카드만 길이 추가 조정 */
+}
+.card.primary h3 {
+  color: #FFA500; /* 주황색 */
+}
+
+.card.secondary h3 {
+  color: #88c2dd; /* 하늘색 */
+}
+
+.card h3 {
+  margin-top: 0;
+  margin-bottom: 8px; /* 제목과 테이블 간격 좁힘 */
+  border-bottom: none;
+  font-size: 1.1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px 5px;
+  border-bottom: 1px solid rgba(255,255,255,0.2); /* 연한 흰색 라인 */
+  font-size: 0.9rem;
+}
+
+th {
+  font-weight: bold;
+  color: #FFF;
+}
+
+.highlight {
+  font-weight: bold;
+  color: inherit; /* 기존 텍스트 색상(흰색)으로 통일 */
+}
+
+/* 카드 크기 및 간격 조정 */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px; /* 카드 간격 조정 */
+  margin-top: 15px;
+  overflow-y: auto;
+  height: calc(100vh - 250px);
+  padding-right: 10px; /* 스크롤바 겹침 방지 여백 */
+
+}
+#searchPlayer {
+  width: 250px;
+  height: 42px;
+  padding: 5px 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+  box-sizing: border-box;
+  vertical-align: middle;
+  margin-right: -4px; /* 버튼과 빈틈 없이 붙음 */
+}
+
+/* 검색 버튼 */
+.search-btn {
+  height: 42px;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #88c2dd; /* 기존 페이지와 동일한 하늘색 */
+  color: #121212; /* 버튼 글자 검은색 */
+  border: none;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+/* 체크박스 스타일 - 여백 추가 */
+.checkbox-container {
+  margin-left: 15px;
+  vertical-align: middle;
+  color: #FFF;
+  font-size: 0.9rem;
+}
+.card.team-stats {
+  background-color: rgba(255,255,255,0.05); /* 다른 카드와 동일한 배경색 */
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  box-sizing: border-box;
+  min-height: 380px; /* 카드 세로 높이 여유롭게 설정 */
+}
+
+.card.team-stats h3 {
+  color: #88c2dd; /* 정확한 하늘색 코드 */
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+/* 스크롤바 디자인 전체 선수 페이지와 동일 적용 */
+.stats-container::-webkit-scrollbar {
+  width: 8px; /* 스크롤바 너비 */
+  height: 8px; /* 가로 스크롤바 높이 (필요하면 유지) */
+}
+
+.stats-container::-webkit-scrollbar-track {
+  background: #282828; /* 스크롤바 배경색 (어두운 회색) */
+}
+
+.stats-container::-webkit-scrollbar-thumb {
+  background: #CED4DA; /* 스크롤바 막대 색상 (밝은 회색) */
+  border-radius: 10px; /* 스크롤바 둥글게 처리 */
+}
+
+    
  </style>
  </head>
  <body>
@@ -161,17 +337,37 @@
    <div class="tabs">
      <button class="tab-button active" data-tab="tab-all">전체 선수 통계</button>
      <button class="tab-button" data-tab="tab-player">선수 개인 검색</button>
+    <div id="playerSearch">
+<div style="text-align:center; margin: 20px 0;">
+  <input type="text" id="searchPlayer" placeholder="Search player...">
+  <button class="search-btn" onclick="showPlayerStats()">Search</button>
+  
+  <input type="checkbox" id="minGames" style="margin-left:30px; vertical-align: middle;">
+  <label for="minGames" style="color:#FFF; vertical-align: middle;">규정 경기 이상(14G)</label>
+  <script>
+  document.getElementById('minGames').addEventListener('change', () => {
+    const currentPlayerName = document.getElementById('searchPlayer').value.trim();
+    if(currentPlayerName !== "") showPlayerStats();
+  });
+</script>
+</div>
+
+</div>
+<div class="player-name" id="playerName"></div>
+<div class="team-name" id="teamName"></div>
+
+    <div class="stats-container" id="statsContainer"></div>
      <button class="tab-button" data-tab="tab-compare">선수 비교</button>
    </div>
  
-   <div id="tab-all" class="tab-content active">
- <div class="input-box" style="text-align:center;">
-   <input type="text" id="playerSearch" placeholder="Search player..." />
-   <button onclick="searchPlayer()">Search</button>
-   <label style="color:#FFFFFF; margin-left:15px;">
-     <input type="checkbox" id="minGamesCheckbox"> 규정 경기 이상만 표시(14G)
-   </label>
- </div>
+<div id="tab-all" class="tab-content active">
+  <div class="input-box" style="text-align:center;">
+    <input type="text" id="searchPlayerAll" placeholder="Search player..." />
+    <button onclick="searchPlayer()">Search</button>
+    <label style="color:#FFFFFF; margin-left:15px;">
+      <input type="checkbox" id="minGamesCheckbox"> 규정 경기 이상만 표시(14G)
+    </label>
+  </div>
  
      <div class="scroll-container" onscroll="document.querySelector('[style*=overflow-x]').scrollLeft=this.scrollLeft;">
        <table id="statsTable">
@@ -196,8 +392,23 @@
        <div>© 2025 The Eroom Sports. All rights reserved.</div>
      </footer>
    </div>
-   <div id="tab-player" class="tab-content"><p>선수 개인 검색 페이지</p></div>
-   <div id="tab-compare" class="tab-content"><p>선수 비교 페이지</p></div>
+<div id="tab-player" class="tab-content">
+
+  <div id="playerSearch">
+    <div style="text-align:center; margin: 20px 0;">
+      <input type="text" id="searchPlayer" placeholder="Search player...">
+      <button class="search-btn" onclick="showPlayerStats()">Search</button>
+
+      <input type="checkbox" id="minGames" style="margin-left:30px; vertical-align: middle;">
+      <label for="minGames" style="color:#FFF; vertical-align: middle;">규정 경기 이상(14G)</label>
+    </div>
+  </div>
+
+  <div class="player-name" id="playerName"></div>
+  <div class="team-name" id="teamName"></div>
+  <div class="stats-container" id="statsContainer"></div>
+
+</div>   <div id="tab-compare" class="tab-content"><p>선수 비교 페이지</p></div>
  </div>
  <script>
  const tabs = document.querySelectorAll('.tab-button');
@@ -376,6 +587,140 @@
  document.getElementById('minGamesCheckbox').addEventListener('change', function() {
    renderTable(originalData);
  });
+
+  function calculateRank(filteredData, statIndex, playerValue, isHigherBetter = true) {
+  const sorted = filteredData
+    .map(cols => parseFloat(cols[statIndex]))
+    .filter(value => !isNaN(value))
+    .sort((a, b) => isHigherBetter ? b - a : a - b);
+
+  return sorted.indexOf(parseFloat(playerValue)) + 1;
+}
+
+  function showPlayerStats() {
+  const playerNameInput = document.getElementById('searchPlayer').value.trim();
+  
+  const minGamesChecked = document.getElementById('minGames').checked;
+  let filteredData = originalData;
+  if (minGamesChecked) {
+    filteredData = originalData.filter(cols => parseInt(cols[3]) >= 14);
+  }
+
+  const playerData = filteredData.find(cols => 
+    cols[2].trim().toLowerCase().includes(playerNameInput.toLowerCase())
+  );
+
+  if (playerData) {
+    document.getElementById('playerName').innerText = playerData[2];
+    document.getElementById('teamName').innerText = '(' + playerData[1] + ')';
+
+    const statsContainer = document.getElementById('statsContainer');
+    statsContainer.innerHTML = '';
+
+    statsContainer.innerHTML += createCard('기본 정보', [
+      {label: '출전 경기 수', value: playerData[3] + '경기', rank: calculateRank(filteredData, 3, playerData[3], true) + '위'},
+      {label: '평균 출전 시간', value: playerData[4] + '분 ' + playerData[5] + '초', rank: calculateRank(filteredData, 4, playerData[4], true) + '위'},
+      {label: '총 득점', value: playerData[9] + '점', rank: calculateRank(filteredData, 9, playerData[9], true) + '위', highlight: true},
+      {label: '평균 득점', value: parseFloat(playerData[10]).toFixed(2) + '점', rank: calculateRank(filteredData, 10, playerData[10], true) + '위', highlight: true}
+    ], 'primary');
+
+    statsContainer.innerHTML += createCard('슈팅 지표', [
+      {label: '평균 FG 시도', value: playerData[15], rank: calculateRank(filteredData, 15, playerData[15], true) + '위'},
+      {label: '평균 FG 성공', value: playerData[16], rank: calculateRank(filteredData, 16, playerData[16], true) + '위'},
+      {label: '평균 2P 시도', value: playerData[23], rank: calculateRank(filteredData, 23, playerData[23], true) + '위'},
+      {label: '평균 2P 성공', value: playerData[24], rank: calculateRank(filteredData, 24, playerData[24], true) + '위'},
+      {label: '평균 3P 시도', value: playerData[31], rank: calculateRank(filteredData, 31, playerData[31], true) + '위'},
+      {label: '평균 3P 성공', value: playerData[32], rank: calculateRank(filteredData, 32, playerData[32], true) + '위'},
+      {label: '평균 FT 시도', value: playerData[39], rank: calculateRank(filteredData, 39, playerData[39], true) + '위'},
+      {label: '평균 FT 성공', value: playerData[40], rank: calculateRank(filteredData, 40, playerData[40], true) + '위'}
+    ], 'primary');
+
+    statsContainer.innerHTML += createCard('슈팅 성공률', [
+      {label: 'FG%', value: playerData[17], rank: calculateRank(filteredData, 17, playerData[17], true) + '위'},
+      {label: '2P%', value: playerData[25], rank: calculateRank(filteredData, 25, playerData[25], true) + '위'},
+      {label: '3P%', value: playerData[33], rank: calculateRank(filteredData, 33, playerData[33], true) + '위'},
+      {label: 'FT%', value: playerData[41], rank: calculateRank(filteredData, 41, playerData[41], true) + '위'}
+    ], 'primary');
+
+    statsContainer.innerHTML += createCard('리바운드 지표', [
+      {label: '총 리바운드', value: playerData[45], rank: calculateRank(filteredData, 45, playerData[45], true) + '위', highlight: true},
+      {label: '평균 리바운드', value: parseFloat(playerData[46]).toFixed(2), rank: calculateRank(filteredData, 46, playerData[46], true) + '위', highlight: true},
+      {label: '공격 리바운드', value: playerData[49], rank: calculateRank(filteredData, 49, playerData[49], true) + '위'},
+      {label: '평균 공격 리바운드', value: parseFloat(playerData[50]).toFixed(2), rank: calculateRank(filteredData, 50, playerData[50], true) + '위'},
+      {label: '수비 리바운드', value: playerData[53], rank: calculateRank(filteredData, 53, playerData[53], true) + '위'},
+      {label: '평균 수비 리바운드', value: parseFloat(playerData[54]).toFixed(2), rank: calculateRank(filteredData, 54, playerData[54], true) + '위'}
+    ], 'primary');
+
+    statsContainer.innerHTML += createCard('어시스트/스틸/블록 지표', [
+      {label: '총 어시스트', value: playerData[57], rank: calculateRank(filteredData, 57, playerData[57], true) + '위'},
+      {label: '평균 어시스트', value: parseFloat(playerData[58]).toFixed(2), rank: calculateRank(filteredData, 58, playerData[58], true) + '위'},
+      {label: '총 스틸', value: playerData[61], rank: calculateRank(filteredData, 61, playerData[61], true) + '위'},
+      {label: '평균 스틸', value: parseFloat(playerData[62]).toFixed(2), rank: calculateRank(filteredData, 62, playerData[62], true) + '위'},
+      {label: '총 블록', value: playerData[65], rank: calculateRank(filteredData, 65, playerData[65], true) + '위'},
+      {label: '평균 블록', value: parseFloat(playerData[66]).toFixed(2), rank: calculateRank(filteredData, 66, playerData[66], true) + '위'}
+    ], 'primary');
+
+    statsContainer.innerHTML += createCard('기타 지표', [
+      {label: '턴오버', value: playerData[69], rank: calculateRank(filteredData, 69, playerData[69], false) + '위'},
+      {label: '평균 턴오버', value: parseFloat(playerData[70]).toFixed(2), rank: calculateRank(filteredData, 70, playerData[70], false) + '위'},
+      {label: '파울', value: playerData[73], rank: calculateRank(filteredData, 73, playerData[73], false) + '위'},
+      {label: '평균 파울', value: parseFloat(playerData[74]).toFixed(2), rank: calculateRank(filteredData, 74, playerData[74], false) + '위'}
+    ], 'primary');
+
+
+statsContainer.innerHTML += createCard('WinShare 지표', [
+  {label: 'WS', value: playerData[77], rank: calculateRank(filteredData, 77, playerData[77], true) + '위', highlight: true},
+  {label: 'WS/40', value: playerData[78], rank: calculateRank(filteredData, 78, playerData[78], true) + '위'},
+  {label: 'Offensive WS', value: playerData[79], rank: calculateRank(filteredData, 79, playerData[79], true) + '위'},
+  {label: 'Defensive WS', value: playerData[80], rank: calculateRank(filteredData, 80, playerData[80], true) + '위'}
+], 'secondary');
+
+
+
+statsContainer.innerHTML += createCard('효율성 지표', [
+  {label: 'PER', value: playerData[87], rank: calculateRank(filteredData, 87, playerData[87], true) + '위'},
+  {label: 'EFF', value: playerData[88], rank: calculateRank(filteredData, 88, playerData[88], true) + '위'},
+  {label: 'EFF/40', value: playerData[89], rank: calculateRank(filteredData, 89, playerData[89], true) + '위'},
+  {label: 'Offensive Rating', value: playerData[85], rank: calculateRank(filteredData, 85, playerData[85], true) + '위'},
+  {label: 'Defensive Rating', value: playerData[86], rank: calculateRank(filteredData, 86, playerData[86], false) + '위'},
+  {label: 'USG%', value: playerData[97] + '%', rank: calculateRank(filteredData, 97, playerData[97], true) + '위'}
+], 'secondary');
+
+
+
+statsContainer.innerHTML += createCard('2차 슈팅 지표', [
+  {label: 'TS%', value: playerData[95], rank: calculateRank(filteredData, 95, playerData[95], true) + '위'},
+  {label: 'eFG%', value: playerData[96], rank: calculateRank(filteredData, 96, playerData[96], true) + '위'},
+  {label: '3PAr', value: playerData[98], rank: calculateRank(filteredData, 98, playerData[98], true) + '위'},
+  {label: 'FTr', value: playerData[99], rank: calculateRank(filteredData, 99, playerData[99], true) + '위'}
+], 'secondary');
+
+
+
+statsContainer.innerHTML += createCard('팀내 비중 지표', [
+  {label: 'ORB%', value: playerData[105] + '%', rank: calculateRank(filteredData, 105, playerData[105], true) + '위'},
+  {label: 'DRB%', value: playerData[106] + '%', rank: calculateRank(filteredData, 106, playerData[106], true) + '위'},
+  {label: 'TRB%', value: playerData[107] + '%', rank: calculateRank(filteredData, 107, playerData[107], true) + '위'},
+  {label: 'AST%', value: playerData[108] + '%', rank: calculateRank(filteredData, 108, playerData[108], true) + '위'},
+  {label: 'STL%', value: playerData[109] + '%', rank: calculateRank(filteredData, 109, playerData[109], true) + '위'},
+  {label: 'BLK%', value: playerData[110] + '%', rank: calculateRank(filteredData, 110, playerData[110], true) + '위'},
+  {label: 'TOV%', value: playerData[111] + '%', rank: calculateRank(filteredData, 111, playerData[111], false) + '위'}
+], 'team-stats');
+
+
+
+
+
+  } else {
+    alert('선수를 찾을 수 없습니다.');
+  }
+}
+ document.getElementById('searchPlayerAll').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    searchPlayer();
+  }
+});
+  
  </script>
  
  
