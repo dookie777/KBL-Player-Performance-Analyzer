@@ -4,188 +4,163 @@
   <meta charset="UTF-8">
   <title>KBL Player Stats Analyzer</title>
   <style>
-    body {
-      background: #121212;
-      color: #FFF;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
+body {
+  background: #121212;
+  color: #FFF;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
 
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px;
-      box-sizing: border-box;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-    h2 {
-      text-align: center;
-      color: #FFA500;
-    }
+h2 {
+  text-align: center;
+  color: #FFA500;
+}
 
-    .tabs {
-      text-align: center;
-      margin-bottom: 15px;
-    }
+.tabs {
+  text-align: center;
+  margin-bottom: 15px;
+}
 
-    .tabs button {
-      background: #282828;
-      color: #FFF;
-      padding: 10px 20px;
-      border: none;
-      cursor: pointer;
-      margin: 0 5px;
-      font-weight: bold;
-      width: 160px;
-    }
+.tabs button {
+  background: #282828;
+  color: #FFF;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin: 0 5px;
+  font-weight: bold;
+  width: 160px;
+}
 
-    .tabs button.active {
-      background: #E0E0E0;
-      color: #000;
-    }
+.tabs button.active {
+  background: #E0E0E0;
+  color: #000;
+}
 
-    .tab-content {
-      display: none;
-      flex: 1;
-      overflow: auto;
-    }
+.tab-content {
+  display: none;
+  flex: 1;
+  overflow: auto;
+}
 
-    .tab-content.active {
-      display: block;
-    }
+.tab-content.active {
+  display: block;
+}
 
-    table {
-      border-collapse: collapse;
-      white-space: nowrap;
-      width: 100%;
-    }
+table {
+  border-collapse: collapse;
+  white-space: nowrap;
+  width: 100%;
+}
 
-    th, td {
-      padding: 6px 8px;
-      border-bottom: 1px solid #333;
-      font-size: 0.85rem;
-      text-align: center;
-      background: #181818;
-    }
+th, td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+  text-align: center;
+  background: #181818;
+}
 
-    thead th {
-      background: #282828;
-      position: sticky;
-      top: 0;
-      cursor: pointer;
-      z-index: 200;
-    }
+thead th {
+  background: #282828;
+  position: sticky;
+  top: 0;
+  cursor: pointer;
+  z-index: 200;
+}
 
-    #tab-all th:nth-child(1), #tab-all td:nth-child(1),
-    #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
-      position: sticky;
-      left: 0;
-      background-color: #282828;
-      z-index: 300;
-    }
-
-    #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
-      left: 150px;
-    }
-
-    .highlight { color: #FFFF55 !important; font-weight: bold; }
-
-    .footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 0.8rem;
-      color: #888;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: #000;
-      pointer-events: none;
-    }
-
-    .input-box {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .input-box input[type="text"] {
-      width: 250px;
-      height: 42px;
-      padding: 5px 10px;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: none;
-      box-sizing: border-box;
-      margin-right: 5px;
-    }
-
-    .input-box button {
-      height: 42px;
-      padding: 5px 15px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-      background-color: #88c2dd;
-      color: #121212;
-      border: none;
-    }
-
-    .player-name, .team-name {
-      text-align: center;
-    }
-
-    .stats-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      overflow-y: auto;
-      padding-right: 10px;
-    }
-
-    .card {
-      background-color: rgba(255,255,255,0.05);
-      padding: 10px;
-      border-radius: 10px;
-      text-align: center;
-      box-sizing: border-box;
-    }
-
-    .card h3 { color: #FFA500; }
-    .card.secondary h3 { color: #88c2dd; }
-
-    .card table { width: 100%; }
-
-    .stats-container::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .stats-container::-webkit-scrollbar-track {
-      background: #282828;
-    }
-
-    .stats-container::-webkit-scrollbar-thumb {
-      background: #CED4DA;
-      border-radius: 10px;
-    }
-/* 1,2열(선수이름, 팀) 고정하기 위한 CSS */
+/* ✅ 1열, 2열(선수 이름, 팀) 고정 최종본 */
 #tab-all th:nth-child(1), #tab-all td:nth-child(1),
 #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
   position: sticky;
-  left: 0;
+  top: 0;
   background-color: #282828;
   z-index: 300;
 }
 
-#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
-  left: 150px;
+#tab-all th:nth-child(1), #tab-all td:nth-child(1) { left: 0; }
+#tab-all th:nth-child(2), #tab-all td:nth-child(2) { left: 150px; }
+
+/* 🔥 검색 입력창 고정 최종본 */
+#tab-all .input-box {
+  position: sticky;
+  top: 0;
+  background: #121212;
+  z-index: 500;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
 }
-    /* 선수 개인검색(2페이지) 결과 카드 정상 디자인 코드 */
+
+/* 🔥 전체 선수 통계 탭 스크롤바 디자인 최종본 */
+.scroll-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: #282828;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #CED4DA;
+  border-radius: 10px;
+}
+
+.highlight { color: #FFFF55 !important; font-weight: bold; }
+
+.footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.8rem;
+  color: #888;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #000;
+  pointer-events: none;
+}
+
+.input-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.input-box input[type="text"] {
+  width: 250px;
+  height: 42px;
+  padding: 5px 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+  box-sizing: border-box;
+  margin-right: 5px;
+}
+
+.input-box button {
+  height: 42px;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #88c2dd;
+  color: #121212;
+  border: none;
+}
 
 .player-name {
   font-size: 2rem;
@@ -221,10 +196,7 @@
   min-height: 350px;
 }
 
-.card.primary:nth-child(2) {
-  min-height: 420px;
-}
-
+.card.primary:nth-child(2) { min-height: 420px; }
 .card.primary h3 { color: #FFA500; }
 .card.secondary h3 { color: #88c2dd; }
 
@@ -245,11 +217,6 @@
   font-size: 0.9rem;
 }
 
-.highlight {
-  color: #FFFF55 !important;
-  font-weight: bold;
-}
-
 .stats-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -262,49 +229,27 @@
   background: #CED4DA;
   border-radius: 10px;
 }
-/* ✅ 1열, 2열(선수 이름, 팀) 고정 문제 해결 */
-#tab-all th:nth-child(1),
-#tab-all td:nth-child(1),
-#tab-all th:nth-child(2),
-#tab-all td:nth-child(2) {
-  position: sticky;
-  background-color: #282828;
-  z-index: 300;
+.scroll-container {
+  overflow: auto;
+  width: 100%;
+  height: calc(100vh - 120px);
+  box-sizing: border-box;
 }
 
-#tab-all th:nth-child(1), 
-#tab-all td:nth-child(1) {
-  left: 0;
-}
-
-#tab-all th:nth-child(2), 
-#tab-all td:nth-child(2) {
-  left: 150px;
-}
-
-/* ✅ 전체 선수 통계 탭 검색 입력란 및 서치 버튼 고정 */
-#tab-all .input-box {
-  position: sticky;
-  top: 0;
-  background: #121212;
-  z-index: 500;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #333;
-}
-
-/* ✅ 스크롤바 디자인 정상화 */
 .scroll-container::-webkit-scrollbar {
-  height: 8px;
   width: 8px;
+  height: 8px;
 }
+
 .scroll-container::-webkit-scrollbar-track {
   background: #282828;
 }
+
 .scroll-container::-webkit-scrollbar-thumb {
-  background: #555;
+  background: #CED4DA;
   border-radius: 10px;
 }
+
   </style>
 </head>
 <body>
