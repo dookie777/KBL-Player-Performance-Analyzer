@@ -237,6 +237,21 @@ th:nth-child(2), td:nth-child(2) {
   background: #CED4DA;
   border-radius: 10px;
 }
+/* 테이블 헤더 고정 (전체 선수 탭 전용으로 제한) */
+#tab-all table thead th:nth-child(1), 
+#tab-all table tbody td:nth-child(1),
+#tab-all table thead th:nth-child(2), 
+#tab-all table tbody td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 300;
+}
+
+#tab-all table thead th:nth-child(2), 
+#tab-all table tbody td:nth-child(2) {
+  left: 150px;
+}
 
     
  </style>
