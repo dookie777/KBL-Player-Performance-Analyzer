@@ -344,6 +344,36 @@ thead th {
 #tab-player .stats-container::-webkit-scrollbar-thumb:hover {
   background: #FFA500 !important;
 }
+    /* ✅ 전체 탭에서 스크롤 명확히 분리 및 활성화 */
+.tab-content.active {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden !important;
+}
+
+/* ✅ 전체 선수 통계 탭 가로/세로 스크롤 명확히 복구 (#tab-all) */
+#tab-all .scroll-container {
+  overflow: auto !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+#tab-all table {
+  min-width: max-content !important;
+}
+
+/* ✅ 선수 개인 검색 탭 이중 세로스크롤 제거 및 정상화 (#tab-player) */
+#tab-player {
+  overflow: hidden !important;
+}
+
+#tab-player .stats-container {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  padding-right: 10px !important;
+}
   </style>
 </head>
 <body>
