@@ -4,328 +4,238 @@
  <meta charset="UTF-8">
  <title>KBL Player Stats Analyzer</title>
  <style>
- body {
-   background: #121212;
-   color: #FFF;
-   font-family: Arial, sans-serif;
-   margin: 0;
-   padding: 0;
-   overflow: hidden;
- }
- .container {
-   display: flex;
-   flex-direction: column;
-   height: 100vh;
-   max-width: 1200px;
-   margin: auto;
-   padding: 20px;
-   box-sizing: border-box;
- }
- h2, .tabs { text-align: center; }
- h2 { color: #FFA500; }
- .tabs button {
-   background: #282828;
-   color: #FFF;
-   padding: 10px 20px;
-   border: none;
-   cursor: pointer;
-   margin: 0 5px;
-   font-weight: bold; /* 글자 볼드 처리 */
-   width: 160px; /* 박스 크기 동일하게 고정 */
- }
- .tabs button.active { background: ; }
- .tab-content { display: none; flex: 1; overflow: auto; }
- .tabs button.active {
-   background: #E0E0E0; /* 밝은 회색 */
-   color: #000; /* 글자 검은색 */
- }
-   .tab-content { display: none; flex: 1; overflow: auto; }
- .tab-content.active { display: block; }
- table { border-collapse: collapse; white-space: nowrap; min-width: 1500px; }
- thead th { background: #282828; position: sticky; top: 0; cursor: pointer; z-index: 200; }
- tbody td { background: #181818; }
- th, td { padding: 6px 8px; border-bottom: 1px solid #333; font-size: 0.85rem; text-align: center; }
- th:nth-child(1), td:nth-child(1),
- th:nth-child(2), td:nth-child(2) {
-   position: sticky;
-   left: 0;
-   background-color: #282828;
-   z-index: 300;
- }
- th:nth-child(2), td:nth-child(2) { left: 150px; }
- .valid { color: #55FF55; }
- .warning { color: #FF5555; }
- .highlight { border-bottom: 3px solid  !important; }
- .footer {
-   padding: 10px 0;
-   border-top: 1px solid #333;
-   font-size: 0.8rem;
-   color: #888;
-   position: fixed;
-   bottom: 0;
-   left: 0;
-   width: 100%;
-   background-color: #000;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
-   z-index: 1000;
-   pointer-events: none;
- }
- .footer img { width: 100px; height: auto; margin-bottom: 5px; }
- .scroll-container::-webkit-scrollbar { height: 8px; width: 8px; }
- .scroll-container::-webkit-scrollbar-track { background: #282828; }
- .scroll-container::-webkit-scrollbar-thumb { background: #CED4DA; border-radius: 10px; }
- .highlight, .highlight td, .highlight span { color: #FFFF55 !important; font-weight: bold; }
- .input-box {
-   margin: 20px 0; /* 검색창 위아래 여백 넉넉히 추가 */
-   margin: 20px 0; 
-   text-align: center;
- }
- 
- #playerSearch {
-   width: 250px; /* 검색창 길이를 길게 설정 */
-   height: 30px; /* 높이를 키워 가독성 향상 */
-   padding: 5px 10px; /* 내부 패딩 추가로 여유롭게 */
-   font-size: 1rem; /* 폰트 사이즈 확대 */
-   border-radius: 5px; /* 모서리를 둥글게 처리 */
-   border: none; /* 테두리 없애고 깔끔하게 */
-   width: 250px;
-   height: 30px;
-   padding: 5px 10px;
-   font-size: 1rem;
-   border-radius: 5px;
-   border: none;
- }
- 
- .input-box button {
-   height: 42px; /* 버튼 높이를 검색창과 동일하게 맞춤 */
-   padding: 5px 15px; /* 좌우 여백 적절히 추가 */
-   font-size: 1rem; /* 버튼 글씨 사이즈 확대 */
-   cursor: pointer; /* 커서를 포인터로 명확히 표시 */
-   border-radius: 5px; /* 모서리 둥글게 처리 */
-   background-color: #FFA500; /* 버튼 배경색 강조 */
-   color: #121212; /* 버튼 글씨 색상 선명하게 변경 */
-   border: none; /* 버튼 테두리 제거 */
-   height: 42px;
-   padding: 5px 15px;
-   font-size: 0.9rem; /* SEARCH 글자 한 포인트 낮춤 */
-   font-weight: bold; /* 볼드체 처리 */
-   cursor: pointer;
-   border-radius: 5px;
-   background-color: #88c2dd; /* 밝은 하늘색 */
-   color: #121212;
-   border: none;
- }
- 
- .input-box label {
-   font-size: 0.9rem; /* 체크박스 라벨 글씨 크기 약간 확대 */
-   vertical-align: middle; /* 체크박스와 세로 정렬 */
-   font-size: 0.9rem;
-   color: #FFF; /* 글자 색깔 흰색으로 변경 */
-   margin-left: 15px;
- }
- .scroll-container {
-   overflow: auto;
-   position: relative;
-   height: calc(100% - 180px);
- .scroll-container::-webkit-scrollbar-thumb { 
-   background: #555; /* 구분될 수 있는 회색 */
-   border-radius: 10px; 
- }
- 
- thead th:nth-child(1), thead th:nth-child(2) {
-   position: sticky;
-   top: 0;
-   background-color: #282828;
-   z-index: 400;
- }
- 
- thead th:nth-child(2) {
-   left: 150px;
- }
- 
- .fixed-row {
-   position: sticky !important;
-   top: 34px !important;
-   background-color: #000 !important;
-   z-index: 500 !important;
- }
-  body {
-      background: #121212;
-      color: #FFF;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+body {
+  background: #121212;
+  color: #FFF;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+h2, .tabs { 
+  text-align: center; 
+}
+h2 { 
+  color: #FFA500; 
+}
+
+.tabs button {
+  background: #282828;
+  color: #FFF;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin: 0 5px;
+  font-weight: bold;
+  width: 160px;
+}
+.tabs button.active {
+  background: #E0E0E0;
+  color: #000;
+}
+
 .tab-content {
+  display: none;
+  flex: 1;
   overflow-y: auto;
   height: calc(100vh - 100px);
 }
-
-    input, button {
-      padding: 8px 15px;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: none;
-      margin: 10px;
-    }
-    button {
-      cursor: pointer;
-      background-color: #FFA500;
-      color: #121212;
-      font-weight: bold;
-    }
-    .player-name {
-      font-size: 2rem;
-      color: #FFF;
-      font-weight: bold;
-      margin: 15px 0 5px 0;
-      text-align: center;
-    }
-    .team-name {
-      font-size: 1rem;
-      color: #FFF;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-top: 20px;
-  overflow-y: auto;
-  height: calc(100vh - 250px); /* 약간 여유 높이 조정 추천 */
-}
-
-.card {
-  background-color: rgba(255,255,255,0.05); /* 거의 투명한 흰색 배경 */
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  box-sizing: border-box;
-  min-height: 350px; /* 카드 세로 길이 조정 (원하는 길이로 조절 가능) */
-
-}
-.card.primary:nth-child(2) {
-  min-height: 420px; /* 슈팅 카드만 길이 추가 조정 */
-}
-.card.primary h3 {
-  color: #FFA500; /* 주황색 */
-}
-
-.card.secondary h3 {
-  color: #88c2dd; /* 하늘색 */
-}
-
-.card h3 {
-  margin-top: 0;
-  margin-bottom: 8px; /* 제목과 테이블 간격 좁힘 */
-  border-bottom: none;
-  font-size: 1.1rem;
+.tab-content.active { 
+  display: block; 
 }
 
 table {
-  width: 100%;
   border-collapse: collapse;
+  white-space: nowrap;
+  min-width: 1500px;
+  width: 100%;
 }
-
+thead th {
+  background: #282828;
+  position: sticky;
+  top: 0;
+  cursor: pointer;
+  z-index: 200;
+}
+tbody td {
+  background: #181818;
+}
 th, td {
-  padding: 8px 5px;
-  border-bottom: 1px solid rgba(255,255,255,0.2); /* 연한 흰색 라인 */
-  font-size: 0.9rem;
+  padding: 6px 8px;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+  text-align: center;
 }
 
-th {
+th:nth-child(1), td:nth-child(1),
+th:nth-child(2), td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 300;
+}
+th:nth-child(2), td:nth-child(2) { 
+  left: 150px; 
+}
+
+.valid { color: #55FF55; }
+.warning { color: #FF5555; }
+
+.highlight, .highlight td, .highlight span {
+  color: #FFFF55 !important;
   font-weight: bold;
-  color: #FFF;
 }
 
-.highlight {
-  font-weight: bold;
-  color: inherit; /* 기존 텍스트 색상(흰색)으로 통일 */
+.footer {
+  padding: 10px 0;
+  border-top: 1px solid #333;
+  font-size: 0.8rem;
+  color: #888;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+.footer img { width: 100px; height: auto; margin-bottom: 5px; }
+
+.scroll-container {
+  overflow: auto;
+  position: relative;
+  height: calc(100% - 180px);
+}
+.scroll-container::-webkit-scrollbar { 
+  height: 8px; width: 8px; 
+}
+.scroll-container::-webkit-scrollbar-track { 
+  background: #282828; 
+}
+.scroll-container::-webkit-scrollbar-thumb { 
+  background: #555; 
+  border-radius: 10px; 
 }
 
-/* 카드 크기 및 간격 조정 */
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px; /* 카드 간격 조정 */
-  margin-top: 15px;
-  overflow-y: auto;
-  height: calc(100vh - 250px);
-  padding-right: 10px; /* 스크롤바 겹침 방지 여백 */
-
+.input-box {
+  margin: 20px 0;
+  text-align: center;
 }
-#searchPlayer {
+
+#searchPlayerAll {
   width: 250px;
-  height: 42px;
+  height: 30px;
   padding: 5px 10px;
   font-size: 1rem;
   border-radius: 5px;
   border: none;
   box-sizing: border-box;
   vertical-align: middle;
-  margin-right: -4px; /* 버튼과 빈틈 없이 붙음 */
 }
 
-/* 검색 버튼 */
-.search-btn {
+.input-box button {
   height: 42px;
   padding: 5px 15px;
   font-size: 0.9rem;
   font-weight: bold;
   cursor: pointer;
   border-radius: 5px;
-  background-color: #88c2dd; /* 기존 페이지와 동일한 하늘색 */
-  color: #121212; /* 버튼 글자 검은색 */
+  background-color: #88c2dd;
+  color: #121212;
   border: none;
   box-sizing: border-box;
   vertical-align: middle;
 }
 
-/* 체크박스 스타일 - 여백 추가 */
-.checkbox-container {
-  margin-left: 15px;
+.input-box label {
+  font-size: 0.9rem;
   vertical-align: middle;
   color: #FFF;
-  font-size: 0.9rem;
+  margin-left: 15px;
 }
-.card.team-stats {
-  background-color: rgba(255,255,255,0.05); /* 다른 카드와 동일한 배경색 */
+
+.player-name {
+  font-size: 2rem;
+  color: #FFF;
+  font-weight: bold;
+  margin: 15px 0 5px 0;
+  text-align: center;
+}
+.team-name {
+  font-size: 1rem;
+  color: #FFF;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 15px;
+  overflow-y: auto;
+  height: calc(100vh - 250px);
+  padding-right: 10px;
+}
+
+.card {
+  background-color: rgba(255,255,255,0.05);
   padding: 10px;
   border-radius: 10px;
   text-align: center;
   box-sizing: border-box;
-  min-height: 380px; /* 카드 세로 높이 여유롭게 설정 */
+  min-height: 350px;
 }
 
-.card.team-stats h3 {
-  color: #88c2dd; /* 정확한 하늘색 코드 */
+.card.primary:nth-child(2) {
+  min-height: 420px;
+}
+.card.primary h3 {
+  color: #FFA500;
+}
+
+.card.secondary h3 {
+  color: #88c2dd;
+}
+
+.card h3 {
   margin-top: 0;
   margin-bottom: 8px;
   font-size: 1.1rem;
 }
-/* 스크롤바 디자인 전체 선수 페이지와 동일 적용 */
+
+.card.team-stats {
+  background-color: rgba(255,255,255,0.05);
+  min-height: 380px;
+}
+.card.team-stats h3 {
+  color: #88c2dd;
+}
+
 .stats-container::-webkit-scrollbar {
-  width: 8px; /* 스크롤바 너비 */
-  height: 8px; /* 가로 스크롤바 높이 (필요하면 유지) */
+  width: 8px;
 }
-
 .stats-container::-webkit-scrollbar-track {
-  background: #282828; /* 스크롤바 배경색 (어두운 회색) */
+  background: #282828;
 }
-
 .stats-container::-webkit-scrollbar-thumb {
-  background: #CED4DA; /* 스크롤바 막대 색상 (밝은 회색) */
-  border-radius: 10px; /* 스크롤바 둥글게 처리 */
+  background: #CED4DA;
+  border-radius: 10px;
 }
 
     
@@ -337,26 +247,6 @@ th {
    <div class="tabs">
      <button class="tab-button active" data-tab="tab-all">전체 선수 통계</button>
      <button class="tab-button" data-tab="tab-player">선수 개인 검색</button>
-    <div id="playerSearch">
-<div style="text-align:center; margin: 20px 0;">
-  <input type="text" id="searchPlayer" placeholder="Search player...">
-  <button class="search-btn" onclick="showPlayerStats()">Search</button>
-  
-  <input type="checkbox" id="minGames" style="margin-left:30px; vertical-align: middle;">
-  <label for="minGames" style="color:#FFF; vertical-align: middle;">규정 경기 이상(14G)</label>
-  <script>
-  document.getElementById('minGames').addEventListener('change', () => {
-    const currentPlayerName = document.getElementById('searchPlayer').value.trim();
-    if(currentPlayerName !== "") showPlayerStats();
-  });
-</script>
-</div>
-
-</div>
-<div class="player-name" id="playerName"></div>
-<div class="team-name" id="teamName"></div>
-
-    <div class="stats-container" id="statsContainer"></div>
      <button class="tab-button" data-tab="tab-compare">선수 비교</button>
    </div>
  
@@ -506,22 +396,22 @@ th {
    }, 200);
  }
  
- function searchPlayer(){
-   const query = document.getElementById('playerSearch').value.toLowerCase().trim();
-   clearFixedRow();
-   const rows = document.querySelectorAll('#tableBody tr');
-   let found = false;
-   rows.forEach(row => {
-     const name = row.cells[0].textContent.toLowerCase();
-     row.classList.remove('highlight');
-     if (name.includes(query)){
-       found = true;
-       row.classList.add('highlight');
-       fixRow(row);
-     }
-   });
-   if (!found) alert("Player not found!");
- }
+function searchPlayer(){
+  const query = document.getElementById('searchPlayerAll').value.toLowerCase().trim();
+  clearFixedRow();
+  const rows = document.querySelectorAll('#tableBody tr');
+  let found = false;
+  rows.forEach(row => {
+    const name = row.cells[0].textContent.toLowerCase();
+    row.classList.remove('highlight');
+    if (name.includes(query)){
+      found = true;
+      row.classList.add('highlight');
+      fixRow(row);
+    }
+  });
+  if (!found) alert("Player not found!");
+}
  
  function fixRow(row) {
    clearFixedRow();
