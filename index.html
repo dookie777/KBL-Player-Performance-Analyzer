@@ -260,44 +260,17 @@ thead th {
   min-width: max-content !important;
   width: max-content !important;
 }
-/* ✅ 최종 완벽 가로스크롤 + 헤더 고정 해결 코드 */
-#tab-all {
-  overflow: hidden !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
+/* ✅ 긴급 가로스크롤 최종 해결 코드 */
 #tab-all .scroll-container {
   overflow: auto !important;
-  flex: 1 !important;
+  height: calc(100vh - 250px) !important; /* 스크롤 생성을 위한 필수 높이 설정 */
 }
 
 #tab-all table {
-  min-width: max-content !important;
   width: max-content !important;
+  min-width: max-content !important;
 }
 
-/* ✅ 헤더 1,2열 고정 (상단 및 좌측 명확 고정됨) */
-#tab-all th:nth-child(1),
-#tab-all th:nth-child(2) {
-  position: sticky !important;
-  top: 0 !important;
-  background-color: #282828 !important;
-  z-index: 500 !important;
-}
-
-#tab-all td:nth-child(1),
-#tab-all td:nth-child(2) {
-  position: sticky !important;
-  left: 0 !important;
-  background-color: #282828 !important;
-  z-index: 400 !important;
-}
-
-#tab-all th:nth-child(2),
-#tab-all td:nth-child(2) {
-  left: 150px !important;
-}
   </style>
 </head>
 <body>
