@@ -173,6 +173,95 @@
       background: #CED4DA;
       border-radius: 10px;
     }
+/* 1,2열(선수이름, 팀) 고정하기 위한 CSS */
+#tab-all th:nth-child(1), #tab-all td:nth-child(1),
+#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 300;
+}
+
+#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+  left: 150px;
+}
+    /* 선수 개인검색(2페이지) 결과 카드 정상 디자인 코드 */
+
+.player-name {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 15px 0 5px 0;
+  text-align: center;
+  color: #FFF;
+}
+
+.team-name {
+  font-size: 1rem;
+  text-align: center;
+  color: #FFF;
+  margin-bottom: 15px;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+  overflow-y: auto;
+  height: calc(100vh - 250px);
+  padding-right: 10px;
+}
+
+.card {
+  background-color: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  box-sizing: border-box;
+  min-height: 350px;
+}
+
+.card.primary:nth-child(2) {
+  min-height: 420px;
+}
+
+.card.primary h3 { color: #FFA500; }
+.card.secondary h3 { color: #88c2dd; }
+
+.card h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.card th, .card td {
+  padding: 8px 5px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  font-size: 0.9rem;
+}
+
+.highlight {
+  color: #FFFF55 !important;
+  font-weight: bold;
+}
+
+.stats-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.stats-container::-webkit-scrollbar-track {
+  background: #282828;
+}
+
+.stats-container::-webkit-scrollbar-thumb {
+  background: #CED4DA;
+  border-radius: 10px;
+}
 
   </style>
 </head>
@@ -194,7 +283,17 @@
     <div class="scroll-container">
       <table id="statsTable">
         <thead>
-          <!-- Table headers -->
+            <tr>
+    <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
+    <th>PTS(총득점)</th><th>PTS_avg</th><th>FG</th><th>FGA</th><th>FG%</th>
+    <th>2P</th><th>2PA</th><th>2P%</th><th>3P</th><th>3PA</th><th>3P%</th>
+    <th>FT</th><th>FTA</th><th>FT%</th><th>ORB</th><th>DRB</th><th>TRB</th>
+    <th>TRB_avg</th><th>AST</th><th>AST_avg</th><th>STL</th><th>STL_avg</th>
+    <th>BLK</th><th>BLK_avg</th><th>TO</th><th>PF</th><th>WS</th><th>OWS</th>
+    <th>DWS</th><th>PER</th><th>TS%</th><th>eFG%</th><th>USG%</th>
+    <th>Off Rating</th><th>Def Rating</th><th>Eff/Game</th><th>Eff/40min</th>
+    <th>ORB%</th><th>DRB%</th><th>AST%</th><th>STL%</th><th>BLK%</th><th>TOV%</th>
+  </tr>
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
@@ -332,34 +431,34 @@ function searchPlayer(){
 }
  
  function fixRow(row) {
-   clearFixedRow();
-   fixedRow = row.cloneNode(true);
-   fixedRow.classList.add('fixed-row', 'highlight');
-   fixedRow.style.position = 'sticky';
-   fixedRow.style.top = '34px';
-   fixedRow.style.backgroundColor = '#000';
-   fixedRow.style.zIndex = '500';
- 
-   const releaseBtn = document.createElement('button');
-   releaseBtn.textContent = '해제';
-   releaseBtn.style.marginLeft = '10px';
-   releaseBtn.onclick = () => {
-     clearFixedRow();
-     document.getElementById('playerSearch').value = "";
-   };
- 
-   fixedRow.cells[0].appendChild(releaseBtn);
-   document.querySelector('#statsTable thead').after(fixedRow);
- }
- 
- function clearFixedRow() {
-   if (fixedRow) {
-     const originalRows = document.querySelectorAll('#tableBody tr');
-     originalRows.forEach(row => row.classList.remove('highlight'));
-     fixedRow.remove();
-   }
-   fixedRow = null;
- }
+  clearFixedRow();
+  fixedRow = row.cloneNode(true);
+  fixedRow.classList.add('fixed-row', 'highlight');
+  fixedRow.style.position = 'sticky';
+  fixedRow.style.top = '34px';
+  fixedRow.style.backgroundColor = '#000';
+  fixedRow.style.zIndex = '500';
+
+  const releaseBtn = document.createElement('button');
+  releaseBtn.textContent = '해제';
+  releaseBtn.style.marginLeft = '10px';
+  releaseBtn.onclick = () => {
+    clearFixedRow();
+    document.getElementById('searchPlayerAll').value = "";
+  };
+
+  fixedRow.cells[0].appendChild(releaseBtn);
+  document.querySelector('#statsTable thead').after(fixedRow);
+}
+
+function clearFixedRow() {
+  if (fixedRow) {
+    const originalRows = document.querySelectorAll('#tableBody tr');
+    originalRows.forEach(row => row.classList.remove('highlight'));
+    fixedRow.remove();
+  }
+  fixedRow = null;
+}
  
  const sortDirections = {};
  document.querySelectorAll('#statsTable th').forEach((header, index) => {
