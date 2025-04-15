@@ -130,14 +130,30 @@ thead th {
   background: #FFA500;
 }
 
-/* ✅1열, 2열 (선수 이름, 팀) 정확한 고정 코드 */
+/* ✅ 1,2열 고정 수정 (헤더(th)와 데이터셀(td) 분리하여 적용) */
+
+/* 헤더 (th)만 고정 */
 #tab-all th:nth-child(1), 
-#tab-all td:nth-child(1),
-#tab-all th:nth-child(2), 
+#tab-all th:nth-child(2) {
+  position: sticky;
+  top: 0; /* 상단 헤더 고정 */
+  background-color: #282828;
+  z-index: 500; /* 반드시 td보다 더 높아야 함 */
+}
+
+/* 데이터셀 (td)만 좌측으로 고정 (상단으로는 움직이면 안됨) */
+#tab-all td:nth-child(1), 
 #tab-all td:nth-child(2) {
   position: sticky;
+  left: 0; /* 왼쪽에 고정됨 */
   background-color: #282828;
-  z-index: 300;
+  z-index: 400; /* th보다 낮아야 함 */
+}
+
+/* 팀 (2열)의 left 값 추가 */
+#tab-all td:nth-child(2), 
+#tab-all th:nth-child(2) {
+  left: 150px; /* 선수 이름 열 넓이에 맞춰 정확히 오른쪽으로 고정됨 */
 }
 
 
@@ -238,7 +254,10 @@ thead th {
   border-bottom: 1px solid rgba(255,255,255,0.2);
   font-size: 0.9rem;
 }
-
+.scroll-container {
+  overflow: auto;
+  height: calc(100vh - 250px); /* 스크롤바 길이 문제 해결 */
+}
   </style>
 </head>
 <body>
