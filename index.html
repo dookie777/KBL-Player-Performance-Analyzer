@@ -1,321 +1,224 @@
 <!DOCTYPE html>
- <html lang="en">
- <head>
- <meta charset="UTF-8">
- <title>KBL Player Stats Analyzer</title>
- <style>
-body {
-  background: #121212;
-  color: #FFF;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KBL Player Stats Analyzer</title>
+  <style>
+    body {
+      background: #121212;
+      color: #FFF;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-  box-sizing: border-box;
-}
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+      box-sizing: border-box;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-h2, .tabs { 
-  text-align: center; 
-}
-h2 { 
-  color: #FFA500; 
-}
+    h2 {
+      text-align: center;
+      color: #FFA500;
+    }
 
-.tabs button {
-  background: #282828;
-  color: #FFF;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  margin: 0 5px;
-  font-weight: bold;
-  width: 160px;
-}
-.tabs button.active {
-  background: #E0E0E0;
-  color: #000;
-}
+    .tabs {
+      text-align: center;
+      margin-bottom: 15px;
+    }
 
-.tab-content {
-  display: none;
-  flex: 1;
-  overflow-y: auto;
-  height: calc(100vh - 100px);
-}
-.tab-content.active { 
-  display: block; 
-}
+    .tabs button {
+      background: #282828;
+      color: #FFF;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin: 0 5px;
+      font-weight: bold;
+      width: 160px;
+    }
 
-table {
-  border-collapse: collapse;
-  white-space: nowrap;
-  min-width: 1500px;
-  width: 100%;
-}
-thead th {
-  background: #282828;
-  position: sticky;
-  top: 0;
-  cursor: pointer;
-  z-index: 200;
-}
-tbody td {
-  background: #181818;
-}
-th, td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #333;
-  font-size: 0.85rem;
-  text-align: center;
-}
+    .tabs button.active {
+      background: #E0E0E0;
+      color: #000;
+    }
 
-th:nth-child(1), td:nth-child(1),
-th:nth-child(2), td:nth-child(2) {
-  position: sticky;
-  left: 0;
-  background-color: #282828;
-  z-index: 300;
-}
-th:nth-child(2), td:nth-child(2) { 
-  left: 150px; 
-}
+    .tab-content {
+      display: none;
+      flex: 1;
+      overflow: auto;
+    }
 
-.valid { color: #55FF55; }
-.warning { color: #FF5555; }
+    .tab-content.active {
+      display: block;
+    }
 
-.highlight, .highlight td, .highlight span {
-  color: #FFFF55 !important;
-  font-weight: bold;
-}
+    table {
+      border-collapse: collapse;
+      white-space: nowrap;
+      width: 100%;
+    }
 
-.footer {
-  padding: 10px 0;
-  border-top: 1px solid #333;
-  font-size: 0.8rem;
-  color: #888;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #000;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  pointer-events: none;
-}
-.footer img { width: 100px; height: auto; margin-bottom: 5px; }
+    th, td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #333;
+      font-size: 0.85rem;
+      text-align: center;
+      background: #181818;
+    }
 
-.scroll-container {
-  overflow: auto;
-  position: relative;
-  height: calc(100% - 180px);
-}
-.scroll-container::-webkit-scrollbar { 
-  height: 8px; width: 8px; 
-}
-.scroll-container::-webkit-scrollbar-track { 
-  background: #282828; 
-}
-.scroll-container::-webkit-scrollbar-thumb { 
-  background: #555; 
-  border-radius: 10px; 
-}
+    thead th {
+      background: #282828;
+      position: sticky;
+      top: 0;
+      cursor: pointer;
+      z-index: 200;
+    }
 
-.input-box {
-  margin: 20px 0;
-  text-align: center;
-}
+    #tab-all th:nth-child(1), #tab-all td:nth-child(1),
+    #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+      position: sticky;
+      left: 0;
+      background-color: #282828;
+      z-index: 300;
+    }
 
-#searchPlayerAll {
-  width: 250px;
-  height: 30px;
-  padding: 5px 10px;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: none;
-  box-sizing: border-box;
-  vertical-align: middle;
-}
+    #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+      left: 150px;
+    }
 
-.input-box button {
-  height: 42px;
-  padding: 5px 15px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 5px;
-  background-color: #88c2dd;
-  color: #121212;
-  border: none;
-  box-sizing: border-box;
-  vertical-align: middle;
-}
+    .highlight { color: #FFFF55 !important; font-weight: bold; }
 
-.input-box label {
-  font-size: 0.9rem;
-  vertical-align: middle;
-  color: #FFF;
-  margin-left: 15px;
-}
+    .footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.8rem;
+      color: #888;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #000;
+      pointer-events: none;
+    }
 
-.player-name {
-  font-size: 2rem;
-  color: #FFF;
-  font-weight: bold;
-  margin: 15px 0 5px 0;
-  text-align: center;
-}
-.team-name {
-  font-size: 1rem;
-  color: #FFF;
-  margin-bottom: 15px;
-  text-align: center;
-}
+    .input-box {
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 15px;
-  overflow-y: auto;
-  height: calc(100vh - 250px);
-  padding-right: 10px;
-}
+    .input-box input[type="text"] {
+      width: 250px;
+      height: 42px;
+      padding: 5px 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: none;
+      box-sizing: border-box;
+      margin-right: 5px;
+    }
 
-.card {
-  background-color: rgba(255,255,255,0.05);
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  box-sizing: border-box;
-  min-height: 350px;
-}
+    .input-box button {
+      height: 42px;
+      padding: 5px 15px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: #88c2dd;
+      color: #121212;
+      border: none;
+    }
 
-.card.primary:nth-child(2) {
-  min-height: 420px;
-}
-.card.primary h3 {
-  color: #FFA500;
-}
+    .player-name, .team-name {
+      text-align: center;
+    }
 
-.card.secondary h3 {
-  color: #88c2dd;
-}
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
 
-.card h3 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-}
+    .card {
+      background-color: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      box-sizing: border-box;
+    }
 
-.card.team-stats {
-  background-color: rgba(255,255,255,0.05);
-  min-height: 380px;
-}
-.card.team-stats h3 {
-  color: #88c2dd;
-}
+    .card h3 { color: #FFA500; }
+    .card.secondary h3 { color: #88c2dd; }
 
-.stats-container::-webkit-scrollbar {
-  width: 8px;
-}
-.stats-container::-webkit-scrollbar-track {
-  background: #282828;
-}
-.stats-container::-webkit-scrollbar-thumb {
-  background: #CED4DA;
-  border-radius: 10px;
-}
-/* 테이블 헤더 고정 (전체 선수 탭 전용으로 제한) */
-#tab-all table thead th:nth-child(1), 
-#tab-all table tbody td:nth-child(1),
-#tab-all table thead th:nth-child(2), 
-#tab-all table tbody td:nth-child(2) {
-  position: sticky;
-  left: 0;
-  background-color: #282828;
-  z-index: 300;
-}
+    .card table { width: 100%; }
 
-#tab-all table thead th:nth-child(2), 
-#tab-all table tbody td:nth-child(2) {
-  left: 150px;
-}
+    .stats-container::-webkit-scrollbar {
+      width: 8px;
+    }
 
-    
- </style>
- </head>
- <body>
- <div class="container">
-   <h2>KBL Player Stats Analyzer</h2>
-   <div class="tabs">
-     <button class="tab-button active" data-tab="tab-all">전체 선수 통계</button>
-     <button class="tab-button" data-tab="tab-player">선수 개인 검색</button>
-     <button class="tab-button" data-tab="tab-compare">선수 비교</button>
-   </div>
- 
-<div id="tab-all" class="tab-content active">
-  <div class="input-box" style="text-align:center;">
-    <input type="text" id="searchPlayerAll" placeholder="Search player..." />
-    <button onclick="searchPlayer()">Search</button>
-    <label style="color:#FFFFFF; margin-left:15px;">
-      <input type="checkbox" id="minGamesCheckbox"> 규정 경기 이상만 표시(14G)
-    </label>
+    .stats-container::-webkit-scrollbar-track {
+      background: #282828;
+    }
+
+    .stats-container::-webkit-scrollbar-thumb {
+      background: #CED4DA;
+      border-radius: 10px;
+    }
+
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>KBL Player Stats Analyzer</h2>
+  <div class="tabs">
+    <button class="tab-button active" data-tab="tab-all">전체 선수 통계</button>
+    <button class="tab-button" data-tab="tab-player">선수 개인 검색</button>
   </div>
- 
-     <div class="scroll-container" onscroll="document.querySelector('[style*=overflow-x]').scrollLeft=this.scrollLeft;">
-       <table id="statsTable">
-         <thead>
-           <tr>
-             <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
-             <th>PTS(총득점)</th><th>PTS_avg</th><th>FG</th><th>FGA</th><th>FG%</th>
-             <th>2P</th><th>2PA</th><th>2P%</th><th>3P</th><th>3PA</th><th>3P%</th>
-             <th>FT</th><th>FTA</th><th>FT%</th><th>ORB</th><th>DRB</th><th>TRB</th>
-             <th>TRB_avg</th><th>AST</th><th>AST_avg</th><th>STL</th><th>STL_avg</th>
-             <th>BLK</th><th>BLK_avg</th><th>TO</th><th>PF</th><th>WS</th><th>OWS</th>
-             <th>DWS</th><th>PER</th><th>TS%</th><th>eFG%</th><th>USG%</th>
-             <th>Off Rating</th><th>Def Rating</th><th>Eff/Game</th><th>Eff/40min</th>
-             <th>ORB%</th><th>DRB%</th><th>AST%</th><th>STL%</th><th>BLK%</th><th>TOV%</th>
-           </tr>
-         </thead>
-         <tbody id="tableBody"></tbody>
-       </table>
-     </div>
-     <footer class="footer">
-       <img src="https://github.com/dookie777/vibe-index/blob/main/Logo_white.png?raw=true">
-       <div>© 2025 The Eroom Sports. All rights reserved.</div>
-     </footer>
-   </div>
-<div id="tab-player" class="tab-content">
 
-<div id="playerSearchPlayer">
-    <div style="text-align:center; margin: 20px 0;">
-      <input type="text" id="searchPlayer" placeholder="Search player...">
-      <button class="search-btn" onclick="showPlayerStats()">Search</button>
-
-      <input type="checkbox" id="minGames" style="margin-left:30px; vertical-align: middle;">
-      <label for="minGames" style="color:#FFF; vertical-align: middle;">규정 경기 이상(14G)</label>
+  <div id="tab-all" class="tab-content active">
+    <div class="input-box">
+      <input type="text" id="searchPlayerAll" placeholder="Search player...">
+      <button onclick="searchPlayer()">Search</button>
+      <input type="checkbox" id="minGamesCheckbox">
+      <label for="minGamesCheckbox">규정 경기 이상만 표시(14G)</label>
+    </div>
+    <div class="scroll-container">
+      <table id="statsTable">
+        <thead>
+          <!-- Table headers -->
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
   </div>
 
-  <div class="player-name" id="playerName"></div>
-  <div class="team-name" id="teamName"></div>
-  <div class="stats-container" id="statsContainer"></div>
+  <div id="tab-player" class="tab-content">
+    <div class="input-box">
+      <input type="text" id="searchPlayer" placeholder="Search player...">
+      <button onclick="showPlayerStats()">Search</button>
+      <input type="checkbox" id="minGames">
+      <label for="minGames">규정 경기 이상(14G)</label>
+    </div>
+    <div class="player-name" id="playerName"></div>
+    <div class="team-name" id="teamName"></div>
+    <div class="stats-container" id="statsContainer"></div>
+  </div>
 
-</div>   <div id="tab-compare" class="tab-content"><p>선수 비교 페이지</p></div>
- </div>
- <script>
+  <footer class="footer">
+    © 2025 The Eroom Sports. All rights reserved.
+  </footer>
+</div>
+
+<script>
  const tabs = document.querySelectorAll('.tab-button');
  const contents = document.querySelectorAll('.tab-content');
  
