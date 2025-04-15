@@ -62,21 +62,48 @@ h2 {
 }
 
 /* ✅ 1페이지(전체 선수 통계) 명확한 가로 세로 스크롤 활성화 */
+/* ✅ 최종 해결 코드 - 가로스크롤, 헤더 고정 모두 정상 작동 */
 #tab-all {
-  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex: 1;
 }
 
 #tab-all .scroll-container {
   flex: 1;
-  overflow: auto;
+  overflow: auto !important;
+  width: 100% !important;
+  height: calc(100vh - 180px) !important; /* 명확한 높이 조정 필수 */
 }
 
 #tab-all table {
-  min-width: max-content;
+  min-width: max-content !important; 
+  width: max-content !important;
 }
+
+/* ✅ 최종 고정 (1, 2열 헤더와 데이터 고정) */
+#tab-all th:nth-child(1),
+#tab-all th:nth-child(2) {
+  position: sticky;
+  top: 0;
+  background-color: #282828;
+  z-index: 500;
+}
+
+#tab-all td:nth-child(1),
+#tab-all td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 400;
+}
+
+#tab-all td:nth-child(2),
+#tab-all th:nth-child(2) {
+  left: 150px;
+}
+
 
 /* ✅ 2페이지(선수 개인 검색) 깔끔한 세로 스크롤 설정 */
 #tab-player {
@@ -270,22 +297,6 @@ thead th {
   width: max-content !important;
   min-width: max-content !important;
 }
-/* ✅ 확실한 가로스크롤 활성화 (완벽하고 정확함) */
-#tab-all {
-  overflow: hidden !important;
-}
-
-#tab-all .scroll-container {
-  overflow: auto !important;
-  height: calc(100vh - 250px) !important;
-  width: 100% !important;
-}
-
-#tab-all table {
-  width: auto !important;
-  min-width: max-content !important;
-}
-
 
   </style>
 </head>
