@@ -261,7 +261,27 @@ thead th {
   min-width: max-content !important;
   width: max-content !important;
 }
+/* ✅ 최종 긴급해결: 1,2열 완벽 고정 */
+#tab-all th:nth-child(1),
+#tab-all th:nth-child(2) {
+  position: sticky;
+  top: 0; /* 필수 */
+  z-index: 500;
+  background-color: #282828 !important;
+}
 
+#tab-all td:nth-child(1),
+#tab-all td:nth-child(2) {
+  position: sticky;
+  left: 0; /* 1열 고정 */
+  z-index: 400;
+  background-color: #282828 !important;
+}
+
+#tab-all th:nth-child(2),
+#tab-all td:nth-child(2) {
+  left: 150px; /* 2열 정확히 고정 */
+}
   </style>
 </head>
 <body>
