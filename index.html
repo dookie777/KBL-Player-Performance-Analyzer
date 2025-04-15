@@ -270,6 +270,22 @@ thead th {
   width: max-content !important;
   min-width: max-content !important;
 }
+/* ✅ 확실한 가로스크롤 활성화 (완벽하고 정확함) */
+#tab-all {
+  overflow: hidden !important;
+}
+
+#tab-all .scroll-container {
+  overflow: auto !important;
+  height: calc(100vh - 250px) !important;
+  width: 100% !important;
+}
+
+#tab-all table {
+  width: auto !important;
+  min-width: max-content !important;
+}
+
 
   </style>
 </head>
