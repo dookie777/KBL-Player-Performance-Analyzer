@@ -270,32 +270,33 @@ thead th {
     <button class="tab-button" data-tab="tab-player">선수 개인 검색</button>
   </div>
 
-  <div id="tab-all" class="tab-content active">
-    <div class="input-box">
-      <input type="text" id="searchPlayerAll" placeholder="Search player...">
-      <button onclick="searchPlayer()">Search</button>
-      <input type="checkbox" id="minGamesCheckbox">
-      <label for="minGamesCheckbox">규정 경기 이상만 표시(14G)</label>
-    </div>
-    <div class="scroll-container">
-      <table id="statsTable">
-        <thead>
-            <tr>
-    <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
-    <th>PTS(총득점)</th><th>PTS_avg</th><th>FG</th><th>FGA</th><th>FG%</th>
-    <th>2P</th><th>2PA</th><th>2P%</th><th>3P</th><th>3PA</th><th>3P%</th>
-    <th>FT</th><th>FTA</th><th>FT%</th><th>ORB</th><th>DRB</th><th>TRB</th>
-    <th>TRB_avg</th><th>AST</th><th>AST_avg</th><th>STL</th><th>STL_avg</th>
-    <th>BLK</th><th>BLK_avg</th><th>TO</th><th>PF</th><th>WS</th><th>OWS</th>
-    <th>DWS</th><th>PER</th><th>TS%</th><th>eFG%</th><th>USG%</th>
-    <th>Off Rating</th><th>Def Rating</th><th>Eff/Game</th><th>Eff/40min</th>
-    <th>ORB%</th><th>DRB%</th><th>AST%</th><th>STL%</th><th>BLK%</th><th>TOV%</th>
-  </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
+<div id="tab-all" class="tab-content active">
+  <div class="input-box">
+    <input type="text" id="searchPlayerAll" placeholder="Search player...">
+    <button onclick="searchPlayer()">Search</button>
+    <input type="checkbox" id="minGamesCheckbox">
+    <label for="minGamesCheckbox">규정 경기 이상만 표시(14G)</label>
   </div>
+  <div class="scroll-container" style="overflow:auto; flex:1;">
+    <table id="statsTable" style="width:max-content; min-width:100%;">
+      <thead>
+        <tr>
+          <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
+          <th>PTS(총득점)</th><th>PTS_avg</th><th>FG</th><th>FGA</th><th>FG%</th>
+          <th>2P</th><th>2PA</th><th>2P%</th><th>3P</th><th>3PA</th><th>3P%</th>
+          <th>FT</th><th>FTA</th><th>FT%</th><th>ORB</th><th>DRB</th><th>TRB</th>
+          <th>TRB_avg</th><th>AST</th><th>AST_avg</th><th>STL</th><th>STL_avg</th>
+          <th>BLK</th><th>BLK_avg</th><th>TO</th><th>PF</th><th>WS</th><th>OWS</th>
+          <th>DWS</th><th>PER</th><th>TS%</th><th>eFG%</th><th>USG%</th>
+          <th>Off Rating</th><th>Def Rating</th><th>Eff/Game</th><th>Eff/40min</th>
+          <th>ORB%</th><th>DRB%</th><th>AST%</th><th>STL%</th><th>BLK%</th><th>TOV%</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
 
   <div id="tab-player" class="tab-content">
     <div class="input-box">
