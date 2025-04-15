@@ -49,64 +49,50 @@ h2 {
   color: #000;
 }
 
-/* ✅ 최종적으로 탭 콘텐츠 전환 문제 해결 */
+/* ✅ 명확한 탭 콘텐츠 전환 설정 (최종 확정) */
 .tab-content {
-  display: none !important; /* 기본적으로 비활성 탭 숨기기 */
+  display: none !important;
   flex-direction: column;
-  overflow: hidden !important;
   flex: 1;
+  overflow: hidden !important;
 }
 
 .tab-content.active {
-  display: flex !important; /* 활성 탭만 보이게 함 */
-}
-table {
-  border-collapse: collapse;
-  white-space: nowrap;
-  width: 100%;
+  display: flex !important;
 }
 
-th, td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #333;
-  font-size: 0.85rem;
-  text-align: center;
-  background: #181818;
+/* ✅ 1페이지(전체 선수 통계) 명확한 가로 세로 스크롤 활성화 */
+#tab-all {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-thead th {
-  background: #282828;
-  position: sticky;
-  top: 0;
-  cursor: pointer;
-  z-index: 200;
+#tab-all .scroll-container {
+  flex: 1;
+  overflow: auto;
 }
 
-#tab-all .input-box {
-  position: sticky;
-  top: 0;
-  background: #121212;
-  z-index: 500;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #333;
+#tab-all table {
+  min-width: max-content;
 }
 
-
-#tab-all th:nth-child(1), #tab-all td:nth-child(1) {
-  left: 0;
+/* ✅ 2페이지(선수 개인 검색) 깔끔한 세로 스크롤 설정 */
+#tab-player {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
-  left: 150px;
+#tab-player .stats-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-#tab-all th {
-  top: 0;
-  z-index: 400;
-}
-
-/* ✅ 스크롤바 디자인 최종 수정 (완벽하게 한번만 넣기) */
+/* ✅ 스크롤바 디자인 통일 (한 번만 적용) */
 .scroll-container::-webkit-scrollbar,
 .stats-container::-webkit-scrollbar {
   width: 10px;
@@ -131,33 +117,44 @@ thead th {
   background: #FFA500;
 }
 
-/* ✅ 1,2열 고정 수정 (헤더(th)와 데이터셀(td) 분리하여 적용) */
+/* ✅ 테이블 기본 설정 (고정열 유지) */
+table {
+  border-collapse: collapse;
+  white-space: nowrap;
+  width: 100%;
+}
 
-/* 헤더 (th)만 고정 */
-#tab-all th:nth-child(1), 
-#tab-all th:nth-child(2) {
+th, td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+  text-align: center;
+  background: #181818;
+}
+
+thead th {
+  background: #282828;
   position: sticky;
-  top: 0; /* 상단 헤더 고정 */
-  background-color: #282828;
-  z-index: 500; /* 반드시 td보다 더 높아야 함 */
+  top: 0;
+  cursor: pointer;
+  z-index: 200;
 }
 
-/* 데이터셀 (td)만 좌측으로 고정 (상단으로는 움직이면 안됨) */
-#tab-all td:nth-child(1), 
-#tab-all td:nth-child(2) {
+#tab-all th:nth-child(1), #tab-all td:nth-child(1) {
   position: sticky;
-  left: 0; /* 왼쪽에 고정됨 */
+  left: 0;
   background-color: #282828;
-  z-index: 400; /* th보다 낮아야 함 */
+  z-index: 400;
 }
 
-/* 팀 (2열)의 left 값 추가 */
-#tab-all td:nth-child(2), 
-#tab-all th:nth-child(2) {
-  left: 150px; /* 선수 이름 열 넓이에 맞춰 정확히 오른쪽으로 고정됨 */
+#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+  position: sticky;
+  left: 150px;
+  background-color: #282828;
+  z-index: 400;
 }
 
-
+/* ✅ 기타 스타일 (변경 없음) */
 .highlight { color: #FFFF55 !important; font-weight: bold; }
 
 .footer {
@@ -222,7 +219,6 @@ thead th {
   gap: 15px;
   margin-top: 20px;
   overflow-y: auto;
-  height: calc(100vh - 250px);
   padding-right: 10px;
 }
 
@@ -255,113 +251,7 @@ thead th {
   border-bottom: 1px solid rgba(255,255,255,0.2);
   font-size: 0.9rem;
 }
-.scroll-container {
-  overflow: auto;
-  height: calc(100vh - 250px); /* 스크롤바 길이 문제 해결 */
-}
-/* 가로스크롤 정상 복구 ("전체 선수 통계" 탭) */
-#tab-all .scroll-container {
-  overflow: auto !important;
-  width: 100% !important;
-  height: 100% !important;
-}
 
-#tab-all table {
-  min-width: max-content !important; /* 반드시 가로스크롤 활성화 유지 */
-}
-/* 선수 개인 검색 탭 세로스크롤 디자인 정상화 */
-#tab-player .stats-container {
-  overflow-y: auto !important;
-  height: calc(100vh - 250px) !important;
-  padding-right: 10px !important;
-}
-
-/* 두 탭의 스크롤바 통일 */
-#tab-all .scroll-container::-webkit-scrollbar,
-#tab-player .stats-container::-webkit-scrollbar {
-  width: 10px !important;
-  height: 10px !important;
-}
-
-#tab-all .scroll-container::-webkit-scrollbar-track,
-#tab-player .stats-container::-webkit-scrollbar-track {
-  background: #121212 !important;
-  border-radius: 5px !important;
-}
-
-#tab-all .scroll-container::-webkit-scrollbar-thumb,
-#tab-player .stats-container::-webkit-scrollbar-thumb {
-  background: #555 !important;
-  border-radius: 5px !important;
-  border: 2px solid #121212 !important;
-}
-
-#tab-all .scroll-container::-webkit-scrollbar-thumb:hover,
-#tab-player .stats-container::-webkit-scrollbar-thumb:hover {
-  background: #FFA500 !important;
-}
-
-#tab-all {
-  overflow-x: auto !important; /* 반드시 가로스크롤 복구 */
-}
-
-#tab-all table {
-  min-width: max-content; /* 테이블 최소 너비 확보하여 가로스크롤 생성 */
-}  
-
-    /* ✅ 최종 확정된 전체 선수 통계 탭 가로스크롤 정상 복구 */
-#tab-all .scroll-container {
-  overflow: auto !important;
-  height: calc(100vh - 250px) !important;
-}
-
-#tab-all table {
-  min-width: max-content !important;
-}
-
-/* ✅ 최종 확정된 선수 개인 검색 탭 세로스크롤 스타일 통일 */
-#tab-player .stats-container {
-  overflow-y: auto !important;
-  height: calc(100vh - 250px) !important;
-  padding-right: 10px !important;
-}
-
-/* ✅ 최종 확정된 선수 개인 검색 탭 스크롤바 스타일 통일 */
-#tab-player .stats-container::-webkit-scrollbar {
-  width: 10px !important;
-}
-
-#tab-player .stats-container::-webkit-scrollbar-track {
-  background: #121212 !important;
-  border-radius: 5px !important;
-}
-
-#tab-player .stats-container::-webkit-scrollbar-thumb {
-  background: #555 !important;
-  border-radius: 5px !important;
-  border: 2px solid #121212 !important;
-}
-
-#tab-player .stats-container::-webkit-scrollbar-thumb:hover {
-  background: #FFA500 !important;
-}
-    /* ✅ 전체 탭에서 스크롤 명확히 분리 및 활성화 */
-
-#tab-all {
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-}
-
-#tab-all .scroll-container {
-  overflow: auto !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-#tab-all table {
-  min-width: max-content !important; /* 반드시 테이블 너비 확보하여 가로 스크롤 활성화 */
-}
   </style>
 </head>
 <body>
