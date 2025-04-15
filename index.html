@@ -266,32 +266,37 @@ thead th {
 
 /* 선수 개인 검색 탭 세로스크롤 스타일 ("전체 선수 통계"와 동일하게 변경) */
 #tab-player .stats-container {
-  overflow-y: auto;
-  height: calc(100vh - 250px); /* 동일한 높이로 설정 */
+  overflow-y: auto !important;
+  height: calc(100vh - 250px) !important;
 }
 
-/* 선수 개인 검색 탭 스크롤바 디자인 ("전체 선수 통계" 탭과 동일하게 적용) */
 #tab-player .stats-container::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 10px !important;
 }
 
 #tab-player .stats-container::-webkit-scrollbar-track {
-  background: #121212;
-  border-radius: 5px;
+  background: #121212 !important;
+  border-radius: 5px !important;
 }
 
 #tab-player .stats-container::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 5px;
-  border: 2px solid #121212;
+  background: #555 !important;
+  border-radius: 5px !important;
+  border: 2px solid #121212 !important;
 }
 
 #tab-player .stats-container::-webkit-scrollbar-thumb:hover {
-  background: #FFA500;
+  background: #FFA500 !important;
 }
 
-    
+
+#tab-all {
+  overflow-x: auto !important; /* 반드시 가로스크롤 복구 */
+}
+
+#tab-all table {
+  min-width: max-content; /* 테이블 최소 너비 확보하여 가로스크롤 생성 */
+}    
   </style>
 </head>
 <body>
