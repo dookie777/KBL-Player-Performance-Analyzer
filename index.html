@@ -284,7 +284,7 @@ th:nth-child(2), td:nth-child(2) {
    </div>
 <div id="tab-player" class="tab-content">
 
-  <div id="playerSearch">
+<div id="playerSearchPlayer">
     <div style="text-align:center; margin: 20px 0;">
       <input type="text" id="searchPlayer" placeholder="Search player...">
       <button class="search-btn" onclick="showPlayerStats()">Search</button>
@@ -598,9 +598,6 @@ statsContainer.innerHTML += createCard('팀내 비중 지표', [
 ], 'team-stats');
 
 
-
-
-
   } else {
     alert('선수를 찾을 수 없습니다.');
   }
@@ -610,6 +607,38 @@ statsContainer.innerHTML += createCard('팀내 비중 지표', [
     searchPlayer();
   }
 });
+
+function createCard(title, stats, type = 'primary') {
+  return `
+    <div class="card ${type}">
+      <h3>${title}</h3>
+      <table>
+        ${stats.map(stat => `
+          <tr class="${stat.highlight ? 'highlight' : ''}">
+            <th>${stat.label}</th>
+            <td>${stat.value}</td>
+            <td>${stat.rank}</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>
+  `;
+}
+
+// 전체 통계 검색창에서 엔터 키 동작
+document.getElementById('searchPlayerAll').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    searchPlayer();
+  }
+});
+
+// 개인 선수 탭 검색창에서 엔터 키 동작
+document.getElementById('searchPlayer').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    showPlayerStats();
+  }
+});
+
   
  </script>
  
