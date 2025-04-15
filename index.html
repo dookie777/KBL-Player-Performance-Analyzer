@@ -49,16 +49,17 @@ h2 {
   color: #000;
 }
 
+/* ✅ 최종적으로 탭 콘텐츠 전환 문제 해결 */
 .tab-content {
-  display: none;
+  display: none !important; /* 기본적으로 비활성 탭 숨기기 */
+  flex-direction: column;
+  overflow: hidden !important;
   flex: 1;
-  overflow: auto;
 }
 
 .tab-content.active {
-  display: block;
+  display: flex !important; /* 활성 탭만 보이게 함 */
 }
-
 table {
   border-collapse: collapse;
   white-space: nowrap;
@@ -261,13 +262,13 @@ thead th {
 /* 가로스크롤 정상 복구 ("전체 선수 통계" 탭) */
 #tab-all .scroll-container {
   overflow: auto !important;
-  height: calc(100vh - 250px) !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 #tab-all table {
-  min-width: max-content !important;
+  min-width: max-content !important; /* 반드시 가로스크롤 활성화 유지 */
 }
-
 /* 선수 개인 검색 탭 세로스크롤 디자인 정상화 */
 #tab-player .stats-container {
   overflow-y: auto !important;
@@ -345,36 +346,7 @@ thead th {
   background: #FFA500 !important;
 }
     /* ✅ 전체 탭에서 스크롤 명확히 분리 및 활성화 */
-.tab-content.active {
-  display: flex !important;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden !important;
-}
 
-/* ✅ 전체 선수 통계 탭 가로/세로 스크롤 명확히 복구 (#tab-all) */
-#tab-all .scroll-container {
-  overflow: auto !important;
-  height: 100% !important;
-  width: 100% !important;
-}
-
-#tab-all table {
-  min-width: max-content !important;
-}
-
-/* ✅ 선수 개인 검색 탭 이중 세로스크롤 제거 및 정상화 (#tab-player) */
-#tab-player {
-  overflow: hidden !important;
-}
-
-#tab-player .stats-container {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  height: 100% !important;
-  padding-right: 10px !important;
-}
-    /* ✅ 최종 수정: 전체 선수 통계 탭 가로 스크롤 강제 복구 */
 #tab-all {
   display: flex !important;
   flex-direction: column !important;
