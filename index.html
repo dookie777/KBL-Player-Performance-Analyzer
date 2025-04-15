@@ -252,24 +252,15 @@ thead th {
   border-bottom: 1px solid rgba(255,255,255,0.2);
   font-size: 0.9rem;
 }
-/* ✅ 가로스크롤 긴급 복구 코드 (명확하고 즉각적인 해결) */
+/* ✅ 최종 가로스크롤 설정 (통합) */
 #tab-all .scroll-container {
   overflow: auto !important;
+  width: 100% !important;
 }
 
 #tab-all table {
   min-width: max-content !important;
   width: max-content !important;
-}
-/* ✅ 긴급 가로스크롤 최종 해결 코드 */
-#tab-all .scroll-container {
-  overflow: auto !important;
-  height: calc(100vh - 250px) !important; /* 스크롤 생성을 위한 필수 높이 설정 */
-}
-
-#tab-all table {
-  width: max-content !important;
-  min-width: max-content !important;
 }
 
   </style>
