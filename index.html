@@ -398,8 +398,8 @@ thead th {
 }
 
 /* 차이 열 결과값 폰트 작게 조정 */
-#tab-compare .compare-result td.diff-cell {
-  font-size: 1.2rem !important; /* 기존보다 폰트 작게 조정 */
+#tab-compare .compare-result td.diff-cell span {
+  font-size: 1.2rem !important; /* 폰트 크기 1.2rem으로 지정 */
 }
 
 /* 빨간 정삼각형 아이콘 추가 스타일 */
@@ -407,14 +407,14 @@ thead th {
   content: "▲";
   color: red;
   margin-right: 4px;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
 }
 /* 음수(-)값: 파란 역삼각형 아이콘 추가 */
 .diff-negative::before {
   content: "▼";
   color: skyblue;
   margin-right: 5px;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
 }
   </style>
 </head>
@@ -1171,9 +1171,9 @@ if (playersData.length === 2) {
   }
 
   tableHTML += `
-    <td class="diff-cell ${diffClass}" style="color:#FFF; font-weight:bold;">
-      <span style="font-size:0.75rem;">${diffDisplay}</span>
-    </td>`;
+<td class="diff-cell ${diffClass}" style="color:#FFF; font-weight:bold;">
+  <span>${diffDisplay}</span>
+</td>
 }
 
 
