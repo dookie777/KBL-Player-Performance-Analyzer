@@ -385,11 +385,11 @@ thead th {
    filteredData.forEach(cols => {
      const playerName = cols[2];
      const status = cols[3] >= 14 ? '✅' : '⚠️';
-     const playtime = ${cols[4]}분 ${cols[5]}초;
+const playtime = `${cols[4]}분 ${cols[5]}초`;
  
      const row = document.createElement('tr');
      row.innerHTML = 
-       <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+  <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
        <td>${cols[1]}</td>
        <td>${cols[3]}</td>
        <td data-time="${cols[cols.length - 1]}">${playtime}</td>
@@ -660,27 +660,27 @@ statsContainer.innerHTML += createCard('팀내 비중 지표', [
 
 function createCard(title, stats, type = 'primary') {
   return 
-    <div class="card ${type}">
-      <h3>${title}</h3>
-      <table>
-        <thead>
+  <div class="card ${type}">
+    <h3>${title}</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>지표</th>
+          <th>기록</th>
+          <th>순위</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${stats.map(stat => `
           <tr>
-            <th>지표</th>
-            <th>기록</th>
-            <th>순위</th>
+            <td>${stat.label}</td>
+            <td>${stat.value}</td>
+            <td>${stat.rank}</td>
           </tr>
-        </thead>
-        <tbody>
-          ${stats.map(stat => 
-            <tr>
-              <td>${stat.label}</td>
-              <td>${stat.value}</td>
-              <td>${stat.rank}</td>
-            </tr>
-          ).join('')}
-        </tbody>
-      </table>
-    </div>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
   ;
 }
 
