@@ -454,9 +454,9 @@ thead th {
     <table id="statsTable" style="width:max-content; min-width:100%;">
      <thead>
   <tr>
-    <th>선수 이름</th>
-    <th>팀</th>
-    <th>경기수(G)</th>
+    <th>Player</th>
+    <th>Team</th>
+    <th>출전 경기 수</th>
     <th>출전시간</th>
     <th>득점</th>
     <th>평균 득점</th>
@@ -467,13 +467,13 @@ thead th {
     <th>FG%</th>
     <th>2PA</th>
     <th>2P</th>
-    <th>평균 2P 시도</th>
-    <th>평균 2P 성공</th>
+    <th>평균 2p 시도</th>
+    <th>평균 2p 성공</th>
     <th>2P%</th>
     <th>3PA</th>
     <th>3P</th>
-    <th>평균 3P 시도</th>
-    <th>평균 3P 성공</th>
+    <th>평균 3p 성공</th>
+    <th>평균 3p 성공</th>
     <th>3P%</th>
     <th>FTA</th>
     <th>FT</th>
@@ -498,13 +498,13 @@ thead th {
     <th>평균 파울</th>
     <th>WS</th>
     <th>WS/40</th>
-    <th>Offensive WS</th>
-    <th>Defensive WS</th>
+    <th>Offensive_WS</th>
+    <th>Defensive_WS</th>
     <th>PER</th>
     <th>EFF</th>
     <th>EFF/40</th>
-    <th>Offensive Rating</th>
-    <th>Defensive Rating</th>
+    <th>Offensive_rating</th>
+    <th>Defensive_rating</th>
     <th>USG%</th>
     <th>TS%</th>
     <th>eFG%</th>
@@ -515,7 +515,7 @@ thead th {
     <th>TRB%</th>
     <th>AST%</th>
     <th>STL%</th>
-    <th>BLK%</th>
+    <th>BS%</th>
     <th>TOV%</th>
   </tr>
 </thead>
@@ -556,7 +556,7 @@ thead th {
     <label><input type="checkbox" value="WinShare 지표" checked> WinShare 지표</label>
     <label><input type="checkbox" value="효율성 지표" checked> 효율성 지표</label>
     <label><input type="checkbox" value="2차 슈팅 지표" checked> 2차 슈팅 지표</label>
-    <label><input type="checkbox" value="팀내 비중 지표" checked> 팀내 비중 지표</label>
+    <label><input type="checkbox" value="Team내 비중 지표" checked> Team내 비중 지표</label>
   </div>
   <div class="compare-result" id="compareResult">
   </div>
@@ -584,7 +584,7 @@ const statsFormats = {
   25: {unit: '%', decimals: 2}, // 2P%
   29: {unit: '개', decimals: 0}, // 3PA
   30: {unit: '개', decimals: 0}, // 3P
-  31: {unit: '개', decimals: 2}, // 평균 3p 시도
+  31: {unit: '개', decimals: 2}, // 평균 3p 성공
   32: {unit: '개', decimals: 2}, // 평균 3p 성공
   33: {unit: '%', decimals: 2}, // 3P%
   37: {unit: '개', decimals: 0}, // FTA
@@ -611,10 +611,10 @@ const statsFormats = {
   // 여기서부터 소수점 3자리
   77: {unit: '', decimals: 3}, // WS
   78: {unit: '', decimals: 3}, // WS/40
-  79: {unit: '', decimals: 3}, // Offensive WS
-  80: {unit: '', decimals: 3}, // Defensive WS
-  85: {unit: '', decimals: 3}, // Offensive Rating
-  86: {unit: '', decimals: 3}, // Defensive Rating
+  79: {unit: '', decimals: 3}, // Offensive_WS
+  80: {unit: '', decimals: 3}, // Defensive_WS
+  85: {unit: '', decimals: 3}, // Offensive_rating
+  86: {unit: '', decimals: 3}, // Defensive_rating
   87: {unit: '', decimals: 3}, // PER
   88: {unit: '', decimals: 3}, // EFF
   89: {unit: '', decimals: 3}, // EFF/40
@@ -667,18 +667,18 @@ function renderTable(data) {
   tableBody.innerHTML = '';
 
   const minGamesOnly = document.getElementById('minGamesCheckbox').checked;
-  const filteredData = minGamesOnly ? data.filter(cols => parseInt(cols["경기수(G)"]) >= 14) : data;
+  const filteredData = minGamesOnly ? data.filter(cols => parseInt(cols["출전 경기 수"]) >= 14) : data;
 
   filteredData.forEach(cols => {
-    const playerName = cols["선수 이름"];
-    const status = parseInt(cols["경기수(G)"]) >= 14 ? '✅' : '⚠️';
+    const playerName = cols["Player"];
+    const status = parseInt(cols["출전 경기 수"]) >= 14 ? '✅' : '⚠️';
     const totalSeconds = parseInt(cols["출전시간(분)"]) * 60 + parseInt(cols["출전시간(초)"]);
 
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${playerName} <span class="${cols["경기수(G)"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
-      <td>${cols["팀"]}</td>
-      <td>${cols["경기수(G)"]}</td>
+      <td>${playerName} <span class="${cols["출전 경기 수"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+      <td>${cols["Team"]}</td>
+      <td>${cols["출전 경기 수"]}</td>
       <td data-time="${totalSeconds}">${cols["출전시간(분)"]}분 ${cols["출전시간(초)"]}초</td>
       <td>${cols["득점"]}</td>
       <td>${parseFloat(cols["평균 득점"]).toFixed(2)}</td>
@@ -689,13 +689,13 @@ function renderTable(data) {
       <td>${cols["FG%"]}</td>
       <td>${cols["2PA"]}</td>
       <td>${cols["2P"]}</td>
-      <td>${cols["평균 2P 시도"]}</td>
-      <td>${cols["평균 2P 성공"]}</td>
+      <td>${cols["평균 2p 시도"]}</td>
+      <td>${cols["평균 2p 성공"]}</td>
       <td>${cols["2P%"]}</td>
       <td>${cols["3PA"]}</td>
       <td>${cols["3P"]}</td>
-      <td>${cols["평균 3P 시도"]}</td>
-      <td>${cols["평균 3P 성공"]}</td>
+      <td>${cols["평균 3p 성공"]}</td>
+      <td>${cols["평균 3p 성공"]}</td>
       <td>${cols["3P%"]}</td>
       <td>${cols["FTA"]}</td>
       <td>${cols["FT"]}</td>
@@ -720,13 +720,13 @@ function renderTable(data) {
       <td>${cols["평균 파울"]}</td>
       <td>${cols["WS"]}</td>
       <td>${cols["WS/40"]}</td>
-      <td>${cols["Offensive WS"]}</td>
-      <td>${cols["Defensive WS"]}</td>
+      <td>${cols["Offensive_WS"]}</td>
+      <td>${cols["Defensive_WS"]}</td>
       <td>${cols["PER"]}</td>
       <td>${cols["EFF"]}</td>
       <td>${cols["EFF/40"]}</td>
-      <td>${cols["Offensive Rating"]}</td>
-      <td>${cols["Defensive Rating"]}</td>
+      <td>${cols["Offensive_rating"]}</td>
+      <td>${cols["Defensive_rating"]}</td>
       <td>${cols["USG%"]}</td>
       <td>${cols["TS%"]}</td>
       <td>${cols["eFG%"]}</td>
@@ -737,7 +737,7 @@ function renderTable(data) {
       <td>${cols["TRB%"]}</td>
       <td>${cols["AST%"]}</td>
       <td>${cols["STL%"]}</td>
-      <td>${cols["BLK%"]}</td>
+      <td>${cols["BS%"]}</td>
       <td>${cols["TOV%"]}</td>
     `;
     tableBody.appendChild(row);
@@ -840,21 +840,21 @@ function showPlayerStats() {
   const playerNameInput = document.getElementById('searchPlayer').value.trim();
   
   const minGamesChecked = document.getElementById('minGames').checked;
-  let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols["경기수(G)"]) >= 14) : originalData;
+  let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols["출전 경기 수"]) >= 14) : originalData;
 
   const playerData = filteredData.find(cols => 
-    cols["선수 이름"].trim().toLowerCase().includes(playerNameInput.toLowerCase())
+    cols["Player"].trim().toLowerCase().includes(playerNameInput.toLowerCase())
   );
 
   if (playerData) {
-    document.getElementById('playerName').innerText = playerData["선수 이름"];
-    document.getElementById('teamName').innerText = '(' + playerData["팀"] + ')';
+    document.getElementById('playerName').innerText = playerData["Player"];
+    document.getElementById('teamName').innerText = '(' + playerData["Team"] + ')';
 
     const statsContainer = document.getElementById('statsContainer');
     statsContainer.innerHTML = '';
 
     statsContainer.innerHTML += createCard('기본 정보', [
-      {label: '출전 경기 수', value: playerData["경기수(G)"] + '경기', rank: calculateRank(filteredData, "경기수(G)", playerData["경기수(G)"], true) + '위'},
+      {label: '출전 경기 수', value: playerData["출전 경기 수"] + '경기', rank: calculateRank(filteredData, "출전 경기 수", playerData["출전 경기 수"], true) + '위'},
       {label: '평균 출전 시간', value: playerData["출전시간(분)"] + '분 ' + playerData["출전시간(초)"] + '초', rank: calculateRank(filteredData, "총 출전 시간(초)", playerData["총 출전 시간(초)"], true) + '위'},
       {label: '총 득점', value: playerData["득점"] + '점', rank: calculateRank(filteredData, "득점", playerData["득점"], true) + '위'},
       {label: '평균 득점', value: parseFloat(playerData["평균 득점"]).toFixed(2) + '점', rank: calculateRank(filteredData, "평균 득점", playerData["평균 득점"], true) + '위'}
@@ -863,10 +863,10 @@ function showPlayerStats() {
     statsContainer.innerHTML += createCard('슈팅 지표', [
       {label: '평균 FG 시도', value: playerData["평균 FG 시도"], rank: calculateRank(filteredData, "평균 FG 시도", playerData["평균 FG 시도"], true) + '위'},
       {label: '평균 FG 성공', value: playerData["평균 FG 성공"], rank: calculateRank(filteredData, "평균 FG 성공", playerData["평균 FG 성공"], true) + '위'},
-      {label: '평균 2P 시도', value: playerData["평균 2P 시도"], rank: calculateRank(filteredData, "평균 2P 시도", playerData["평균 2P 시도"], true) + '위'},
-      {label: '평균 2P 성공', value: playerData["평균 2P 성공"], rank: calculateRank(filteredData, "평균 2P 성공", playerData["평균 2P 성공"], true) + '위'},
-      {label: '평균 3P 시도', value: playerData["평균 3P 시도"], rank: calculateRank(filteredData, "평균 3P 시도", playerData["평균 3P 시도"], true) + '위'},
-      {label: '평균 3P 성공', value: playerData["평균 3P 성공"], rank: calculateRank(filteredData, "평균 3P 성공", playerData["평균 3P 성공"], true) + '위'},
+      {label: '평균 2p 시도', value: playerData["평균 2p 시도"], rank: calculateRank(filteredData, "평균 2p 시도", playerData["평균 2p 시도"], true) + '위'},
+      {label: '평균 2p 성공', value: playerData["평균 2p 성공"], rank: calculateRank(filteredData, "평균 2p 성공", playerData["평균 2p 성공"], true) + '위'},
+      {label: '평균 3p 성공', value: playerData["평균 3p 성공"], rank: calculateRank(filteredData, "평균 3p 성공", playerData["평균 3p 성공"], true) + '위'},
+      {label: '평균 3p 성공', value: playerData["평균 3p 성공"], rank: calculateRank(filteredData, "평균 3p 성공", playerData["평균 3p 성공"], true) + '위'},
       {label: '평균 FT 시도', value: playerData["평균 FT 시도"], rank: calculateRank(filteredData, "평균 FT 시도", playerData["평균 FT 시도"], true) + '위'},
       {label: '평균 FT 성공', value: playerData["평균 FT 성공"], rank: calculateRank(filteredData, "평균 FT 성공", playerData["평균 FT 성공"], true) + '위'}
     ], 'primary');
@@ -908,8 +908,8 @@ function showPlayerStats() {
 statsContainer.innerHTML += createCard('WinShare 지표', [
   {label: 'WS', value: playerData["WS"], rank: calculateRank(filteredData, "WS", playerData["WS"], true) + '위', highlight: true},
   {label: 'WS/40', value: playerData["WS/40"], rank: calculateRank(filteredData, "WS/40", playerData["WS/40"], true) + '위'},
-  {label: 'Offensive WS', value: playerData["Offensive WS"], rank: calculateRank(filteredData, "Offensive WS", playerData["Offensive WS"], true) + '위'},
-  {label: 'Defensive WS', value: playerData["Defensive WS"], rank: calculateRank(filteredData, "Defensive WS", playerData["Defensive WS"], true) + '위'}
+  {label: 'Offensive_WS', value: playerData["Offensive_WS"], rank: calculateRank(filteredData, "Offensive_WS", playerData["Offensive_WS"], true) + '위'},
+  {label: 'Defensive_WS', value: playerData["Defensive_WS"], rank: calculateRank(filteredData, "Defensive_WS", playerData["Defensive_WS"], true) + '위'}
 ], 'secondary');
 
 
@@ -917,8 +917,8 @@ statsContainer.innerHTML += createCard('효율성 지표', [
   {label: 'PER', value: playerData["PER"], rank: calculateRank(filteredData, "PER", playerData["PER"], true) + '위'},
   {label: 'EFF', value: playerData["EFF"], rank: calculateRank(filteredData, "EFF", playerData["EFF"], true) + '위'},
   {label: 'EFF/40', value: playerData["EFF/40"], rank: calculateRank(filteredData, "EFF/40", playerData["EFF/40"], true) + '위'},
-  {label: 'Offensive Rating', value: playerData["Offensive Rating"], rank: calculateRank(filteredData, "Offensive Rating", playerData["Offensive Rating"], true) + '위'},
-  {label: 'Defensive Rating', value: playerData["Defensive Rating"], rank: calculateRank(filteredData, "Defensive Rating", playerData["Defensive Rating"], false) + '위'},
+  {label: 'Offensive_rating', value: playerData["Offensive_rating"], rank: calculateRank(filteredData, "Offensive_rating", playerData["Offensive_rating"], true) + '위'},
+  {label: 'Defensive_rating', value: playerData["Defensive_rating"], rank: calculateRank(filteredData, "Defensive_rating", playerData["Defensive_rating"], false) + '위'},
   {label: 'USG%', value: playerData["USG%"] + '%', rank: calculateRank(filteredData, "USG%", playerData["USG%"], true) + '위'}
 ], 'secondary');
 
@@ -934,13 +934,13 @@ statsContainer.innerHTML += createCard('2차 슈팅 지표', [
 
 
 
-statsContainer.innerHTML += createCard('팀내 비중 지표', [
+statsContainer.innerHTML += createCard('Team내 비중 지표', [
   {label: 'ORB%', value: playerData["ORB%"] + '%', rank: calculateRank(filteredData, "ORB%", playerData["ORB%"], true) + '위'},
   {label: 'DRB%', value: playerData["DRB%"] + '%', rank: calculateRank(filteredData, "DRB%", playerData["DRB%"], true) + '위'},
   {label: 'TRB%', value: playerData["TRB%"] + '%', rank: calculateRank(filteredData, "TRB%", playerData["TRB%"], true) + '위'},
   {label: 'AST%', value: playerData["AST%"] + '%', rank: calculateRank(filteredData, "AST%", playerData["AST%"], true) + '위'},
   {label: 'STL%', value: playerData["STL%"] + '%', rank: calculateRank(filteredData, "STL%", playerData["STL%"], true) + '위'},
-  {label: 'BLK%', value: playerData["BLK%"] + '%', rank: calculateRank(filteredData, "BLK%", playerData["BLK%"], true) + '위'},
+  {label: 'BS%', value: playerData["BS%"] + '%', rank: calculateRank(filteredData, "BS%", playerData["BS%"], true) + '위'},
   {label: 'TOV%', value: playerData["TOV%"] + '%', rank: calculateRank(filteredData, "TOV%", playerData["TOV%"], false) + '위'}
 ], 'team-stats');
 
@@ -992,7 +992,7 @@ document.getElementById('searchPlayer').addEventListener('keypress', function(e)
 document.getElementById('minGames').addEventListener('change', function() {
   const playerInput = document.getElementById('searchPlayer').value.trim();
   if (playerInput !== "") {
-    showPlayerStats();  // 선수 이름 입력되어 있으면 바로 다시 검색
+    showPlayerStats();  // Player 입력되어 있으면 바로 다시 검색
   }
 });
 
@@ -1020,22 +1020,22 @@ function comparePlayers() {
   const minGamesChecked = document.getElementById('compareMinGames').checked;
 
   let filteredData = minGamesChecked
-    ? originalData.filter(cols => parseInt(cols["경기수(G)"]) >= 14)
+    ? originalData.filter(cols => parseInt(cols["출전 경기 수"]) >= 14)
     : originalData;
 
   const playersData = [player1, player2, player3]
     .filter(name => name !== '')
     .map(name =>
-      filteredData.find(cols => cols["선수 이름"].trim().toLowerCase().includes(name.trim().toLowerCase()))
+      filteredData.find(cols => cols["Player"].trim().toLowerCase().includes(name.trim().toLowerCase()))
     );
 
   if (playersData.some(data => data === undefined)) {
-    alert('선수 이름을 정확히 입력해주세요.');
+    alert('Player을 정확히 입력해주세요.');
     return;
   }
 
   const statsLabels = [
-    {label: '출전 경기 수', key: "경기수(G)", higherBetter: true},
+    {label: '출전 경기 수', key: "출전 경기 수", higherBetter: true},
     {label: '평균 출전 시간', key: "총 출전 시간(초)", higherBetter: true},
     {label: '득점', key: "득점", higherBetter: true},
     {label: '평균 득점', key: "평균 득점", higherBetter: true},
@@ -1046,13 +1046,13 @@ function comparePlayers() {
     {label: 'FG%', key: "FG%", higherBetter: true},
     {label: '2PA', key: "2PA", higherBetter: true},
     {label: '2P', key: "2P", higherBetter: true},
-    {label: '평균 2P 시도', key: "평균 2P 시도", higherBetter: true},
-    {label: '평균 2P 성공', key: "평균 2P 성공", higherBetter: true},
+    {label: '평균 2p 시도', key: "평균 2p 시도", higherBetter: true},
+    {label: '평균 2p 성공', key: "평균 2p 성공", higherBetter: true},
     {label: '2P%', key: "2P%", higherBetter: true},
     {label: '3PA', key: "3PA", higherBetter: true},
     {label: '3P', key: "3P", higherBetter: true},
-    {label: '평균 3P 시도', key: "평균 3P 시도", higherBetter: true},
-    {label: '평균 3P 성공', key: "평균 3P 성공", higherBetter: true},
+    {label: '평균 3p 성공', key: "평균 3p 성공", higherBetter: true},
+    {label: '평균 3p 성공', key: "평균 3p 성공", higherBetter: true},
     {label: '3P%', key: "3P%", higherBetter: true},
     {label: 'FTA', key: "FTA", higherBetter: true},
     {label: 'FT', key: "FT", higherBetter: true},
@@ -1077,10 +1077,10 @@ function comparePlayers() {
     {label: '평균 파울', key: "평균 파울", higherBetter: false},
     {label: 'WS', key: "WS", higherBetter: true},
     {label: 'WS/40', key: "WS/40", higherBetter: true},
-    {label: 'Offensive WS', key: "Offensive WS", higherBetter: true},
-    {label: 'Defensive WS', key: "Defensive WS", higherBetter: true},
-    {label: 'Offensive Rating', key: "Offensive Rating", higherBetter: true},
-    {label: 'Defensive Rating', key: "Defensive Rating", higherBetter: false},
+    {label: 'Offensive_WS', key: "Offensive_WS", higherBetter: true},
+    {label: 'Defensive_WS', key: "Defensive_WS", higherBetter: true},
+    {label: 'Offensive_rating', key: "Offensive_rating", higherBetter: true},
+    {label: 'Defensive_rating', key: "Defensive_rating", higherBetter: false},
     {label: 'PER', key: "PER", higherBetter: true},
     {label: 'EFF', key: "EFF", higherBetter: true},
     {label: 'EFF/40', key: "EFF/40", higherBetter: true},
@@ -1094,11 +1094,11 @@ function comparePlayers() {
     {label: 'TRB%', key: "TRB%", higherBetter: true},
     {label: 'AST%', key: "AST%", higherBetter: true},
     {label: 'STL%', key: "STL%", higherBetter: true},
-    {label: 'BLK%', key: "BLK%", higherBetter: true},
+    {label: 'BS%', key: "BS%", higherBetter: true},
     {label: 'TOV%', key: "TOV%", higherBetter: false}
   ];
 
-  let tableHTML = `<table><thead><tr><th>지표</th>${playersData.map(p => `<th>${p["선수 이름"]} (${p["팀"]})</th>`).join('')}${playersData.length === 2 ? `<th>차이</th>` : ''}</tr></thead><tbody>`;
+  let tableHTML = `<table><thead><tr><th>지표</th>${playersData.map(p => `<th>${p["Player"]} (${p["Team"]})</th>`).join('')}${playersData.length === 2 ? `<th>차이</th>` : ''}</tr></thead><tbody>`;
   
   statsLabels.forEach(stat => {
     const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
@@ -1179,10 +1179,10 @@ function getCategoryByStat(statLabel) {
 
     '평균 FG 시도': '슈팅 지표',
     '평균 FG 성공': '슈팅 지표',
-    '평균 2P 시도': '슈팅 지표',
-    '평균 2P 성공': '슈팅 지표',
-    '평균 3P 시도': '슈팅 지표',
-    '평균 3P 성공': '슈팅 지표',
+    '평균 2p 시도': '슈팅 지표',
+    '평균 2p 성공': '슈팅 지표',
+    '평균 3p 성공': '슈팅 지표',
+    '평균 3p 성공': '슈팅 지표',
     '평균 FT 시도': '슈팅 지표',
     '평균 FT 성공': '슈팅 지표',
 
@@ -1212,14 +1212,14 @@ function getCategoryByStat(statLabel) {
 
     'WS': 'WinShare 지표',
     'WS/40': 'WinShare 지표',
-    'Offensive WS': 'WinShare 지표',
-    'Defensive WS': 'WinShare 지표',
+    'Offensive_WS': 'WinShare 지표',
+    'Defensive_WS': 'WinShare 지표',
 
     'PER': '효율성 지표',
     'EFF': '효율성 지표',
     'EFF/40': '효율성 지표',
-    'Offensive Rating': '효율성 지표',
-    'Defensive Rating': '효율성 지표',
+    'Offensive_rating': '효율성 지표',
+    'Defensive_rating': '효율성 지표',
     'USG%': '효율성 지표',
 
     'TS%': '2차 슈팅 지표',
@@ -1227,13 +1227,13 @@ function getCategoryByStat(statLabel) {
     '3PAr': '2차 슈팅 지표',
     'FTr': '2차 슈팅 지표',
 
-    'ORB%': '팀내 비중 지표',
-    'DRB%': '팀내 비중 지표',
-    'TRB%': '팀내 비중 지표',
-    'AST%': '팀내 비중 지표',
-    'STL%': '팀내 비중 지표',
-    'BLK%': '팀내 비중 지표',
-    'TOV%': '팀내 비중 지표'
+    'ORB%': 'Team내 비중 지표',
+    'DRB%': 'Team내 비중 지표',
+    'TRB%': 'Team내 비중 지표',
+    'AST%': 'Team내 비중 지표',
+    'STL%': 'Team내 비중 지표',
+    'BS%': 'Team내 비중 지표',
+    'TOV%': 'Team내 비중 지표'
   };
   return categoryMap[statLabel] || '기타 지표';
 }
