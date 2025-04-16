@@ -591,12 +591,6 @@ function renderTable(data) {
     tableBody.appendChild(row);
   });
 
-  setTimeout(() => {
-    const tableWidth = document.getElementById('statsTable').offsetWidth;
-    document.getElementById('scroll-sync').style.width = tableWidth + 'px';
-  }, 200);
-}
-
  
 function searchPlayer(){
   const query = document.getElementById('searchPlayerAll').value.toLowerCase().trim();
@@ -856,6 +850,10 @@ document.getElementById('minGames').addEventListener('change', function() {
     showPlayerStats();  // 선수 이름 입력되어 있으면 바로 다시 검색
   }
 });
+// 선수 비교 탭에서 사용하는 함수 임시 추가
+function comparePlayers() {
+  alert('비교 기능은 아직 준비되지 않았습니다.');
+}
   
  </script>
  
