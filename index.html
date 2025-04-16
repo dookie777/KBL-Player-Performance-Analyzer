@@ -172,7 +172,9 @@ thead th {
 }
 
 .input-box {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 20px;
 }
 
@@ -184,7 +186,7 @@ thead th {
   border-radius: 5px;
   border: none;
   box-sizing: border-box;
-  margin-right: 5px;
+  margin: 0 5px;
 }
 
 .input-box button {
@@ -197,6 +199,19 @@ thead th {
   background-color: #88c2dd;
   color: #121212;
   border: none;
+  margin: 0 5px;
+}
+
+.input-box input[type="checkbox"] {
+  margin: 0 5px;
+}
+
+.input-box label {
+  color: #FFF;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+  margin: 0 5px;
 }
 
 .player-name {
