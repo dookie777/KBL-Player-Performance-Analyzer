@@ -285,6 +285,88 @@ thead th {
   background-color: #000;
   pointer-events: none;
 }
+/* ✅ 1페이지 헤더 완벽 고정 (긴급 해결 재적용) */
+#tab-all th:nth-child(1),
+#tab-all th:nth-child(2) {
+  position: sticky;
+  top: 0 !important;
+  background-color: #282828 !important;
+  z-index: 500 !important;
+}
+
+#tab-all td:nth-child(1),
+#tab-all td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background-color: #282828 !important;
+  z-index: 400 !important;
+}
+
+#tab-all th:nth-child(2),
+#tab-all td:nth-child(2) {
+  left: 150px;
+}
+
+/* ✅ 선수 개인 검색 페이지 간격 축소 (중요 수정) */
+#tab-player .input-box {
+  margin-bottom: 10px !important; /* 기존 20px → 절반으로 수정 */
+}
+
+#tab-player .player-name {
+  margin: 8px 0 3px 0 !important; /* 기존 15px, 5px → 절반으로 수정 */
+}
+
+#tab-player .team-name {
+  margin-bottom: 8px !important; /* 기존 15px → 절반으로 수정 */
+}
+
+#tab-player .stats-container {
+  margin-top: 10px !important; /* 기존 20px → 절반으로 수정 */
+}
+
+/* ✅ 선수 비교 페이지 입력창 크기 및 영역 최적화 (중요 수정) */
+#tab-compare .input-box input[type="text"] {
+  width: 150px !important; /* 기존 200px → 2/3 크기 */
+}
+
+#tab-compare .input-box {
+  justify-content: space-between; /* 넓은 영역 활용 */
+  max-width: 900px;
+  margin: 0 auto 10px auto !important;
+  padding: 0;
+}
+
+/* 입력창과 버튼 정렬 최적화 */
+#tab-compare .input-box button {
+  flex-grow: 1;
+  max-width: 100px;
+  margin: 5px;
+}
+
+/* 체크박스 및 라벨 우측 정렬 */
+#tab-compare .input-box input[type="checkbox"],
+#tab-compare .input-box label {
+  flex-grow: 1;
+  text-align: right;
+  margin: 0 5px;
+}
+
+/* 비교 결과 테이블 가로 영역 최적화 */
+#tab-compare .compare-result {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: calc(100vh - 220px) !important;
+  overflow: auto !important;
+  margin: 0 auto;
+  padding: 10px !important;
+}
+
+#tab-compare .compare-result table {
+  width: max-content !important;
+  min-width: 100% !important;
+}
+
+/* 불필요한 중복 CSS 제거 및 스타일 간소화 완료 */
 
 
   </style>
@@ -416,41 +498,41 @@ const statsFormats = {
   6: {unit: '분 초', decimals: 0, convert: true},
   9: {unit: '점', decimals: 0},
   10: {unit: '점', decimals: 2},
-  13: {unit: '개', decimals: 2}, // FGA
-  14: {unit: '개', decimals: 2}, // FG
+  13: {unit: '개', decimals: 0}, // FGA
+  14: {unit: '개', decimals: 0}, // FG
   15: {unit: '개', decimals: 2}, // 평균 FG 시도
   16: {unit: '개', decimals: 2}, // 평균 FG 성공
-  17: {unit: '%', decimals: 1}, // FG%
-  21: {unit: '개', decimals: 2}, // 2PA
-  22: {unit: '개', decimals: 2}, // 2P
+  17: {unit: '%', decimals: 2}, // FG%
+  21: {unit: '개', decimals: 0}, // 2PA
+  22: {unit: '개', decimals: 0}, // 2P
   23: {unit: '개', decimals: 2}, // 평균 2p 시도
   24: {unit: '개', decimals: 2}, // 평균 2p 성공
-  25: {unit: '%', decimals: 1}, // 2P%
-  29: {unit: '개', decimals: 2}, // 3PA
-  30: {unit: '개', decimals: 2}, // 3P
+  25: {unit: '%', decimals: 2}, // 2P%
+  29: {unit: '개', decimals: 0}, // 3PA
+  30: {unit: '개', decimals: 0}, // 3P
   31: {unit: '개', decimals: 2}, // 평균 3p 시도
   32: {unit: '개', decimals: 2}, // 평균 3p 성공
-  33: {unit: '%', decimals: 1}, // 3P%
-  37: {unit: '개', decimals: 2}, // FTA
-  38: {unit: '개', decimals: 2}, // FT
+  33: {unit: '%', decimals: 2}, // 3P%
+  37: {unit: '개', decimals: 0}, // FTA
+  38: {unit: '개', decimals: 0}, // FT
   39: {unit: '개', decimals: 2}, // 평균 FT 시도
   40: {unit: '개', decimals: 2}, // 평균 FT 성공
-  41: {unit: '%', decimals: 1}, // FT%
-  45: {unit: '개', decimals: 2}, // 리바운드
+  41: {unit: '%', decimals: 2}, // FT%
+  45: {unit: '개', decimals: 0}, // 리바운드
   46: {unit: '개', decimals: 2}, // 평균 리바운드
-  49: {unit: '개', decimals: 2}, // 공격 리바운드
+  49: {unit: '개', decimals: 0}, // 공격 리바운드
   50: {unit: '개', decimals: 2}, // 평균 공격 리바운드
-  53: {unit: '개', decimals: 2}, // 수비 리바운드
+  53: {unit: '개', decimals: 0}, // 수비 리바운드
   54: {unit: '개', decimals: 2}, // 평균 수비 리바운드
-  57: {unit: '개', decimals: 2}, // 어시스트
+  57: {unit: '개', decimals: 0}, // 어시스트
   58: {unit: '개', decimals: 2}, // 평균 어시스트
-  61: {unit: '개', decimals: 2}, // 스틸
+  61: {unit: '개', decimals: 0}, // 스틸
   62: {unit: '개', decimals: 2}, // 평균 스틸
-  65: {unit: '개', decimals: 2}, // 블록
+  65: {unit: '개', decimals: 0}, // 블록
   66: {unit: '개', decimals: 2}, // 평균 블록
-  69: {unit: '개', decimals: 2}, // 턴오버
+  69: {unit: '개', decimals: 0}, // 턴오버
   70: {unit: '개', decimals: 2}, // 평균 턴오버
-  73: {unit: '개', decimals: 2}, // 파울
+  73: {unit: '개', decimals: 0}, // 파울
   74: {unit: '개', decimals: 2}, // 평균 파울
   // 여기서부터 소수점 3자리
   77: {unit: '', decimals: 3}, // WS
