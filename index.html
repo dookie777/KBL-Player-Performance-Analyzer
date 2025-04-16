@@ -672,14 +672,17 @@ function renderTable(data) {
   filteredData.forEach(cols => {
     const playerName = cols["Player"];
     const status = parseInt(cols["출전 경기 수"]) >= 14 ? '✅' : '⚠️';
-    const totalSeconds = parseInt(cols["m(분)"]) * 60 + parseInt(cols["s(초)"]); // <-- 정확한 키 사용
+    const totalSeconds = cols["총 출전 시간(초)"]; // 이미 계산된 값 정확히 사용
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
 
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${playerName} <span class="${cols["출전 경기 수"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
       <td>${cols["Team"]}</td>
       <td>${cols["출전 경기 수"]}</td>
-      <td data-time="${totalSeconds}">${cols["m(분)"]}분 ${cols["s(초)"]}초</td> <!-- 정확한 키 사용 -->
+      <td data-time="${totalSeconds}">${minutes}분 ${seconds}초</td>
       <td>${cols["득점"]}</td>
       <td>${parseFloat(cols["평균 득점"]).toFixed(2)}</td>
       <td>${cols["FGA"]}</td>
