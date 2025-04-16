@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <meta charset="UTF-8">
   <title>23-24 KBL Player Stats Analyzer</title>
   <style>
@@ -452,7 +453,7 @@ thead th {
 
 .category-checkboxes {
   display: grid;
-  grid-template-columns: repeat(5, auto); /* ← 이 부분을 5로 변경 */
+  grid-template-columns: repeat(6, auto); /* 1행에 6개 체크박스 정렬 */
   gap: 10px;
   justify-content: center;
   margin: 10px auto;
@@ -463,6 +464,11 @@ thead th {
   font-size: 0.9rem;
   cursor: pointer;
   user-select: none;
+}
+
+/* 두 번째 행과의 간격 띄우기 */
+.category-checkboxes label:nth-child(n+7) {
+  margin-top: 15px; /* 여기서 행 간격 조정 가능 */
 }
     
   </style>
@@ -681,7 +687,7 @@ const statsFormats = {
  
 async function loadPlayersData() {
   try {
-    const url = 'https://github.com/dookie777/KBL-Player-Performance-Analyzer/raw/main/23-24_KBL_stats.xlsx';
+    const url = 'https://cdn.jsdelivr.net/gh/dookie777/KBL-Player-Performance-Analyzer@main/23-24_KBL_stats.xlsx';
     const response = await fetch(url);
     const data = await response.arrayBuffer();
 
