@@ -1148,7 +1148,9 @@ if (playersData.length === 2) {
     diffDisplay = `${diffMin}분 ${diffSec}초`;
   } else {
     diffValue = values[0] - values[1];
-    const decimalPlaces = statsFormats[stat.idx]?.decimals ?? 2;
+const decimalPlaces = (statsFormats[stat.idx] && statsFormats[stat.idx].decimals !== undefined)
+  ? statsFormats[stat.idx].decimals 
+  : 2;
     diffDisplay = `${Math.abs(diffValue).toFixed(decimalPlaces)}${unit}`;
   }
 
