@@ -356,9 +356,10 @@ thead th {
 #tab-compare .compare-result {
   flex: 1;
   overflow-y: auto;
-  margin-top: 10px;
+  margin: 10px auto;
   padding: 10px;
   box-sizing: border-box;
+  width: 66%; /* 화면 2/3 너비로 조정 */
 }
 
 /* ✅ 선수 비교 결과 스타일 추가 */
@@ -384,21 +385,46 @@ thead th {
 }
 
 .highlight-first {
-  background-color: #FFA500 !important;
-  color: #000 !important;
+  background-color: rgba(255, 165, 0, 0.15) !important; /* 더욱 투명한 주황 */
+  color: #FFF !important;
   font-weight: bold;
+  position: relative;
+  z-index: 1;
 }
 
 .highlight-second {
-  background-color: #88c2dd !important;
-  color: #000 !important;
+  background-color: rgba(136, 194, 221, 0.15) !important; /* 더욱 투명한 하늘색 */
+  color: #FFF !important;
   font-weight: bold;
+  position: relative;
+  z-index: 1;
 }
 
 .highlight-third {
-  background-color: #555 !important;
-  color: #fff !important;
+  background-color: rgba(200, 200, 200, 0.15) !important; /* 더욱 투명한 회색 */
+  color: #FFF !important;
   font-weight: bold;
+  position: relative;
+  z-index: 1;
+}
+/* 스크롤바 디자인 통일 */
+#tab-compare .compare-result::-webkit-scrollbar {
+  width: 10px;
+}
+
+#tab-compare .compare-result::-webkit-scrollbar-track {
+  background: #121212;
+  border-radius: 5px;
+}
+
+#tab-compare .compare-result::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+  border: 2px solid #121212;
+}
+
+#tab-compare .compare-result::-webkit-scrollbar-thumb:hover {
+  background: #FFA500;
 }
 
 
@@ -898,6 +924,7 @@ function comparePlayers() {
   const player3 = document.getElementById('comparePlayer3').value.trim();
   const minGamesChecked = document.getElementById('compareMinGames').checked;
 
+  // 반드시 규정 경기 적용된 데이터 사용
   let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols[3]) >= 14) : originalData;
 
   const playersData = [player1, player2, player3].filter(name => name !== '').map(name =>
@@ -909,46 +936,54 @@ function comparePlayers() {
     return;
   }
 
-  // 전체 비교 지표로 업데이트 (개인 탭에 있던 전체 지표 사용)
-  const statsLabels = [
-    {label: '출전 경기 수', idx: 3, higherBetter: true},
-    {label: '평균 출전 시간(초)', idx: 6, higherBetter: true},
-    {label: '총 득점', idx: 9, higherBetter: true},
-    {label: '평균 득점', idx: 10, higherBetter: true},
-    {label: '평균 FG%', idx: 17, higherBetter: true},
-    {label: '평균 2P%', idx: 25, higherBetter: true},
-    {label: '평균 3P%', idx: 33, higherBetter: true},
-    {label: '평균 FT%', idx: 41, higherBetter: true},
-    {label: '평균 리바운드', idx: 46, higherBetter: true},
-    {label: '평균 공격 리바운드', idx: 50, higherBetter: true},
-    {label: '평균 수비 리바운드', idx: 54, higherBetter: true},
-    {label: '평균 어시스트', idx: 58, higherBetter: true},
-    {label: '평균 스틸', idx: 62, higherBetter: true},
-    {label: '평균 블록', idx: 66, higherBetter: true},
-    {label: '평균 턴오버', idx: 70, higherBetter: false},
-    {label: '평균 파울', idx: 74, higherBetter: false},
-    {label: 'WS', idx: 77, higherBetter: true},
-    {label: 'WS/40', idx: 78, higherBetter: true},
-    {label: 'Offensive WS', idx: 79, higherBetter: true},
-    {label: 'Defensive WS', idx: 80, higherBetter: true},
-    {label: 'PER', idx: 87, higherBetter: true},
-    {label: 'EFF', idx: 88, higherBetter: true},
-    {label: 'EFF/40', idx: 89, higherBetter: true},
-    {label: 'Offensive Rating', idx: 85, higherBetter: true},
-    {label: 'Defensive Rating', idx: 86, higherBetter: false},
-    {label: 'USG%', idx: 97, higherBetter: true},
-    {label: 'TS%', idx: 95, higherBetter: true},
-    {label: 'eFG%', idx: 96, higherBetter: true},
-    {label: '3PAr', idx: 98, higherBetter: true},
-    {label: 'FTr', idx: 99, higherBetter: true},
-    {label: 'ORB%', idx: 105, higherBetter: true},
-    {label: 'DRB%', idx: 106, higherBetter: true},
-    {label: 'TRB%', idx: 107, higherBetter: true},
-    {label: 'AST%', idx: 108, higherBetter: true},
-    {label: 'STL%', idx: 109, higherBetter: true},
-    {label: 'BLK%', idx: 110, higherBetter: true},
-    {label: 'TOV%', idx: 111, higherBetter: false}
-  ];
+const statsLabels = [
+  {label: '출전 경기 수', idx: 3, higherBetter: true},
+  {label: '평균 출전 시간(초)', idx: 6, higherBetter: true},
+  {label: '총 득점', idx: 9, higherBetter: true},
+  {label: '평균 득점', idx: 10, higherBetter: true},
+  {label: 'FG%', idx: 17, higherBetter: true},
+  {label: '2P%', idx: 25, higherBetter: true},
+  {label: '3P%', idx: 33, higherBetter: true},
+  {label: 'FT%', idx: 41, higherBetter: true},
+  {label: '총 리바운드', idx: 45, higherBetter: true},
+  {label: '평균 리바운드', idx: 46, higherBetter: true},
+  {label: '공격 리바운드', idx: 49, higherBetter: true},
+  {label: '평균 공격 리바운드', idx: 50, higherBetter: true},
+  {label: '수비 리바운드', idx: 53, higherBetter: true},
+  {label: '평균 수비 리바운드', idx: 54, higherBetter: true},
+  {label: '총 어시스트', idx: 57, higherBetter: true},
+  {label: '평균 어시스트', idx: 58, higherBetter: true},
+  {label: '총 스틸', idx: 61, higherBetter: true},
+  {label: '평균 스틸', idx: 62, higherBetter: true},
+  {label: '총 블록', idx: 65, higherBetter: true},
+  {label: '평균 블록', idx: 66, higherBetter: true},
+  {label: '총 턴오버', idx: 69, higherBetter: false},
+  {label: '평균 턴오버', idx: 70, higherBetter: false},
+  {label: '총 파울', idx: 73, higherBetter: false},
+  {label: '평균 파울', idx: 74, higherBetter: false},
+  {label: 'WS', idx: 77, higherBetter: true},
+  {label: 'WS/40', idx: 78, higherBetter: true},
+  {label: 'Offensive WS', idx: 79, higherBetter: true},
+  {label: 'Defensive WS', idx: 80, higherBetter: true},
+  {label: 'Offensive Rating', idx: 85, higherBetter: true},
+  {label: 'Defensive Rating', idx: 86, higherBetter: false},
+  {label: 'PER', idx: 87, higherBetter: true},
+  {label: 'EFF', idx: 88, higherBetter: true},
+  {label: 'EFF/40', idx: 89, higherBetter: true},
+  {label: 'TS%', idx: 95, higherBetter: true},
+  {label: 'eFG%', idx: 96, higherBetter: true},
+  {label: 'USG%', idx: 97, higherBetter: true},
+  {label: '3PAr', idx: 98, higherBetter: true},
+  {label: 'FTr', idx: 99, higherBetter: true},
+  {label: 'ORB%', idx: 105, higherBetter: true},
+  {label: 'DRB%', idx: 106, higherBetter: true},
+  {label: 'TRB%', idx: 107, higherBetter: true},
+  {label: 'AST%', idx: 108, higherBetter: true},
+  {label: 'STL%', idx: 109, higherBetter: true},
+  {label: 'BLK%', idx: 110, higherBetter: true},
+  {label: 'TOV%', idx: 111, higherBetter: false}
+];
+
 
   let tableHTML = `
     <table>
@@ -963,22 +998,26 @@ function comparePlayers() {
 
   statsLabels.forEach(stat => {
     const values = playersData.map(p => parseFloat(p[stat.idx]) || 0);
+    const ranks = values.map(val => calculateRank(filteredData, stat.idx, val, stat.higherBetter));
     const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
 
     tableHTML += `<tr><td>${stat.label}</td>`;
-    
-    values.forEach(value => {
+
+    values.forEach((value, idx) => {
       let highlightClass = '';
       if (value === sortedValues[0]) highlightClass = 'highlight-first';
       else if (value === sortedValues[1]) highlightClass = 'highlight-second';
       else if (playersData.length === 3 && value === sortedValues[2]) highlightClass = 'highlight-third';
 
-      tableHTML += `<td class="${highlightClass}">${value}</td>`;
+  tableHTML += `<td class="${highlightClass}">${value} (${ranks[idx]}위)</td>`;
     });
 
     if (playersData.length === 2) {
-      const diff = Math.abs(values[0] - values[1]).toFixed(2);
-      tableHTML += `<td>${diff}</td>`;
+      const diff = (values[0] - values[1]).toFixed(2);
+      const diffColor = diff > 0 ? 'red' : diff < 0 ? 'skyblue' : '#fff';
+      const diffSign = diff > 0 ? `+${diff}` : diff;
+
+      tableHTML += `<td style="color:${diffColor}; font-weight:bold;">${diffSign}</td>`;
     }
 
     tableHTML += `</tr>`;
@@ -987,6 +1026,8 @@ function comparePlayers() {
   tableHTML += `</tbody></table>`;
   document.getElementById('compareResult').innerHTML = tableHTML;
 }
+
+
 
 // 엔터키 입력 기능 추가 (유지)
 ['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
