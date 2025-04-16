@@ -452,19 +452,17 @@ thead th {
 
 .category-checkboxes {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2열로 설정 */
-  gap: 8px 20px; /* 세로 8px, 가로 20px 간격 조정 */
+  grid-template-columns: repeat(5, auto); /* ← 이 부분을 5로 변경 */
+  gap: 10px;
   justify-content: center;
   margin: 10px auto;
   max-width: 900px;
-  align-items: center;
 }
 
 .category-checkboxes label {
   font-size: 0.9rem;
   cursor: pointer;
   user-select: none;
-  text-align: left; /* 텍스트 왼쪽 정렬로 깔끔하게 보이도록 설정 */
 }
     
   </style>
