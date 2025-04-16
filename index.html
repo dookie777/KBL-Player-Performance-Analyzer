@@ -416,6 +416,22 @@ thead th {
   margin-right: 5px;
   font-size: 0.8rem;
 }
+
+    .category-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 10px;
+  justify-content: center;
+  margin: 10px auto;
+  max-width: 900px;
+}
+
+.category-checkboxes label {
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+    
   </style>
 </head>
 <body>
@@ -530,10 +546,21 @@ thead th {
   <input type="checkbox" id="compareMinGames">
   <label for="compareMinGames">규정 경기 이상(14G)</label>
 </div>
-
-<div class="compare-result" id="compareResult">
-  <!-- 비교 결과가 여기에 표시됩니다 -->
-</div></div>
+  <div id="categoryCheckboxes" class="category-checkboxes">
+    <label><input type="checkbox" value="기본 정보" checked> 기본 정보</label>
+    <label><input type="checkbox" value="슈팅 지표" checked> 슈팅 지표</label>
+    <label><input type="checkbox" value="슈팅 성공률" checked> 슈팅 성공률</label>
+    <label><input type="checkbox" value="리바운드 지표" checked> 리바운드 지표</label>
+    <label><input type="checkbox" value="어시스트/스틸/블록 지표" checked> 어시스트/스틸/블록 지표</label>
+    <label><input type="checkbox" value="기타 지표" checked> 기타 지표</label>
+    <label><input type="checkbox" value="WinShare 지표" checked> WinShare 지표</label>
+    <label><input type="checkbox" value="효율성 지표" checked> 효율성 지표</label>
+    <label><input type="checkbox" value="2차 슈팅 지표" checked> 2차 슈팅 지표</label>
+    <label><input type="checkbox" value="팀내 비중 지표" checked> 팀내 비중 지표</label>
+  </div>
+  <div class="compare-result" id="compareResult">
+  </div>
+</div>
   <footer class="footer">
     © 2025 The Eroom Sports. All rights reserved.
   </footer>
@@ -954,12 +981,6 @@ function createCard(title, stats, type = 'primary') {
   `;
 }
 
-// 전체 통계 검색창에서 엔터 키 동작
-document.getElementById('searchPlayerAll').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') {
-    searchPlayer();
-  }
-});
 
 // 개인 선수 탭 검색창에서 엔터 키 동작
 document.getElementById('searchPlayer').addEventListener('keypress', function(e) {
@@ -1077,52 +1098,24 @@ function comparePlayers() {
     {label: 'TOV%', key: "TOV%", higherBetter: false}
   ];
 
-  let tableHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>지표</th>
-          ${playersData.map(p => `<th>${p["선수 이름"]} (${p["팀"]})</th>`).join('')}
-          ${playersData.length === 2 ? `<th>차이</th>` : ''}
-        </tr>
-      </thead>
-      <tbody>`;
-
+  let tableHTML = `<table><thead><tr><th>지표</th>${playersData.map(p => `<th>${p["선수 이름"]} (${p["팀"]})</th>`).join('')}${playersData.length === 2 ? `<th>차이</th>` : ''}</tr></thead><tbody>`;
+  
   statsLabels.forEach(stat => {
     const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
     const ranks = values.map(val => calculateRank(filteredData, stat.key, val, stat.higherBetter));
     const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
 
-    tableHTML += `<tr><td>${stat.label}</td>`;
-
+    tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
     values.forEach((value, idx) => {
-      const formattedValue = formatStatValue(stat.key, value);
-      let highlightClass = '';
-      if (value === sortedValues[0]) highlightClass = 'highlight-first';
-      else if (value === sortedValues[1]) highlightClass = 'highlight-second';
-      else if (playersData.length === 3 && value === sortedValues[2]) highlightClass = 'highlight-third';
-
-      tableHTML += `<td class="${highlightClass}">
-        <span style="font-size:1.1rem; font-weight:bold;">${formattedValue}</span>
-        <span style="font-size:0.8rem; color:#ddd;"> (${ranks[idx]}위)</span>
-      </td>`;
+      tableHTML += `<td>${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
     });
 
-    if (playersData.length === 2) {
-      const diffValue = values[0] - values[1];
-      const diffClass = diffValue > 0 ? 'diff-positive' : diffValue < 0 ? 'diff-negative' : '';
-      const diffDisplay = formatStatValue(stat.key, Math.abs(diffValue));
-
-      tableHTML += `<td class="diff-cell ${diffClass}">
-        <span>${diffDisplay}</span>
-      </td>`;
-    }
-
-    tableHTML += `</tr>`;
+    tableHTML += '</tr>';
   });
 
-  tableHTML += `</tbody></table>`;
+  tableHTML += '</tbody></table>';
   document.getElementById('compareResult').innerHTML = tableHTML;
+  filterCompareTable();
 }
 
 const statUnits = {
@@ -1154,7 +1147,101 @@ document.getElementById('compareMinGames').addEventListener('change', () => {
   comparePlayers();
 });
 
+// 체크박스 이벤트 핸들러 추가
+document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]').forEach(checkbox => {
+  checkbox.addEventListener('change', filterCompareTable);
+});
 
+// 체크박스 필터링 함수 정의
+function filterCompareTable() {
+  const checkedCategories = Array.from(document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked'))
+                                 .map(cb => cb.value);
+
+  document.querySelectorAll('#compareResult tbody tr').forEach(row => {
+    const category = row.getAttribute('data-category');
+    row.style.display = checkedCategories.includes(category) ? '' : 'none';
+  });
+}
+
+// ✅ comparePlayers() 함수 내에서 카테고리 데이터 속성 추가
+// (기존의 comparePlayers 함수에서 다음 라인을 찾아 변경)
+statsLabels.forEach(stat => {
+  tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
+});
+
+// 지표 → 카테고리 변환 함수 추가 (맨 끝에 추가)
+function getCategoryByStat(statLabel) {
+  const categoryMap = {
+    '출전 경기 수': '기본 정보',
+    '평균 출전 시간': '기본 정보',
+    '득점': '기본 정보',
+    '평균 득점': '기본 정보',
+
+    '평균 FG 시도': '슈팅 지표',
+    '평균 FG 성공': '슈팅 지표',
+    '평균 2P 시도': '슈팅 지표',
+    '평균 2P 성공': '슈팅 지표',
+    '평균 3P 시도': '슈팅 지표',
+    '평균 3P 성공': '슈팅 지표',
+    '평균 FT 시도': '슈팅 지표',
+    '평균 FT 성공': '슈팅 지표',
+
+    'FG%': '슈팅 성공률',
+    '2P%': '슈팅 성공률',
+    '3P%': '슈팅 성공률',
+    'FT%': '슈팅 성공률',
+
+    '리바운드': '리바운드 지표',
+    '평균 리바운드': '리바운드 지표',
+    '공격 리바운드': '리바운드 지표',
+    '평균 공격 리바운드': '리바운드 지표',
+    '수비 리바운드': '리바운드 지표',
+    '평균 수비 리바운드': '리바운드 지표',
+
+    '어시스트': '어시스트/스틸/블록 지표',
+    '평균 어시스트': '어시스트/스틸/블록 지표',
+    '스틸': '어시스트/스틸/블록 지표',
+    '평균 스틸': '어시스트/스틸/블록 지표',
+    '블록': '어시스트/스틸/블록 지표',
+    '평균 블록': '어시스트/스틸/블록 지표',
+
+    '턴오버': '기타 지표',
+    '평균 턴오버': '기타 지표',
+    '파울': '기타 지표',
+    '평균 파울': '기타 지표',
+
+    'WS': 'WinShare 지표',
+    'WS/40': 'WinShare 지표',
+    'Offensive WS': 'WinShare 지표',
+    'Defensive WS': 'WinShare 지표',
+
+    'PER': '효율성 지표',
+    'EFF': '효율성 지표',
+    'EFF/40': '효율성 지표',
+    'Offensive Rating': '효율성 지표',
+    'Defensive Rating': '효율성 지표',
+    'USG%': '효율성 지표',
+
+    'TS%': '2차 슈팅 지표',
+    'eFG%': '2차 슈팅 지표',
+    '3PAr': '2차 슈팅 지표',
+    'FTr': '2차 슈팅 지표',
+
+    'ORB%': '팀내 비중 지표',
+    'DRB%': '팀내 비중 지표',
+    'TRB%': '팀내 비중 지표',
+    'AST%': '팀내 비중 지표',
+    'STL%': '팀내 비중 지표',
+    'BLK%': '팀내 비중 지표',
+    'TOV%': '팀내 비중 지표'
+  };
+  return categoryMap[statLabel] || '기타 지표';
+}
+
+// 최초 실행 시 모든 체크박스 선택 상태로 시작
+window.addEventListener('DOMContentLoaded', () => {
+  filterCompareTable();
+});
   
  </script>
  
