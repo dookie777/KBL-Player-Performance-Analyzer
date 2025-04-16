@@ -875,7 +875,7 @@ function calculateRank(filteredData, statKey, playerValue, isHigherBetter = true
 
 function showPlayerStats() {
   const playerNameInput = document.getElementById('searchPlayer').value.trim();
-  
+
   const minGamesChecked = document.getElementById('minGames').checked;
   let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols["출전 경기 수"]) >= 14) : originalData;
 
@@ -891,95 +891,171 @@ function showPlayerStats() {
     statsContainer.innerHTML = '';
 
     statsContainer.innerHTML += createCard('기본 정보', [
-      {label: '출전 경기 수', value: playerData["출전 경기 수"] + '경기', rank: calculateRank(filteredData, "출전 경기 수", playerData["출전 경기 수"], true) + '위'},
-      {label: '평균 출전 시간', value: playerData["출전 시간(초)(분)"] + '분 ' + playerData["출전 시간(초)(초)"] + '초', rank: calculateRank(filteredData, "총 출전 시간(초)", playerData["총 출전 시간(초)"], true) + '위'},
-      {label: '총 득점', value: playerData["득점"] + '점', rank: calculateRank(filteredData, "득점", playerData["득점"], true) + '위'},
-      {label: '평균 득점', value: parseFloat(playerData["평균 득점"]).toFixed(2) + '점', rank: calculateRank(filteredData, "평균 득점", playerData["평균 득점"], true) + '위'}
+      {label: '출전 경기 수', value: formatStatValue("출전 경기 수", playerData["출전 경기 수"]), rank: calculateRank(filteredData, "출전 경기 수", playerData["출전 경기 수"], true) + '위'},
+      {label: '평균 출전 시간', value: formatStatValue("총 출전 시간(초)", playerData["총 출전 시간(초)"]), rank: calculateRank(filteredData, "총 출전 시간(초)", playerData["총 출전 시간(초)"], true) + '위'},
+      {label: '총 득점', value: formatStatValue("득점", playerData["득점"]), rank: calculateRank(filteredData, "득점", playerData["득점"], true) + '위'},
+      {label: '평균 득점', value: formatStatValue("평균 득점", playerData["평균 득점"]), rank: calculateRank(filteredData, "평균 득점", playerData["평균 득점"], true) + '위'}
     ], 'primary');
 
-    statsContainer.innerHTML += createCard('슈팅 지표', [
-      {label: '평균 FG 시도', value: playerData["평균 FG 시도"], rank: calculateRank(filteredData, "평균 FG 시도", playerData["평균 FG 시도"], true) + '위'},
-      {label: '평균 FG 성공', value: playerData["평균 FG 성공"], rank: calculateRank(filteredData, "평균 FG 성공", playerData["평균 FG 성공"], true) + '위'},
-      {label: '평균 2p 시도', value: playerData["평균 2p 시도"], rank: calculateRank(filteredData, "평균 2p 시도", playerData["평균 2p 시도"], true) + '위'},
-      {label: '평균 2p 성공', value: playerData["평균 2p 성공"], rank: calculateRank(filteredData, "평균 2p 성공", playerData["평균 2p 성공"], true) + '위'},
-      {label: '평균 3p 성공', value: playerData["평균 3p 성공"], rank: calculateRank(filteredData, "평균 3p 성공", playerData["평균 3p 성공"], true) + '위'},
-      {label: '평균 3p 성공', value: playerData["평균 3p 성공"], rank: calculateRank(filteredData, "평균 3p 성공", playerData["평균 3p 성공"], true) + '위'},
-      {label: '평균 FT 시도', value: playerData["평균 FT 시도"], rank: calculateRank(filteredData, "평균 FT 시도", playerData["평균 FT 시도"], true) + '위'},
-      {label: '평균 FT 성공', value: playerData["평균 FT 성공"], rank: calculateRank(filteredData, "평균 FT 성공", playerData["평균 FT 성공"], true) + '위'}
-    ], 'primary');
+statsContainer.innerHTML += createCard('슈팅 지표', [
+      {label: '평균 FG 시도', value: formatStatValue("평균 FG 시도", playerData["평균 FG 시도"]), rank: calculateRank(filteredData, "평균 FG 시도", playerData["평균 FG 시도"], true) + '위'},
+      {label: '평균 FG 성공', value: formatStatValue("평균 FG 성공", playerData["평균 FG 성공"]), rank: calculateRank(filteredData, "평균 FG 성공", playerData["평균 FG 성공"], true) + '위'},
+      {label: '평균 2p 시도', value: formatStatValue("평균 2p 시도", playerData["평균 2p 시도"]), rank: calculateRank(filteredData, "평균 2p 시도", playerData["평균 2p 시도"], true) + '위'},
+      {label: '평균 2p 성공', value: formatStatValue("평균 2p 성공", playerData["평균 2p 성공"]), rank: calculateRank(filteredData, "평균 2p 성공", playerData["평균 2p 성공"], true) + '위'},
+      {label: '평균 3p 성공', value: formatStatValue("평균 3p 성공", playerData["평균 3p 성공"]), rank: calculateRank(filteredData, "평균 3p 성공", playerData["평균 3p 성공"], true) + '위'},
+      {label: '평균 FT 시도', value: formatStatValue("평균 FT 시도", playerData["평균 FT 시도"]), rank: calculateRank(filteredData, "평균 FT 시도", playerData["평균 FT 시도"], true) + '위'},
+      {label: '평균 FT 성공', value: formatStatValue("평균 FT 성공", playerData["평균 FT 성공"]), rank: calculateRank(filteredData, "평균 FT 성공", playerData["평균 FT 성공"], true) + '위'}
+    ], 'primary
 
-    statsContainer.innerHTML += createCard('슈팅 성공률', [
-      {label: 'FG%', value: playerData["FG%"], rank: calculateRank(filteredData, "FG%", playerData["FG%"], true) + '위'},
-      {label: '2P%', value: playerData["2P%"], rank: calculateRank(filteredData, "2P%", playerData["2P%"], true) + '위'},
-      {label: '3P%', value: playerData["3P%"], rank: calculateRank(filteredData, "3P%", playerData["3P%"], true) + '위'},
-      {label: 'FT%', value: playerData["FT%"], rank: calculateRank(filteredData, "FT%", playerData["FT%"], true) + '위'}
-    ], 'primary');
+statsContainer.innerHTML += createCard('슈팅 성공률', [
+  {
+    label: 'FG%', 
+    value: formatStatValue("FG%", playerData["FG%"]), 
+    rank: calculateRank(filteredData, "FG%", playerData["FG%"], true) + '위'
+  },
+  {
+    label: '2P%', 
+    value: formatStatValue("2P%", playerData["2P%"]), 
+    rank: calculateRank(filteredData, "2P%", playerData["2P%"], true) + '위'
+  },
+  {
+    label: '3P%', 
+    value: formatStatValue("3P%", playerData["3P%"]), 
+    rank: calculateRank(filteredData, "3P%", playerData["3P%"], true) + '위'
+  },
+  {
+    label: 'FT%', 
+    value: formatStatValue("FT%", playerData["FT%"]), 
+    rank: calculateRank(filteredData, "FT%", playerData["FT%"], true) + '위'
+  }
+], 'primary');
 
-    statsContainer.innerHTML += createCard('리바운드 지표', [
-      {label: '총 리바운드', value: playerData["리바운드"], rank: calculateRank(filteredData, "리바운드", playerData["리바운드"], true) + '위', highlight: true},
-      {label: '평균 리바운드', value: parseFloat(playerData["평균 리바운드"]).toFixed(2), rank: calculateRank(filteredData, "평균 리바운드", playerData["평균 리바운드"], true) + '위', highlight: true},
-      {label: '공격 리바운드', value: playerData["공격 리바운드"], rank: calculateRank(filteredData, "공격 리바운드", playerData["공격 리바운드"], true) + '위'},
-      {label: '평균 공격 리바운드', value: parseFloat(playerData["평균 공격 리바운드"]).toFixed(2), rank: calculateRank(filteredData, "평균 공격 리바운드", playerData["평균 공격 리바운드"], true) + '위'},
-      {label: '수비 리바운드', value: playerData["수비 리바운드"], rank: calculateRank(filteredData, "수비 리바운드", playerData["수비 리바운드"], true) + '위'},
-      {label: '평균 수비 리바운드', value: parseFloat(playerData["평균 수비 리바운드"]).toFixed(2), rank: calculateRank(filteredData, "평균 수비 리바운드", playerData["평균 수비 리바운드"], true) + '위'}
-    ], 'primary');
+statsContainer.innerHTML += createCard('리바운드 지표', [
+  {
+    label: '총 리바운드', 
+    value: formatStatValue("리바운드", playerData["리바운드"]), 
+    rank: calculateRank(filteredData, "리바운드", playerData["리바운드"], true) + '위',
+    highlight: true
+  },
+  {
+    label: '평균 리바운드', 
+    value: formatStatValue("평균 리바운드", playerData["평균 리바운드"]), 
+    rank: calculateRank(filteredData, "평균 리바운드", playerData["평균 리바운드"], true) + '위',
+    highlight: true
+  },
+  {
+    label: '공격 리바운드', 
+    value: formatStatValue("공격 리바운드", playerData["공격 리바운드"]), 
+    rank: calculateRank(filteredData, "공격 리바운드", playerData["공격 리바운드"], true) + '위'
+  },
+  {
+    label: '평균 공격 리바운드', 
+    value: formatStatValue("평균 공격 리바운드", playerData["평균 공격 리바운드"]), 
+    rank: calculateRank(filteredData, "평균 공격 리바운드", playerData["평균 공격 리바운드"], true) + '위'
+  },
+  {
+    label: '수비 리바운드', 
+    value: formatStatValue("수비 리바운드", playerData["수비 리바운드"]), 
+    rank: calculateRank(filteredData, "수비 리바운드", playerData["수비 리바운드"], true) + '위'
+  },
+  {
+    label: '평균 수비 리바운드', 
+    value: formatStatValue("평균 수비 리바운드", playerData["평균 수비 리바운드"]), 
+    rank: calculateRank(filteredData, "평균 수비 리바운드", playerData["평균 수비 리바운드"], true) + '위'
+  }
+], 'primary');
 
-     statsContainer.innerHTML += createCard('어시스트/스틸/블록 지표', [
-      {label: '총 어시스트', value: playerData["어시스트"], rank: calculateRank(filteredData, "어시스트", playerData["어시스트"], true) + '위'},
-      {label: '평균 어시스트', value: parseFloat(playerData["평균 어시스트"]).toFixed(2), rank: calculateRank(filteredData, "평균 어시스트", playerData["평균 어시스트"], true) + '위'},
-      {label: '총 스틸', value: playerData["스틸"], rank: calculateRank(filteredData, "스틸", playerData["스틸"], true) + '위'},
-      {label: '평균 스틸', value: parseFloat(playerData["평균 스틸"]).toFixed(2), rank: calculateRank(filteredData, "평균 스틸", playerData["평균 스틸"], true) + '위'},
-      {label: '총 블록', value: playerData["블록"], rank: calculateRank(filteredData, "블록", playerData["블록"], true) + '위'},
-      {label: '평균 블록', value: parseFloat(playerData["평균 블록"]).toFixed(2), rank: calculateRank(filteredData, "평균 블록", playerData["평균 블록"], true) + '위'}
-    ], 'primary');
+statsContainer.innerHTML += createCard('어시스트/스틸/블록 지표', [
+  {
+    label: '총 어시스트', 
+    value: formatStatValue("어시스트", playerData["어시스트"]), 
+    rank: calculateRank(filteredData, "어시스트", playerData["어시스트"], true) + '위'
+  },
+  {
+    label: '평균 어시스트', 
+    value: formatStatValue("평균 어시스트", playerData["평균 어시스트"]), 
+    rank: calculateRank(filteredData, "평균 어시스트", playerData["평균 어시스트"], true) + '위'
+  },
+  {
+    label: '총 스틸', 
+    value: formatStatValue("스틸", playerData["스틸"]), 
+    rank: calculateRank(filteredData, "스틸", playerData["스틸"], true) + '위'
+  },
+  {
+    label: '평균 스틸', 
+    value: formatStatValue("평균 스틸", playerData["평균 스틸"]), 
+    rank: calculateRank(filteredData, "평균 스틸", playerData["평균 스틸"], true) + '위'
+  },
+  {
+    label: '총 블록', 
+    value: formatStatValue("블록", playerData["블록"]), 
+    rank: calculateRank(filteredData, "블록", playerData["블록"], true) + '위'
+  },
+  {
+    label: '평균 블록', 
+    value: formatStatValue("평균 블록", playerData["평균 블록"]), 
+    rank: calculateRank(filteredData, "평균 블록", playerData["평균 블록"], true) + '위'
+  }
+], 'primary');
 
-    statsContainer.innerHTML += createCard('기타 지표', [
-      {label: '턴오버', value: playerData["턴오버"], rank: calculateRank(filteredData, "턴오버", playerData["턴오버"], false) + '위'},
-      {label: '평균 턴오버', value: parseFloat(playerData["평균 턴오버"]).toFixed(2), rank: calculateRank(filteredData, "평균 턴오버", playerData["평균 턴오버"], false) + '위'},
-      {label: '파울', value: playerData["파울"], rank: calculateRank(filteredData, "파울", playerData["파울"], false) + '위'},
-      {label: '평균 파울', value: parseFloat(playerData["평균 파울"]).toFixed(2), rank: calculateRank(filteredData, "평균 파울", playerData["평균 파울"], false) + '위'}
-    ], 'primary');
+statsContainer.innerHTML += createCard('기타 지표', [
+  {
+    label: '턴오버', 
+    value: formatStatValue("턴오버", playerData["턴오버"]), 
+    rank: calculateRank(filteredData, "턴오버", playerData["턴오버"], false) + '위'
+  },
+  {
+    label: '평균 턴오버', 
+    value: formatStatValue("평균 턴오버", playerData["평균 턴오버"]), 
+    rank: calculateRank(filteredData, "평균 턴오버", playerData["평균 턴오버"], false) + '위'
+  },
+  {
+    label: '파울', 
+    value: formatStatValue("파울", playerData["파울"]), 
+    rank: calculateRank(filteredData, "파울", playerData["파울"], false) + '위'
+  },
+  {
+    label: '평균 파울', 
+    value: formatStatValue("평균 파울", playerData["평균 파울"]), 
+    rank: calculateRank(filteredData, "평균 파울", playerData["평균 파울"], false) + '위'
+  }
+], 'primary');
 
 
 
 statsContainer.innerHTML += createCard('WinShare 지표', [
-  {label: 'WS', value: playerData["WS"], rank: calculateRank(filteredData, "WS", playerData["WS"], true) + '위', highlight: true},
-  {label: 'WS/40', value: playerData["WS/40"], rank: calculateRank(filteredData, "WS/40", playerData["WS/40"], true) + '위'},
-  {label: 'Offensive_WS', value: playerData["Offensive_WS"], rank: calculateRank(filteredData, "Offensive_WS", playerData["Offensive_WS"], true) + '위'},
-  {label: 'Defensive_WS', value: playerData["Defensive_WS"], rank: calculateRank(filteredData, "Defensive_WS", playerData["Defensive_WS"], true) + '위'}
+  {label: 'WS', value: formatStatValue("WS", playerData["WS"]), rank: calculateRank(filteredData, "WS", playerData["WS"], true) + '위', highlight: true},
+  {label: 'WS/40', value: formatStatValue("WS/40", playerData["WS/40"]), rank: calculateRank(filteredData, "WS/40", playerData["WS/40"], true) + '위'},
+  {label: 'Offensive_WS', value: formatStatValue("Offensive_WS", playerData["Offensive_WS"]), rank: calculateRank(filteredData, "Offensive_WS", playerData["Offensive_WS"], true) + '위'},
+  {label: 'Defensive_WS', value: formatStatValue("Defensive_WS", playerData["Defensive_WS"]), rank: calculateRank(filteredData, "Defensive_WS", playerData["Defensive_WS"], true) + '위'}
 ], 'secondary');
-
 
 statsContainer.innerHTML += createCard('효율성 지표', [
-  {label: 'PER', value: playerData["PER"], rank: calculateRank(filteredData, "PER", playerData["PER"], true) + '위'},
-  {label: 'EFF', value: playerData["EFF"], rank: calculateRank(filteredData, "EFF", playerData["EFF"], true) + '위'},
-  {label: 'EFF/40', value: playerData["EFF/40"], rank: calculateRank(filteredData, "EFF/40", playerData["EFF/40"], true) + '위'},
-  {label: 'Offensive_rating', value: playerData["Offensive_rating"], rank: calculateRank(filteredData, "Offensive_rating", playerData["Offensive_rating"], true) + '위'},
-  {label: 'Defensive_rating', value: playerData["Defensive_rating"], rank: calculateRank(filteredData, "Defensive_rating", playerData["Defensive_rating"], false) + '위'},
-  {label: 'USG%', value: playerData["USG%"] + '%', rank: calculateRank(filteredData, "USG%", playerData["USG%"], true) + '위'}
+  {label: 'PER', value: formatStatValue("PER", playerData["PER"]), rank: calculateRank(filteredData, "PER", playerData["PER"], true) + '위'},
+  {label: 'EFF', value: formatStatValue("EFF", playerData["EFF"]), rank: calculateRank(filteredData, "EFF", playerData["EFF"], true) + '위'},
+  {label: 'EFF/40', value: formatStatValue("EFF/40", playerData["EFF/40"]), rank: calculateRank(filteredData, "EFF/40", playerData["EFF/40"], true) + '위'},
+  {label: 'Offensive_rating', value: formatStatValue("Offensive_rating", playerData["Offensive_rating"]), rank: calculateRank(filteredData, "Offensive_rating", playerData["Offensive_rating"], true) + '위'},
+  {label: 'Defensive_rating', value: formatStatValue("Defensive_rating", playerData["Defensive_rating"]), rank: calculateRank(filteredData, "Defensive_rating", playerData["Defensive_rating"], false) + '위'},
+  {label: 'USG%', value: formatStatValue("USG%", playerData["USG%"]), rank: calculateRank(filteredData, "USG%", playerData["USG%"], true) + '위'}
 ], 'secondary');
-
-
-
 
 statsContainer.innerHTML += createCard('2차 슈팅 지표', [
-  {label: 'TS%', value: playerData["TS%"] + '%', rank: calculateRank(filteredData, "TS%", playerData["TS%"], true) + '위'},
-  {label: 'eFG%', value: playerData["eFG%"] + '%', rank: calculateRank(filteredData, "eFG%", playerData["eFG%"], true) + '위'},
-  {label: '3PAr', value: playerData["3PAr"], rank: calculateRank(filteredData, "3PAr", playerData["3PAr"], true) + '위'},
-  {label: 'FTr', value: playerData["FTr"], rank: calculateRank(filteredData, "FTr", playerData["FTr"], true) + '위'}
+  {label: 'TS%', value: formatStatValue("TS%", playerData["TS%"]), rank: calculateRank(filteredData, "TS%", playerData["TS%"], true) + '위'},
+  {label: 'eFG%', value: formatStatValue("eFG%", playerData["eFG%"]), rank: calculateRank(filteredData, "eFG%", playerData["eFG%"], true) + '위'},
+  {label: '3PAr', value: formatStatValue("3PAr", playerData["3PAr"]), rank: calculateRank(filteredData, "3PAr", playerData["3PAr"], true) + '위'},
+  {label: 'FTr', value: formatStatValue("FTr", playerData["FTr"]), rank: calculateRank(filteredData, "FTr", playerData["FTr"], true) + '위'}
 ], 'secondary');
 
-
-
 statsContainer.innerHTML += createCard('Team내 비중 지표', [
-  {label: 'ORB%', value: playerData["ORB%"] + '%', rank: calculateRank(filteredData, "ORB%", playerData["ORB%"], true) + '위'},
-  {label: 'DRB%', value: playerData["DRB%"] + '%', rank: calculateRank(filteredData, "DRB%", playerData["DRB%"], true) + '위'},
-  {label: 'TRB%', value: playerData["TRB%"] + '%', rank: calculateRank(filteredData, "TRB%", playerData["TRB%"], true) + '위'},
-  {label: 'AST%', value: playerData["AST%"] + '%', rank: calculateRank(filteredData, "AST%", playerData["AST%"], true) + '위'},
-  {label: 'STL%', value: playerData["STL%"] + '%', rank: calculateRank(filteredData, "STL%", playerData["STL%"], true) + '위'},
-  {label: 'BS%', value: playerData["BS%"] + '%', rank: calculateRank(filteredData, "BS%", playerData["BS%"], true) + '위'},
-  {label: 'TOV%', value: playerData["TOV%"] + '%', rank: calculateRank(filteredData, "TOV%", playerData["TOV%"], false) + '위'}
+  {label: 'ORB%', value: formatStatValue("ORB%", playerData["ORB%"]), rank: calculateRank(filteredData, "ORB%", playerData["ORB%"], true) + '위'},
+  {label: 'DRB%', value: formatStatValue("DRB%", playerData["DRB%"]), rank: calculateRank(filteredData, "DRB%", playerData["DRB%"], true) + '위'},
+  {label: 'TRB%', value: formatStatValue("TRB%", playerData["TRB%"]), rank: calculateRank(filteredData, "TRB%", playerData["TRB%"], true) + '위'},
+  {label: 'AST%', value: formatStatValue("AST%", playerData["AST%"]), rank: calculateRank(filteredData, "AST%", playerData["AST%"], true) + '위'},
+  {label: 'STL%', value: formatStatValue("STL%", playerData["STL%"]), rank: calculateRank(filteredData, "STL%", playerData["STL%"], true) + '위'},
+  {label: 'BS%', value: formatStatValue("BS%", playerData["BS%"]), rank: calculateRank(filteredData, "BS%", playerData["BS%"], true) + '위'},
+  {label: 'TOV%', value: formatStatValue("TOV%", playerData["TOV%"]), rank: calculateRank(filteredData, "TOV%", playerData["TOV%"], false) + '위'}
 ], 'team-stats');
+
 
 
   } else {
