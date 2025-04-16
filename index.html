@@ -380,15 +380,15 @@ thead th {
 #tab-compare .compare-result th {
   position: sticky;
   top: 0;
-  z-index: 300; 
   background-color: #282828 !important;
+  z-index: 999 !important; /* 기존 값보다 확실히 높은 값으로 설정 */
 }
 
 #tab-compare .compare-result td {
-  z-index: 100;
+  z-index: 1 !important; /* 셀들은 낮게 설정해서 헤더와 겹치지 않도록 함 */
 }
 .highlight-first {
-  background-color: rgba(255,165,0,0.5); /* 주황색 중간 투명도 */
+  background-color: rgba(255, 140, 0, 0.95) !important; /* 더 진한 주황 */
   color: #FFF !important;
   font-weight: bold;
   position: relative;
@@ -396,7 +396,7 @@ thead th {
 }
 
 .highlight-second {
-  background-color: rgba(136,194,221,0.5); /* 하늘색 중간 투명도 */
+  background-color: rgba(70, 150, 200, 0.95) !important; /* 더 진한 하늘색 */
   color: #FFF !important;
   font-weight: bold;
   position: relative;
@@ -404,7 +404,7 @@ thead th {
 }
 
 .highlight-third {
-  background-color: rgba(200,200,200,0.5); /* 회색 중간 투명도 */
+  background-color: rgba(160, 160, 160, 0.95) !important; /* 더 진한 회색 */
   color: #FFF !important;
   font-weight: bold;
   position: relative;
@@ -430,6 +430,33 @@ thead th {
   background: #FFA500;
 }
 
+/* ✅ 테이블 가로 세로 1.2배 키우기 적용 */
+table {
+  transform: scale(1.2);
+  transform-origin: top left;
+}
+
+/* ✅ 제목 헤드 행 높이 1.5배 증가 적용 */
+thead th {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* ✅ 지표 데이터 볼드체 적용 */
+td {
+  font-weight: bold !important;
+}
+
+/* ✅ 강조 셀 배경색 더 진하게 조정 */
+.highlight-first {
+  background-color: rgba(255, 165, 0, 0.8) !important; /* 더 진한 주황 */
+}
+.highlight-second {
+  background-color: rgba(136, 194, 221, 0.8) !important; /* 더 진한 하늘색 */
+}
+.highlight-third {
+  background-color: rgba(200, 200, 200, 0.8) !important; /* 더 진한 회색 */
+}
 
   </style>
 </head>
@@ -661,7 +688,7 @@ function renderTable(data) {
       <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
       <td>${cols[1]}</td>
       <td>${cols[3]}</td>
-      <td data-time="${cols[6]}">${playtime}</td>
+<td data-time="${cols[6]}">${Math.floor(cols[6]/60)}분 ${cols[6]%60}초</td>
       <td>${cols[9]}</td>
       <td>${(+cols[10]).toFixed(2)}</td>
       <td>${cols[13]}</td>
@@ -1121,19 +1148,34 @@ const statUnits = {
 
 values.forEach((value, idx) => {
   const unit = statUnits[stat.idx] || '';
-  const decimalPlaces = unit === '%' ? 2 : Number.isInteger(value) ? 0 : 2;
-  
+  const format = statsFormats[stat.idx];  // 반드시 추가
+
+  let formattedValue;
+
+  if (format && format.convert && format.unit === '분 초') {
+    // "분 초" 변환이 필요한 경우
+    const minutes = Math.floor(value / 60);
+    const seconds = Math.floor(value % 60);
+    formattedValue = `${minutes}분 ${seconds}초`;
+  } else {
+    // 다른 경우는 기존대로
+    const decimalPlaces = format ? format.decimals : (unit === '%' ? 2 : Number.isInteger(value) ? 0 : 2);
+    formattedValue = `${value.toFixed(decimalPlaces)}${unit}`;
+  }
+
   let highlightClass = '';
   if (value === sortedValues[0]) highlightClass = 'highlight-first';
   else if (value === sortedValues[1]) highlightClass = 'highlight-second';
   else if (playersData.length === 3 && value === sortedValues[2]) highlightClass = 'highlight-third';
 
-  const formattedValue = `
-    <span style="font-size:1.1rem; font-weight:bold;">${value.toFixed(decimalPlaces)}${unit}</span>
+  const displayValue = `
+    <span style="font-size:1.1rem; font-weight:bold;">${formattedValue}</span>
     <span style="font-size:0.8rem; color:#ddd;"> (${ranks[idx]}위)</span>
   `;
-  tableHTML += `<td class="${highlightClass}">${formattedValue}</td>`;
+
+  tableHTML += `<td class="${highlightClass}">${displayValue}</td>`;
 });
+
 
 
 if (playersData.length === 2) {
