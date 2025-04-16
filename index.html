@@ -377,15 +377,27 @@ thead th {
   border-bottom: 1px solid #333;
 }
 
-#tab-compare .compare-result th {
-  position: sticky;
-  top: 0;
+#tab-compare .compare-result table th {
+  position: sticky !important;
+  top: 0 !important;
   background-color: #282828 !important;
-  z-index: 999 !important; /* 기존 값보다 확실히 높은 값으로 설정 */
+  z-index: 1000 !important;
 }
 
-#tab-compare .compare-result td {
-  z-index: 1 !important; /* 셀들은 낮게 설정해서 헤더와 겹치지 않도록 함 */
+#tab-compare .compare-result table td {
+  background-color: #181818 !important;
+  z-index: 1 !important;
+}
+
+/* 지표 데이터 볼드 처리 */
+#tab-compare .compare-result table td {
+  font-weight: bold !important;
+}
+
+/* 테이블 제목 헤더 높이 1.5배 증가 */
+#tab-compare .compare-result table th {
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
 }
 .highlight-first {
   background-color: rgba(255, 140, 0, 0.95) !important; /* 더 진한 주황 */
@@ -1018,9 +1030,10 @@ function formatStatValue(idx, value) {
   if (!format) return value;
 
   let formattedValue;
-  if (format.convert && format.unit === '분 초') {
-    const minutes = Math.floor(value / 60);
-    const seconds = Math.floor(value % 60);
+  if (idx === 6 || format.unit === '분 초') {
+    const totalSeconds = parseInt(value, 10);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
     formattedValue = `${minutes}분 ${seconds}초`;
   } else {
     formattedValue = parseFloat(value).toFixed(format.decimals);
