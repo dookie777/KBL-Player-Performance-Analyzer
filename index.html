@@ -619,15 +619,15 @@ const statsFormats = {
  
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
-  try {
-    // 로딩 중 안내 메시지 추가
-    document.getElementById('tableBody').innerHTML = `
-      <tr><td colspan="65">데이터를 불러오는 중입니다. 잠시만 기다려 주세요...</td></tr>
-    `;
+async function loadPlayersData() {
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = `
+    <tr><td colspan="65">데이터를 불러오는 중입니다. 잠시만 기다려 주세요...</td></tr>
+  `;
 
+  try {
     const res = await fetch('https://docs.google.com/spreadsheets/d/1ez03AkQt4A5HWmo3jRAV3DOyfKfCU4xiI7XCjLRjwnE/export?format=csv');
 
-    // 네트워크 오류 체크
     if (!res.ok) throw new Error('데이터를 가져오는 데 실패했습니다.');
 
     const rows = (await res.text()).split('\n').slice(1);
@@ -639,7 +639,7 @@ const statsFormats = {
     renderTable(originalData);
   } catch (error) {
     alert('⚠️ 데이터 로딩 중 문제가 발생했습니다:\n' + error.message);
-    document.getElementById('tableBody').innerHTML = `
+    tableBody.innerHTML = `
       <tr><td colspan="65">데이터 로딩 중 문제가 발생했습니다. 페이지를 새로고침 해주세요.</td></tr>
     `;
   }
