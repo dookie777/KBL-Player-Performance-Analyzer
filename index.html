@@ -296,6 +296,17 @@ thead th {
 #tab-all .scroll-container {
   padding-bottom: 20px !important; /* 하단부에 적당한 여백 추가 */
 }    
+#tab-all .scroll-container {
+  position: relative !important;
+}
+
+#tab-all .scroll-container::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 20px; /* 하단에 추가 공간 확보 */
+}
+    
   </style>
 </head>
 <body>
