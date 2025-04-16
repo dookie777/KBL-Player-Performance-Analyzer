@@ -996,14 +996,14 @@ function formatStatValue(idx, value) {
   // 반드시 규정 경기 적용된 데이터 사용
   let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols[3]) >= 14) : originalData;
 
-  const playersData = [player1, player2, player3].filter(name => name !== '').map(name =>
-    filteredData.find(cols => cols[2].toLowerCase().includes(name.toLowerCase()))
-  );
+const playersData = [player1, player2, player3].filter(name => name !== '').map(name =>
+  filteredData.find(cols => cols[2].trim().toLowerCase() === name.toLowerCase())
+);
 
-  if (playersData.some(data => data === undefined)) {
-    alert('선수 이름을 정확히 입력해주세요.');
-    return;
-  }
+if (playersData.some(data => data === undefined)) {
+  alert('선수 이름을 정확히 입력해주세요.');
+  return;
+}
 
 const statsLabels = [
   {label: '출전 경기 수', idx: 3, higherBetter: true},
