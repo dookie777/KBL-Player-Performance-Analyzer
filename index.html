@@ -12,6 +12,39 @@ body {
   padding: 0;
   overflow: hidden;
 }
+/* ✅ 좌우 스크롤 시 1,2열 제목 고정 완벽 복구 */
+#tab-all table {
+  position: relative;
+}
+
+#tab-all th:nth-child(1),
+#tab-all td:nth-child(1),
+#tab-all th:nth-child(2),
+#tab-all td:nth-child(2) {
+  position: sticky;
+  background-color: #282828 !important;
+  z-index: 10;
+}
+
+#tab-all th:nth-child(1),
+#tab-all td:nth-child(1) {
+  left: 0;
+  z-index: 11; /* 이름 열이 최우선으로 보이게 설정 */
+}
+
+#tab-all th:nth-child(2),
+#tab-all td:nth-child(2) {
+  left: 150px;
+  z-index: 10; /* 팀 열이 이름 열 다음으로 보이게 설정 */
+}
+
+/* 스크롤 시 헤더 열 (상단) 고정 */
+#tab-all thead th {
+  position: sticky;
+  top: 0;
+  background-color: #282828 !important;
+  z-index: 12; /* 열 제목이 가장 위에 오도록 설정 */
+}
 
 .container {
   max-width: 1200px;
@@ -1117,20 +1150,22 @@ function comparePlayers() {
       });
     }
 
-    tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
-    values.forEach((value, idx) => {
-      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
-    });
+tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
 
-    // 차이값 (2명일 때만 표시)
-    if (values.length === 2) {
-      const diffValue = values[0] - values[1];
-      const diffClass = diffValue > 0 ? 'diff-positive' : diffValue < 0 ? 'diff-negative' : '';
-      const formattedDiff = diffValue !== 0 ? formatStatValue(stat.key, Math.abs(diffValue)) : '-';
-      tableHTML += `<td class="diff-cell"><span class="${diffClass}">${formattedDiff}</span></td>`;
-    }
+values.forEach((value, idx) => {
+  tableHTML += `<td>${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
+});
 
-    tableHTML += '</tr>';
+// 2명 비교 시 차이값 추가
+if (playersData.length === 2) {
+  const diff = parseFloat(values[0]) - parseFloat(values[1]);
+  const diffClass = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : '';
+  const formattedDiff = Math.abs(diff).toFixed(statsFormats[stat.key]?.decimals || 2);
+  const diffSign = diff > 0 ? '+' : diff < 0 ? '-' : '';
+  tableHTML += `<td class="diff-cell ${diffClass}"><span>${diffSign}${formattedDiff}</span></td>`;
+}
+
+tableHTML += '</tr>';
   });
 
   tableHTML += '</tbody></table>';
