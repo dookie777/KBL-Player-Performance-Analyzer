@@ -314,73 +314,19 @@ thead th {
   </div>
   <div class="scroll-container" style="overflow:auto; flex:1;">
     <table id="statsTable" style="width:max-content; min-width:100%;">
-<thead>
-  <tr>
-    <th>선수 이름</th>
-    <th>팀</th>
-    <th>경기수(G)</th>
-    <th>출전시간</th>
-    <th>득점</th>
-    <th>평균 득점</th>
-    <th>FGA</th>
-    <th>FG</th>
-    <th>평균 FG 시도</th>
-    <th>평균 FG 성공</th>
-    <th>FG%</th>
-    <th>2PA</th>
-    <th>2P</th>
-    <th>평균 2P 시도</th>
-    <th>평균 2P 성공</th>
-    <th>2P%</th>
-    <th>3PA</th>
-    <th>3P</th>
-    <th>평균 3P 시도</th>
-    <th>평균 3P 성공</th>
-    <th>3P%</th>
-    <th>FTA</th>
-    <th>FT</th>
-    <th>평균 FT 시도</th>
-    <th>평균 FT 성공</th>
-    <th>FT%</th>
-    <th>리바운드</th>
-    <th>평균 리바운드</th>
-    <th>공격 리바운드</th>
-    <th>평균 공격 리바운드</th>
-    <th>수비 리바운드</th>
-    <th>평균 수비 리바운드</th>
-    <th>어시스트</th>
-    <th>평균 어시스트</th>
-    <th>스틸</th>
-    <th>평균 스틸</th>
-    <th>블록</th>
-    <th>평균 블록</th>
-    <th>턴오버</th>
-    <th>평균 턴오버</th>
-    <th>파울</th>
-    <th>평균 파울</th>
-    <th>WS</th>
-    <th>WS/40</th>
-    <th>Offensive WS</th>
-    <th>Defensive WS</th>
-    <th>PER</th>
-    <th>EFF</th>
-    <th>EFF/40</th>
-    <th>Offensive Rating</th>
-    <th>Defensive Rating</th>
-    <th>USG%</th>
-    <th>TS%</th>
-    <th>eFG%</th>
-    <th>3PAr</th>
-    <th>FTr</th>
-    <th>ORB%</th>
-    <th>DRB%</th>
-    <th>TRB%</th>
-    <th>AST%</th>
-    <th>STL%</th>
-    <th>BLK%</th>
-    <th>TOV%</th>
-  </tr>
-</thead>
+      <thead>
+        <tr>
+          <th>선수 이름</th><th>팀</th><th>경기수(G)</th><th>출전시간</th>
+          <th>PTS(총득점)</th><th>PTS_avg</th><th>FG</th><th>FGA</th><th>FG%</th>
+          <th>2P</th><th>2PA</th><th>2P%</th><th>3P</th><th>3PA</th><th>3P%</th>
+          <th>FT</th><th>FTA</th><th>FT%</th><th>ORB</th><th>DRB</th><th>TRB</th>
+          <th>TRB_avg</th><th>AST</th><th>AST_avg</th><th>STL</th><th>STL_avg</th>
+          <th>BLK</th><th>BLK_avg</th><th>TO</th><th>PF</th><th>WS</th><th>OWS</th>
+          <th>DWS</th><th>PER</th><th>TS%</th><th>eFG%</th><th>USG%</th>
+          <th>Off Rating</th><th>Def Rating</th><th>Eff/Game</th><th>Eff/40min</th>
+          <th>ORB%</th><th>DRB%</th><th>AST%</th><th>STL%</th><th>BLK%</th><th>TOV%</th>
+        </tr>
+      </thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
@@ -429,93 +375,76 @@ thead th {
    renderTable(originalData);
  }
  
-function renderTable(data) {
-  const tableBody = document.getElementById('tableBody');
-  tableBody.innerHTML = '';
-
-  const minGamesOnly = document.getElementById('minGamesCheckbox').checked;
-  const filteredData = minGamesOnly ? data.filter(cols => parseInt(cols[3]) >= 14) : data;
-
-  filteredData.forEach(cols => {
-    const playerName = cols[2];
-    const status = cols[3] >= 14 ? '✅' : '⚠️';
-    const playtime = ${cols[4]}분 ${cols[5]}초;
-
-    const row = document.createElement('tr');
-    row.innerHTML = 
-      <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
-      <td>${cols[1]}</td>
-      <td>${cols[3]}</td>
-      <td data-time="${cols[6]}">${playtime}</td>
-      <td>${cols[9]}</td>
-      <td>${(+cols[10]).toFixed(2)}</td>
-      <td>${cols[13]}</td>
-      <td>${cols[14]}</td>
-      <td>${cols[15]}</td>
-      <td>${cols[16]}</td>
-      <td>${cols[17]}</td>
-      <td>${cols[21]}</td>
-      <td>${cols[22]}</td>
-      <td>${cols[23]}</td>
-      <td>${cols[24]}</td>
-      <td>${cols[25]}</td>
-      <td>${cols[29]}</td>
-      <td>${cols[30]}</td>
-      <td>${cols[31]}</td>
-      <td>${cols[32]}</td>
-      <td>${cols[33]}</td>
-      <td>${cols[37]}</td>
-      <td>${cols[38]}</td>
-      <td>${cols[39]}</td>
-      <td>${cols[40]}</td>
-      <td>${cols[41]}</td>
-      <td>${cols[45]}</td>
-      <td>${cols[46]}</td>
-      <td>${cols[49]}</td>
-      <td>${cols[50]}</td>
-      <td>${cols[53]}</td>
-      <td>${cols[54]}</td>
-      <td>${cols[57]}</td>
-      <td>${cols[58]}</td>
-      <td>${cols[61]}</td>
-      <td>${cols[62]}</td>
-      <td>${cols[65]}</td>
-      <td>${cols[66]}</td>
-      <td>${cols[69]}</td>
-      <td>${cols[70]}</td>
-      <td>${cols[73]}</td>
-      <td>${cols[74]}</td>
-      <td>${cols[77]}</td>
-      <td>${cols[78]}</td>
-      <td>${cols[79]}</td>
-      <td>${cols[80]}</td>
-      <td>${cols[87]}</td>
-      <td>${cols[88]}</td>
-      <td>${cols[89]}</td>
-      <td>${cols[85]}</td>
-      <td>${cols[86]}</td>
-      <td>${cols[97]}</td>
-      <td>${cols[95]}</td>
-      <td>${cols[96]}</td>
-      <td>${cols[98]}</td>
-      <td>${cols[99]}</td>
-      <td>${cols[105]}</td>
-      <td>${cols[106]}</td>
-      <td>${cols[107]}</td>
-      <td>${cols[108]}</td>
-      <td>${cols[109]}</td>
-      <td>${cols[110]}</td>
-      <td>${cols[111]}</td>
-    ;
-    tableBody.appendChild(row);
-  });
-
-  setTimeout(() => {
-    const tableWidth = document.getElementById('statsTable').offsetWidth;
-    document.getElementById('scroll-sync').style.width = tableWidth + 'px';
-  }, 200);
-}
-
+ function renderTable(data) {
+   const tableBody = document.getElementById('tableBody');
+   tableBody.innerHTML = '';
+ 
+   const minGamesOnly = document.getElementById('minGamesCheckbox').checked;
+   const filteredData = minGamesOnly ? data.filter(cols => parseInt(cols[3]) >= 14) : data;
+ 
+   filteredData.forEach(cols => {
+     const playerName = cols[2];
+     const status = cols[3] >= 14 ? '✅' : '⚠️';
+     const playtime = ${cols[4]}분 ${cols[5]}초;
+ 
+     const row = document.createElement('tr');
+     row.innerHTML = 
+       <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+       <td>${cols[1]}</td>
+       <td>${cols[3]}</td>
+       <td data-time="${cols[cols.length - 1]}">${playtime}</td>
+       <td>${cols[6]}</td>
+       <td>${(+cols[7]).toFixed(2)}</td>
+       <td>${cols[8]}</td>
+       <td>${cols[9]}</td>
+       <td>${cols[10]}</td>
+       <td>${cols[11]}</td>
+       <td>${cols[12]}</td>
+       <td>${cols[13]}</td>
+       <td>${cols[14]}</td>
+       <td>${cols[15]}</td>
+       <td>${cols[16]}</td>
+       <td>${cols[17]}</td>
+       <td>${cols[18]}</td>
+       <td>${cols[19]}</td>
+       <td>${cols[20]}</td>
+       <td>${cols[21]}</td>
+       <td>${cols[22]}</td>
+       <td>${(+cols[23]).toFixed(2)}</td>
+       <td>${cols[24]}</td>
+       <td>${(+cols[25]).toFixed(2)}</td>
+       <td>${cols[26]}</td>
+       <td>${(+cols[27]).toFixed(2)}</td>
+       <td>${cols[28]}</td>
+       <td>${(+cols[29]).toFixed(2)}</td>
+       <td>${cols[30]}</td>
+       <td>${cols[31]}</td>
+       <td>${cols[32]}</td>
+       <td>${cols[33]}</td>
+       <td>${cols[34]}</td>
+       <td>${cols[35]}</td>
+       <td>${cols[36]}</td>
+       <td>${cols[37]}</td>
+       <td>${cols[38]}</td>
+       <td>${cols[39]}</td>
+       <td>${cols[40]}</td>
+       <td>${cols[41]}</td>
+       <td>${cols[42]}</td>
+       <td>${cols[43]}</td>
+       <td>${cols[44]}</td>
+       <td>${cols[45]}</td>
+       <td>${cols[46]}</td>
+       <td>${cols[47]}</td>
+       <td>${cols[48]}</td>
+     ;
+     tableBody.appendChild(row);
+   });
+ 
+   setTimeout(() => {
+     const tableWidth = document.getElementById('statsTable').offsetWidth;
+     document.getElementById('scroll-sync').style.width = tableWidth + 'px';
+   }, 200);
+ }
  
 function searchPlayer(){
   const query = document.getElementById('searchPlayerAll').value.toLowerCase().trim();
