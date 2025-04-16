@@ -997,7 +997,7 @@ function formatStatValue(idx, value) {
   let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols[3]) >= 14) : originalData;
 
 const playersData = [player1, player2, player3].filter(name => name !== '').map(name =>
-  filteredData.find(cols => cols[2].trim().toLowerCase().includes(name.toLowerCase()))
+  filteredData.find(cols => cols[2].trim().toLowerCase().includes(name.trim().toLowerCase()))
 );
 
 if (playersData.some(data => data === undefined)) {
