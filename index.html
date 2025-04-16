@@ -457,7 +457,7 @@ thead th {
     <th>Player</th>
     <th>Team</th>
     <th>출전 경기 수</th>
-    <th>출전시간</th>
+    <th>출전 시간(초)</th>
     <th>득점</th>
     <th>평균 득점</th>
     <th>FGA</th>
@@ -652,7 +652,7 @@ async function loadPlayersData() {
     originalData = await res.json();
 
     originalData.forEach(cols => {
-      cols["총 출전 시간(초)"] = parseInt(cols["출전시간(분)"]) * 60 + parseInt(cols["출전시간(초)"]);
+      cols["총 출전 시간(초)"] = parseInt(cols["출전 시간(초)(분)"]) * 60 + parseInt(cols["출전 시간(초)(초)"]);
     });
 
     renderTable(originalData);
@@ -672,14 +672,14 @@ function renderTable(data) {
   filteredData.forEach(cols => {
     const playerName = cols["Player"];
     const status = parseInt(cols["출전 경기 수"]) >= 14 ? '✅' : '⚠️';
-    const totalSeconds = parseInt(cols["출전시간(분)"]) * 60 + parseInt(cols["출전시간(초)"]);
+    const totalSeconds = parseInt(cols["출전 시간(초)(분)"]) * 60 + parseInt(cols["출전 시간(초)(초)"]);
 
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${playerName} <span class="${cols["출전 경기 수"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
       <td>${cols["Team"]}</td>
       <td>${cols["출전 경기 수"]}</td>
-      <td data-time="${totalSeconds}">${cols["출전시간(분)"]}분 ${cols["출전시간(초)"]}초</td>
+      <td data-time="${totalSeconds}">${cols["출전 시간(초)(분)"]}분 ${cols["출전 시간(초)(초)"]}초</td>
       <td>${cols["득점"]}</td>
       <td>${parseFloat(cols["평균 득점"]).toFixed(2)}</td>
       <td>${cols["FGA"]}</td>
@@ -855,7 +855,7 @@ function showPlayerStats() {
 
     statsContainer.innerHTML += createCard('기본 정보', [
       {label: '출전 경기 수', value: playerData["출전 경기 수"] + '경기', rank: calculateRank(filteredData, "출전 경기 수", playerData["출전 경기 수"], true) + '위'},
-      {label: '평균 출전 시간', value: playerData["출전시간(분)"] + '분 ' + playerData["출전시간(초)"] + '초', rank: calculateRank(filteredData, "총 출전 시간(초)", playerData["총 출전 시간(초)"], true) + '위'},
+      {label: '평균 출전 시간', value: playerData["출전 시간(초)(분)"] + '분 ' + playerData["출전 시간(초)(초)"] + '초', rank: calculateRank(filteredData, "총 출전 시간(초)", playerData["총 출전 시간(초)"], true) + '위'},
       {label: '총 득점', value: playerData["득점"] + '점', rank: calculateRank(filteredData, "득점", playerData["득점"], true) + '위'},
       {label: '평균 득점', value: parseFloat(playerData["평균 득점"]).toFixed(2) + '점', rank: calculateRank(filteredData, "평균 득점", playerData["평균 득점"], true) + '위'}
     ], 'primary');
