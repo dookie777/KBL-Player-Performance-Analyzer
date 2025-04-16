@@ -388,7 +388,7 @@ thead th {
 const playtime = `${cols[4]}분 ${cols[5]}초`;
  
      const row = document.createElement('tr');
-     row.innerHTML = 
+row.innerHTML = ` 
   <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
        <td>${cols[1]}</td>
        <td>${cols[3]}</td>
@@ -659,7 +659,7 @@ statsContainer.innerHTML += createCard('팀내 비중 지표', [
 });
 
 function createCard(title, stats, type = 'primary') {
-  return 
+return ` 
   <div class="card ${type}">
     <h3>${title}</h3>
     <table>
