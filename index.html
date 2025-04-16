@@ -526,7 +526,7 @@ thead th {
   <input type="text" id="comparePlayer1" placeholder="선수 1 이름 입력">
   <input type="text" id="comparePlayer2" placeholder="선수 2 이름 입력">
   <input type="text" id="comparePlayer3" placeholder="선수 3 이름 입력 (선택)">
-  <button onclick="()">비교하기</button>
+<button onclick="comparePlayers()">비교하기</button>
   <input type="checkbox" id="compareMinGames">
   <label for="compareMinGames">규정 경기 이상(14G)</label>
 </div>
@@ -1191,13 +1191,13 @@ if (playersData.length === 2) {
 // 엔터키 입력 기능 추가 (유지)
 ['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
   document.getElementById(id).addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') ();
+if (e.key === 'Enter') comparePlayers();
   });
 });
 
 // 체크박스 즉시 반응 추가 (유지)
 document.getElementById('compareMinGames').addEventListener('change', () => {
-  ();
+  comparePlayers();
 });
 
 
