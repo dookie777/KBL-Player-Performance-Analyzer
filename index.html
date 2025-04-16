@@ -406,7 +406,7 @@ thead th {
 .diff-positive::before {
   content: "▲";
   color: red;
-  margin-right: 5px;
+  margin-right: 4px;
   font-size: 0.75rem;
 }
 /* 음수(-)값: 파란 역삼각형 아이콘 추가 */
@@ -1138,26 +1138,34 @@ values.forEach((value, idx) => {
 
 
 if (playersData.length === 2) {
-  let diffDisplay;
-
+  let diffDisplay, diffValue, diffClass;
+  
   if (stat.idx === 6) { // 평균 출전 시간일 경우 (분 초)
-    const diffSeconds = Math.abs(values[0] - values[1]);
+    diffValue = values[0] - values[1];
+    const diffSeconds = Math.abs(diffValue);
     const diffMin = Math.floor(diffSeconds / 60);
     const diffSec = diffSeconds % 60;
     diffDisplay = `${diffMin}분 ${diffSec}초`;
   } else {
-    const diff = values[0] - values[1];
-    diffDisplay = Math.abs(diff).toFixed(decimalPlaces) + unit;
+    diffValue = values[0] - values[1];
+    const decimalPlaces = statsFormats[stat.idx]?.decimals ?? 2;
+    diffDisplay = `${Math.abs(diffValue).toFixed(decimalPlaces)}${unit}`;
   }
 
-  const diffClass = diffValue => diffValue > 0 ? 'diff-positive' : diffValue < 0 ? 'diff-negative' : '';
-  const diffValue = values[0] - values[1];
+  if (diffValue > 0) {
+    diffClass = 'diff-positive';
+  } else if (diffValue < 0) {
+    diffClass = 'diff-negative';
+  } else {
+    diffClass = '';
+  }
 
   tableHTML += `
-    <td class="diff-cell ${diffClass(diffValue)}" style="color:${diffValue > 0 ? '#FFF' : diffValue < 0 ? '#FFF' : '#AAA'}; font-weight:bold;">
+    <td class="diff-cell ${diffClass}" style="color:#FFF; font-weight:bold;">
       <span style="font-size:0.75rem;">${diffDisplay}</span>
     </td>`;
 }
+
 
 
     tableHTML += `</tr>`;
