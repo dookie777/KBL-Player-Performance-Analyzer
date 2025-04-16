@@ -378,14 +378,18 @@ thead th {
 }
 
 #tab-compare .compare-result th {
-  background-color: #282828;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 300; /* 이 값을 더 높게 설정 (예: 300) */
+  background-color: #282828 !important;
+}
+
+#tab-compare .compare-result td {
+  z-index: 100; /* 데이터 셀을 헤더보다 낮게 설정 */
 }
 
 .highlight-first {
-  background-color: rgba(255, 165, 0, 0.15) !important; /* 더욱 투명한 주황 */
+  background-color: rgba(255,165,0,0.5); /* 주황색 중간 투명도 */
   color: #FFF !important;
   font-weight: bold;
   position: relative;
@@ -393,7 +397,7 @@ thead th {
 }
 
 .highlight-second {
-  background-color: rgba(136, 194, 221, 0.15) !important; /* 더욱 투명한 하늘색 */
+  background-color: rgba(136,194,221,0.5); /* 하늘색 중간 투명도 */
   color: #FFF !important;
   font-weight: bold;
   position: relative;
@@ -401,7 +405,7 @@ thead th {
 }
 
 .highlight-third {
-  background-color: rgba(200, 200, 200, 0.15) !important; /* 더욱 투명한 회색 */
+  background-color: rgba(200,200,200,0.5); /* 회색 중간 투명도 */
   color: #FFF !important;
   font-weight: bold;
   position: relative;
@@ -1003,22 +1007,53 @@ const statsLabels = [
 
     tableHTML += `<tr><td>${stat.label}</td>`;
 
-    values.forEach((value, idx) => {
-      let highlightClass = '';
-      if (value === sortedValues[0]) highlightClass = 'highlight-first';
-      else if (value === sortedValues[1]) highlightClass = 'highlight-second';
-      else if (playersData.length === 3 && value === sortedValues[2]) highlightClass = 'highlight-third';
+const statUnits = {
+  3: '경기', 6: '분 초', 9: '점', 10: '점',
+  13: '개', 14: '개', 15: '개', 16: '개', 17: '%',
+  21: '개', 22: '개', 23: '개', 24: '개', 25: '%',
+  29: '개', 30: '개', 31: '개', 32: '개', 33: '%',
+  37: '개', 38: '개', 39: '개', 40: '개', 41: '%',
+  45: '개', 46: '개', 49: '개', 50: '개', 53: '개',
+  54: '개', 57: '개', 58: '개', 61: '개', 62: '개',
+  65: '개', 66: '개', 69: '개', 70: '개', 73: '개',
+  74: '개', 77: '', 78: '', 79: '', 80: '',
+  85: '', 86: '', 87: '', 88: '', 89: '',
+  95: '%', 96: '%', 97: '%', 98: '', 99: '',
+  105: '%', 106: '%', 107: '%', 108: '%', 109: '%',
+  110: '%', 111: '%'
+};
 
-  tableHTML += `<td class="${highlightClass}">${value} (${ranks[idx]}위)</td>`;
-    });
+values.forEach((value, idx) => {
+  const unit = statUnits[stat.idx] || '';
+  const decimalPlaces = unit === '%' ? 2 : Number.isInteger(value) ? 0 : 2;
+  
+  let highlightClass = '';
+  if (value === sortedValues[0]) highlightClass = 'highlight-first';
+  else if (value === sortedValues[1]) highlightClass = 'highlight-second';
+  else if (playersData.length === 3 && value === sortedValues[2]) highlightClass = 'highlight-third';
 
-    if (playersData.length === 2) {
-      const diff = (values[0] - values[1]).toFixed(2);
-      const diffColor = diff > 0 ? 'red' : diff < 0 ? 'skyblue' : '#fff';
-      const diffSign = diff > 0 ? `+${diff}` : diff;
+  const formattedValue = `
+    <span style="font-size:1.1rem; font-weight:bold;">${value.toFixed(decimalPlaces)}${unit}</span>
+    <span style="font-size:0.8rem; color:#ddd;"> (${ranks[idx]}위)</span>
+  `;
+  tableHTML += `<td class="${highlightClass}">${formattedValue}</td>`;
+});
 
-      tableHTML += `<td style="color:${diffColor}; font-weight:bold;">${diffSign}</td>`;
-    }
+
+if (playersData.length === 2) {
+  const unit = statUnits[stat.idx] || '';
+  const decimalPlaces = unit === '%' ? 2 : Number.isInteger(values[0]) && Number.isInteger(values[1]) ? 0 : 2;
+  const diffValue = values[0] - values[1];
+  const diff = diffValue.toFixed(decimalPlaces);
+  const diffColor = diffValue > 0 ? 'red' : diffValue < 0 ? 'skyblue' : '#fff';
+  const diffSign = diffValue > 0 ? `+${diff}` : diff;
+
+  tableHTML += `
+    <td style="color:${diffColor}; font-weight:bold;">
+      <span style="font-size:1.1rem;">${diffSign}${unit}</span>
+    </td>`;
+}
+
 
     tableHTML += `</tr>`;
   });
