@@ -147,14 +147,20 @@ thead th {
   background-color: #282828;
   z-index: 400;
 }
-
-#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+#tab-all th {
   position: sticky;
-  left: 150px;
-  background-color: #282828;
-  z-index: 400;
+  top: 0; 
+  background-color: #282828 !important;
+  z-index: 500;
 }
 
+#tab-all th:nth-child(1),
+#tab-all td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  background-color: #282828 !important;
+  z-index: 400;
+}
 /* ✅ 기타 스타일 (변경 없음) */
 .highlight { color: #FFFF55 !important; font-weight: bold; }
 
