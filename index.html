@@ -1083,7 +1083,11 @@ const statsLabels = [
       <tbody>`;
 
   statsLabels.forEach(stat => {
-    const values = playersData.map(p => parseFloat(p[stat.idx]) || 0);
+    const values = playersData.map(p => parseFloat(p[stat.idx]) const values = playersData.map(p => {
+  const value = parseFloat(p[stat.idx]);
+  return isNaN(value) ? 0 : value;
+});
+ 0);
     const ranks = values.map(val => calculateRank(filteredData, stat.idx, val, stat.higherBetter));
     const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
 
