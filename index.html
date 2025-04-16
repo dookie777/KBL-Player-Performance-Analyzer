@@ -526,7 +526,7 @@ thead th {
   <input type="text" id="comparePlayer1" placeholder="선수 1 이름 입력">
   <input type="text" id="comparePlayer2" placeholder="선수 2 이름 입력">
   <input type="text" id="comparePlayer3" placeholder="선수 3 이름 입력 (선택)">
-  <button onclick="comparePlayers()">비교하기</button>
+  <button onclick="()">비교하기</button>
   <input type="checkbox" id="compareMinGames">
   <label for="compareMinGames">규정 경기 이상(14G)</label>
 </div>
@@ -1141,20 +1141,25 @@ values.forEach((value, idx) => {
 
 
 if (playersData.length === 2) {
-  let diffDisplay, diffValue, diffClass;
+  let diffValue, diffDisplay, diffClass;
   
-  if (stat.idx === 6) { // 평균 출전 시간일 경우 (분 초)
-    diffValue = values[0] - values[1];
+  if (stat.idx === 6) { // 평균 출전 시간(초 단위)
+    diffValue = parseInt(values[0], 10) - parseInt(values[1], 10);
     const diffSeconds = Math.abs(diffValue);
     const diffMin = Math.floor(diffSeconds / 60);
     const diffSec = diffSeconds % 60;
     diffDisplay = `${diffMin}분 ${diffSec}초`;
   } else {
-    diffValue = values[0] - values[1];
-const decimalPlaces = (statsFormats[stat.idx] && statsFormats[stat.idx].decimals !== undefined)
-  ? statsFormats[stat.idx].decimals 
-  : 2;
-    diffDisplay = `${Math.abs(diffValue).toFixed(decimalPlaces)}${unit}`;
+    // 명확히 숫자형으로 변환하여 차이 계산
+    const num1 = parseFloat(values[0]) || 0;
+    const num2 = parseFloat(values[1]) || 0;
+    diffValue = num1 - num2;
+
+    // decimals 정확히 적용
+    const decimals = statsFormats[stat.idx]?.decimals ?? 2;
+    const unit = statsFormats[stat.idx]?.unit || '';
+    
+    diffDisplay = `${Math.abs(diffValue).toFixed(decimals)}${unit}`;
   }
 
   if (diffValue > 0) {
@@ -1173,6 +1178,7 @@ const decimalPlaces = (statsFormats[stat.idx] && statsFormats[stat.idx].decimals
 
 
 
+
     tableHTML += `</tr>`;
   });
 
@@ -1185,13 +1191,13 @@ const decimalPlaces = (statsFormats[stat.idx] && statsFormats[stat.idx].decimals
 // 엔터키 입력 기능 추가 (유지)
 ['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
   document.getElementById(id).addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') comparePlayers();
+    if (e.key === 'Enter') ();
   });
 });
 
 // 체크박스 즉시 반응 추가 (유지)
 document.getElementById('compareMinGames').addEventListener('change', () => {
-  comparePlayers();
+  ();
 });
 
 
