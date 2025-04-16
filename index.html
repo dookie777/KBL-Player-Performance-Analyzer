@@ -890,8 +890,8 @@ document.getElementById('minGames').addEventListener('change', function() {
     showPlayerStats();  // 선수 이름 입력되어 있으면 바로 다시 검색
   }
 });
-// 선수 비교 탭에서 사용하는 함수 임시 추가
-// ✅ 최종 완성된 선수 비교 함수 (기존 임시 함수 교체)
+
+// ✅ 최종 완성된 전체 지표 포함 비교 함수
 function comparePlayers() {
   const player1 = document.getElementById('comparePlayer1').value.trim();
   const player2 = document.getElementById('comparePlayer2').value.trim();
@@ -909,14 +909,45 @@ function comparePlayers() {
     return;
   }
 
+  // 전체 비교 지표로 업데이트 (개인 탭에 있던 전체 지표 사용)
   const statsLabels = [
     {label: '출전 경기 수', idx: 3, higherBetter: true},
+    {label: '평균 출전 시간(초)', idx: 6, higherBetter: true},
+    {label: '총 득점', idx: 9, higherBetter: true},
     {label: '평균 득점', idx: 10, higherBetter: true},
+    {label: '평균 FG%', idx: 17, higherBetter: true},
+    {label: '평균 2P%', idx: 25, higherBetter: true},
+    {label: '평균 3P%', idx: 33, higherBetter: true},
+    {label: '평균 FT%', idx: 41, higherBetter: true},
     {label: '평균 리바운드', idx: 46, higherBetter: true},
+    {label: '평균 공격 리바운드', idx: 50, higherBetter: true},
+    {label: '평균 수비 리바운드', idx: 54, higherBetter: true},
     {label: '평균 어시스트', idx: 58, higherBetter: true},
-    {label: 'FG%', idx: 17, higherBetter: true},
-    {label: '3P%', idx: 33, higherBetter: true},
-    {label: 'FT%', idx: 41, higherBetter: true}
+    {label: '평균 스틸', idx: 62, higherBetter: true},
+    {label: '평균 블록', idx: 66, higherBetter: true},
+    {label: '평균 턴오버', idx: 70, higherBetter: false},
+    {label: '평균 파울', idx: 74, higherBetter: false},
+    {label: 'WS', idx: 77, higherBetter: true},
+    {label: 'WS/40', idx: 78, higherBetter: true},
+    {label: 'Offensive WS', idx: 79, higherBetter: true},
+    {label: 'Defensive WS', idx: 80, higherBetter: true},
+    {label: 'PER', idx: 87, higherBetter: true},
+    {label: 'EFF', idx: 88, higherBetter: true},
+    {label: 'EFF/40', idx: 89, higherBetter: true},
+    {label: 'Offensive Rating', idx: 85, higherBetter: true},
+    {label: 'Defensive Rating', idx: 86, higherBetter: false},
+    {label: 'USG%', idx: 97, higherBetter: true},
+    {label: 'TS%', idx: 95, higherBetter: true},
+    {label: 'eFG%', idx: 96, higherBetter: true},
+    {label: '3PAr', idx: 98, higherBetter: true},
+    {label: 'FTr', idx: 99, higherBetter: true},
+    {label: 'ORB%', idx: 105, higherBetter: true},
+    {label: 'DRB%', idx: 106, higherBetter: true},
+    {label: 'TRB%', idx: 107, higherBetter: true},
+    {label: 'AST%', idx: 108, higherBetter: true},
+    {label: 'STL%', idx: 109, higherBetter: true},
+    {label: 'BLK%', idx: 110, higherBetter: true},
+    {label: 'TOV%', idx: 111, higherBetter: false}
   ];
 
   let tableHTML = `
@@ -957,17 +988,18 @@ function comparePlayers() {
   document.getElementById('compareResult').innerHTML = tableHTML;
 }
 
-// 엔터키 입력 기능 추가
+// 엔터키 입력 기능 추가 (유지)
 ['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
   document.getElementById(id).addEventListener('keypress', function(e) {
     if (e.key === 'Enter') comparePlayers();
   });
 });
 
-// 체크박스 즉시 반응 추가
+// 체크박스 즉시 반응 추가 (유지)
 document.getElementById('compareMinGames').addEventListener('change', () => {
   comparePlayers();
 });
+
 
   
  </script>
