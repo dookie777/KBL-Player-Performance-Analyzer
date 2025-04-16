@@ -1162,6 +1162,7 @@ if (playersData.length === 2) {
     diffDisplay = `${Math.abs(diffValue).toFixed(decimals)}${unit}`;
   }
 
+  let diffClass = ''; // 변수 명시적 선언 추가 (권장)
   if (diffValue > 0) {
     diffClass = 'diff-positive';
   } else if (diffValue < 0) {
@@ -1169,6 +1170,10 @@ if (playersData.length === 2) {
   } else {
     diffClass = '';
   }
+
+// diffDisplay 값 확인 필요 (중요!)
+console.log("diffDisplay 값:", diffDisplay); 
+
 
   tableHTML += `
 <td class="diff-cell ${diffClass}" style="color:#FFF; font-weight:bold;">
