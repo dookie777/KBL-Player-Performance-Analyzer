@@ -453,23 +453,48 @@ thead th {
 
 .category-checkboxes {
   display: grid;
-  grid-template-columns: repeat(6, auto); /* 1행에 6개 체크박스 정렬 */
-  gap: 10px;
-  justify-content: center;
-  margin: 10px auto;
+  grid-template-columns: repeat(6, 1fr); /* 상단 6개 항목을 균등하게 나누기 위해 6칸 설정 */
+  gap: 10px 20px; /* 세로 10px, 가로 20px 간격 */
   max-width: 900px;
+  margin: 10px auto;
+  justify-content: center;
+  align-items: center;
 }
 
 .category-checkboxes label {
-  font-size: 0.9rem;
-  cursor: pointer;
-  user-select: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 두 번째 행과의 간격 띄우기 */
-.category-checkboxes label:nth-child(n+7) {
-  margin-top: 15px; /* 여기서 행 간격 조정 가능 */
+.category-checkboxes input[type="checkbox"] {
+  margin-right: 5px;
 }
+
+/* 상단 6개 항목 정확히 균등 배치 (한 행에 하나씩 정확히 들어가도록 설정) */
+.category-checkboxes label:nth-child(-n+6) {
+  grid-column: span 1; /* 6개 항목 정확히 한 칸씩 나눔 */
+}
+
+/* 하단 4개 항목은 더 넓게, 정확히 중앙 정렬 */
+.category-checkboxes label:nth-child(n+7) {
+  grid-column: span 1; /* 넓게 2칸씩 사용하여 여유를 둠 */
+}
+
+/* 하단 4개 항목이 정확히 중앙 정렬되도록 시작 위치 지정 */
+.category-checkboxes label:nth-child(7) {
+  grid-column-start: 2; /* 정확히 중앙 시작점 지정 */
+}
+
+.category-checkboxes label:nth-child(2) {
+  margin-left: -40px; /* 슈팅 지표를 WinShare 지표에 맞춤 */
+}
+
+.category-checkboxes label:nth-child(10) {
+  margin-left: -38px; /* Team내 비중 지표를 어시스트에 맞춤 */
+}
+
     
   </style>
 </head>
@@ -581,7 +606,7 @@ thead th {
   <input type="text" id="comparePlayer1" placeholder="선수 1 이름 입력">
   <input type="text" id="comparePlayer2" placeholder="선수 2 이름 입력">
   <input type="text" id="comparePlayer3" placeholder="선수 3 이름 입력 (선택)">
-<button onclick="comparePlayers()">비교하기</button>
+<button onclick="comparePlayers()">Compare</button>
   <input type="checkbox" id="compareMinGames">
   <label for="compareMinGames">규정 경기 이상(14G)</label>
 </div>
