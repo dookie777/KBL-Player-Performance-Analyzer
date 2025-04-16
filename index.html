@@ -383,8 +383,39 @@ thead th {
   min-width: 100% !important;
   table-layout: fixed !important; /* 균일하게 너비 적용 */
 }
+/* 스크롤 시 데이터가 헤더 뒤로 보이는 현상 수정 */
+#tab-compare .compare-result th {
+  background-color: #282828 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+}
 
+/* 제목 헤더 배경으로 데이터가 보이지 않게 설정 */
+#tab-compare .compare-result {
+  position: relative;
+  background-color: #121212 !important;
+}
 
+/* 차이 열 결과값 폰트 작게 조정 */
+#tab-compare .compare-result td.diff-cell {
+  font-size: 0.75rem !important; /* 기존보다 폰트 작게 조정 */
+}
+
+/* 빨간 정삼각형 아이콘 추가 스타일 */
+.diff-positive::before {
+  content: "▲";
+  color: red;
+  margin-right: 5px;
+  font-size: 0.75rem;
+}
+/* 음수(-)값: 파란 역삼각형 아이콘 추가 */
+.diff-negative::before {
+  content: "▼";
+  color: skyblue;
+  margin-right: 5px;
+  font-size: 0.75rem;
+}
   </style>
 </head>
 <body>
@@ -1107,16 +1138,24 @@ values.forEach((value, idx) => {
 
 
 if (playersData.length === 2) {
-  const unit = statUnits[stat.idx] || '';
-  const decimalPlaces = unit === '%' ? 2 : Number.isInteger(values[0]) && Number.isInteger(values[1]) ? 0 : 2;
+  let diffDisplay;
+
+  if (stat.idx === 6) { // 평균 출전 시간일 경우 (분 초)
+    const diffSeconds = Math.abs(values[0] - values[1]);
+    const diffMin = Math.floor(diffSeconds / 60);
+    const diffSec = diffSeconds % 60;
+    diffDisplay = `${diffMin}분 ${diffSec}초`;
+  } else {
+    const diff = values[0] - values[1];
+    diffDisplay = Math.abs(diff).toFixed(decimalPlaces) + unit;
+  }
+
+  const diffClass = diffValue => diffValue > 0 ? 'diff-positive' : diffValue < 0 ? 'diff-negative' : '';
   const diffValue = values[0] - values[1];
-  const diff = diffValue.toFixed(decimalPlaces);
-  const diffColor = diffValue > 0 ? 'red' : diffValue < 0 ? 'skyblue' : '#fff';
-  const diffSign = diffValue > 0 ? `+${diff}` : diff;
 
   tableHTML += `
-    <td style="color:${diffColor}; font-weight:bold;">
-      <span style="font-size:1.1rem;">${diffSign}${unit}</span>
+    <td class="diff-cell ${diffClass(diffValue)}" style="color:${diffValue > 0 ? '#FFF' : diffValue < 0 ? '#FFF' : '#AAA'}; font-weight:bold;">
+      <span style="font-size:0.75rem;">${diffDisplay}</span>
     </td>`;
 }
 
