@@ -354,34 +354,38 @@ thead th {
 
 
 #tab-compare .compare-result {
-  flex: 1;
-  overflow-y: auto;
-  margin: 10px auto;
+  width: 100%;
+  max-width: 900px; /* 정확히 원하는 범위로 설정됨 */
+  margin: 0 auto;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  transform: scale(1); /* 이전 확대 제거 */
   padding: 10px;
-  box-sizing: border-box;
-  width: 66%; /* 화면 2/3 너비로 조정 */
 }
 
-/* ✅ 선수 비교 결과 스타일 추가 */
 #tab-compare .compare-result table {
-  width: 100%;
-  border-collapse: collapse;
+  width: 100% !important;
+  transform: scale(1); /* 이전 확대 제거 */
   table-layout: fixed;
+  border-collapse: collapse;
 }
 
 #tab-compare .compare-result th,
 #tab-compare .compare-result td {
   padding: 8px;
-  text-align: center;
-  font-size: 0.9rem;
-  border-bottom: 1px solid #333;
+  font-size: 0.85rem; /* 원본 폰트 크기로 정확히 유지 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold !important; /* 볼드 유지 */
 }
-
 #tab-compare .compare-result table th {
-  position: sticky !important;
-  top: 0 !important;
+  position: sticky;
+  top: 0;
   background-color: #282828 !important;
-  z-index: 1000 !important;
+  z-index: 999;
+  padding-top: 18px !important; /* 제목 헤더 높이 1.5배 증가 유지 */
+  padding-bottom: 18px !important;
 }
 
 #tab-compare .compare-result table td {
