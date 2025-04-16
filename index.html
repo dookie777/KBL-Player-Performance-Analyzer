@@ -652,7 +652,7 @@ async function loadPlayersData() {
     originalData = await res.json();
 
     originalData.forEach(cols => {
-      cols["총 출전 시간(초)"] = parseInt(cols["출전 시간(초)(분)"]) * 60 + parseInt(cols["출전 시간(초)(초)"]);
+      cols["총 출전 시간(초)"] = parseInt(cols["m(분)"]) * 60 + parseInt(cols["s(초)"]);
     });
 
     renderTable(originalData);
