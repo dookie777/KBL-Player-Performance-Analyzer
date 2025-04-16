@@ -141,21 +141,20 @@ thead th {
   z-index: 200;
 }
 
-
-#tab-all th {
-  position: sticky;
-  top: 0; 
-  background-color: #282828 !important;
-  z-index: 500;
-}
-
-#tab-all th:nth-child(1),
-#tab-all td:nth-child(1) {
+#tab-all th:nth-child(1), #tab-all td:nth-child(1) {
   position: sticky;
   left: 0;
-  background-color: #282828 !important;
+  background-color: #282828;
   z-index: 400;
 }
+
+#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+  position: sticky;
+  left: 150px;
+  background-color: #282828;
+  z-index: 400;
+}
+
 /* ✅ 기타 스타일 (변경 없음) */
 .highlight { color: #FFFF55 !important; font-weight: bold; }
 
@@ -262,7 +261,27 @@ thead th {
   min-width: max-content !important;
   width: max-content !important;
 }
+/* ✅ 최종 긴급해결: 1,2열 완벽 고정 */
+#tab-all th:nth-child(1),
+#tab-all th:nth-child(2) {
+  position: sticky;
+  top: 0; /* 필수 */
+  z-index: 500;
+  background-color: #282828 !important;
+}
 
+#tab-all td:nth-child(1),
+#tab-all td:nth-child(2) {
+  position: sticky;
+  left: 0; /* 1열 고정 */
+  z-index: 400;
+  background-color: #282828 !important;
+}
+
+#tab-all th:nth-child(2),
+#tab-all td:nth-child(2) {
+  left: 150px; /* 2열 정확히 고정 */
+}
 /* ✅ 카드 영역 하단 여백 추가 (긴급 해결) */
 #tab-player .stats-container {
   padding-bottom: 60px !important; /* 하단 여백 추가 */
@@ -274,21 +293,7 @@ thead th {
   color: #88c2dd !important; /* 하늘색 적용 */
 }
 
-/* ✅ 최종 해결: 헤더 행(맨 윗줄) + 첫번째 열만 고정 */
-#tab-all thead th {
-  position: sticky;
-  top: 0;
-  background-color: #282828 !important;
-  z-index: 300;
-}
 
-#tab-all th:first-child,
-#tab-all td:first-child {
-  position: sticky;
-  left: 0;
-  background-color: #282828 !important;
-  z-index: 200;
-}
 
   </style>
 </head>
@@ -434,10 +439,10 @@ function renderTable(data) {
   filteredData.forEach(cols => {
     const playerName = cols[2];
     const status = cols[3] >= 14 ? '✅' : '⚠️';
-    const playtime = `${cols[4]}분 ${cols[5]}초`;
+    const playtime = ${cols[4]}분 ${cols[5]}초;
 
     const row = document.createElement('tr');
-    row.innerHTML = `
+    row.innerHTML = 
       <td>${playerName} <span class="${cols[3] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
       <td>${cols[1]}</td>
       <td>${cols[3]}</td>
@@ -501,7 +506,7 @@ function renderTable(data) {
       <td>${cols[109]}</td>
       <td>${cols[110]}</td>
       <td>${cols[111]}</td>
-    `;
+    ;
     tableBody.appendChild(row);
   });
 
@@ -725,7 +730,7 @@ statsContainer.innerHTML += createCard('팀내 비중 지표', [
 });
 
 function createCard(title, stats, type = 'primary') {
-  return `
+  return 
     <div class="card ${type}">
       <h3>${title}</h3>
       <table>
@@ -737,17 +742,17 @@ function createCard(title, stats, type = 'primary') {
           </tr>
         </thead>
         <tbody>
-          ${stats.map(stat => `
+          ${stats.map(stat => 
             <tr>
               <td>${stat.label}</td>
               <td>${stat.value}</td>
               <td>${stat.rank}</td>
             </tr>
-          `).join('')}
+          ).join('')}
         </tbody>
       </table>
     </div>
-  `;
+  ;
 }
 
 // 전체 통계 검색창에서 엔터 키 동작
