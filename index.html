@@ -308,6 +308,48 @@ thead th {
   color: #88c2dd !important; /* 하늘색 적용 */
 }
 
+#tab-compare .input-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#tab-compare .input-box input[type="text"] {
+  width: 200px;
+  height: 40px;
+  padding: 5px 10px;
+  font-size: 0.95rem;
+  border-radius: 5px;
+  border: none;
+  box-sizing: border-box;
+  margin: 0 5px 10px 5px;
+}
+
+#tab-compare .input-box button {
+  height: 40px;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #FFA500;
+  color: #121212;
+  border: none;
+  margin-left: 5px;
+}
+
+#tab-compare .input-box label {
+  font-size: 0.9rem;
+  color: #FFF;
+  margin-left: 5px;
+}
+
+#tab-compare .compare-result {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+}
 
 
   </style>
@@ -416,8 +458,18 @@ thead th {
     <div class="stats-container" id="statsContainer"></div>
   </div>
 <div id="tab-compare" class="tab-content">
-  <!-- 선수 비교 검색 페이지 (초기 빈 화면) -->
+<div class="input-box">
+  <input type="text" id="comparePlayer1" placeholder="선수 1 이름 입력">
+  <input type="text" id="comparePlayer2" placeholder="선수 2 이름 입력">
+  <input type="text" id="comparePlayer3" placeholder="선수 3 이름 입력 (선택)">
+  <button onclick="comparePlayers()">비교하기</button>
+  <input type="checkbox" id="compareMinGames">
+  <label for="compareMinGames">규정 경기 이상(14G)</label>
 </div>
+
+<div class="compare-result" id="compareResult">
+  <!-- 비교 결과가 여기에 표시됩니다 -->
+</div></div>
   <footer class="footer">
     © 2025 The Eroom Sports. All rights reserved.
   </footer>
