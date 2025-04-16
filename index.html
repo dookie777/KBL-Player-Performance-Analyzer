@@ -293,65 +293,6 @@ thead th {
   color: #88c2dd !important; /* 하늘색 적용 */
 }
 
-/* 🛠️ 최종 긴급 해결 (확실한 방법) */
-#tab-all {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-
-#tab-all .scroll-container {
-  flex: 1;
-  overflow: auto;
-  box-sizing: border-box;
-  padding-bottom: 50px; /* 하단 추가 여유 공간 확보 */
-}
-
-/* 테이블 최소 너비 설정 (반드시 스크롤 생성) */
-#tab-all table {
-  width: max-content;
-  min-width: max-content;
-  border-collapse: collapse;
-}
-
-/* 헤더 전체 고정 */
-#tab-all thead th {
-  position: sticky;
-  top: 0;
-  background-color: #282828;
-  z-index: 1000;
-}
-
-/* 1열 고정 (좌측) - top 속성 없음 */
-#tab-all td:nth-child(1), 
-#tab-all th:nth-child(1) {
-  position: sticky;
-  left: 0;
-  background-color: #282828;
-  z-index: 900;
-}
-
-/* 2열 고정 (좌측에서 150px 떨어진 위치) - top 속성 없음 */
-#tab-all td:nth-child(2), 
-#tab-all th:nth-child(2) {
-  position: sticky;
-  left: 150px;
-  background-color: #282828;
-  z-index: 900;
-}
-
-/* 하단 튀어나오는 현상 명확히 방지 */
-#tab-all::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 50px;
-  width: 100%;
-  background-color: #121212; /* 바닥과 동일한 색으로 튀어나옴 가림 */
-  z-index: 1200; /* 튀어나온 고정열 위로 덮음 */
-}
 
 
   </style>
