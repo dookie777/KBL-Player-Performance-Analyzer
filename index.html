@@ -355,19 +355,20 @@ thead th {
 
 #tab-compare .compare-result {
   width: 100%;
-  max-width: 900px; /* 정확히 원하는 범위로 설정됨 */
+  max-width: 900px; /* 정확한 범위 내 설정 */
+  height: calc(100vh - 250px); /* 테이블 높이 명확히 설정 */
+  overflow: auto !important; /* 세로 및 가로 스크롤 명확히 활성화 */
   margin: 0 auto;
-  overflow-x: auto !important;
-  overflow-y: auto !important;
-  transform: scale(1); /* 이전 확대 제거 */
   padding: 10px;
+  transform: none !important; /* 확대 제거 */
 }
 
 #tab-compare .compare-result table {
   width: 100% !important;
-  transform: scale(1); /* 이전 확대 제거 */
+  transform: none !important; /* 확대 제거 */
   table-layout: fixed;
   border-collapse: collapse;
+  font-size: 0.85rem !important;
 }
 
 #tab-compare .compare-result th,
@@ -380,22 +381,20 @@ thead th {
   font-weight: bold !important; /* 볼드 유지 */
 }
 #tab-compare .compare-result table th {
-  position: sticky;
-  top: 0;
+  position: sticky !important;
+  top: 0 !important; /* 헤더 행 완벽 고정 (필수 설정) */
   background-color: #282828 !important;
-  z-index: 999;
-  padding-top: 18px !important; /* 제목 헤더 높이 1.5배 증가 유지 */
-  padding-bottom: 18px !important;
+  z-index: 1000 !important;
+  padding: 12px 8px !important; /* 제목 헤더 높이 1.5배 유지 */
 }
 
 #tab-compare .compare-result table td {
+  padding: 8px !important;
+  font-weight: bold !important; /* 데이터 볼드체 유지 */
   background-color: #181818 !important;
-  z-index: 1 !important;
-}
-
-/* 지표 데이터 볼드 처리 */
-#tab-compare .compare-result table td {
-  font-weight: bold !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 테이블 제목 헤더 높이 1.5배 증가 */
@@ -446,17 +445,6 @@ thead th {
   background: #FFA500;
 }
 
-/* ✅ 테이블 가로 세로 1.2배 키우기 적용 */
-#tab-compare .compare-result table {
-  transform: scale(1.2);
-  transform-origin: top left;
-}
-
-/* ✅ 제목 헤드 행 높이 1.5배 증가 적용 */
-thead th {
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
-}
 
 /* ✅ 지표 데이터 볼드체 적용 */
 td {
