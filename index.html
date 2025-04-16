@@ -361,6 +361,46 @@ thead th {
   box-sizing: border-box;
 }
 
+/* ✅ 선수 비교 결과 스타일 추가 */
+#tab-compare .compare-result table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#tab-compare .compare-result th,
+#tab-compare .compare-result td {
+  padding: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #333;
+}
+
+#tab-compare .compare-result th {
+  background-color: #282828;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.highlight-first {
+  background-color: #FFA500 !important;
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.highlight-second {
+  background-color: #88c2dd !important;
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.highlight-third {
+  background-color: #555 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+
 
   </style>
 </head>
@@ -851,9 +891,84 @@ document.getElementById('minGames').addEventListener('change', function() {
   }
 });
 // 선수 비교 탭에서 사용하는 함수 임시 추가
+// ✅ 최종 완성된 선수 비교 함수 (기존 임시 함수 교체)
 function comparePlayers() {
-  alert('비교 기능은 아직 준비되지 않았습니다.');
+  const player1 = document.getElementById('comparePlayer1').value.trim();
+  const player2 = document.getElementById('comparePlayer2').value.trim();
+  const player3 = document.getElementById('comparePlayer3').value.trim();
+  const minGamesChecked = document.getElementById('compareMinGames').checked;
+
+  let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols[3]) >= 14) : originalData;
+
+  const playersData = [player1, player2, player3].filter(name => name !== '').map(name =>
+    filteredData.find(cols => cols[2].toLowerCase().includes(name.toLowerCase()))
+  );
+
+  if (playersData.some(data => data === undefined)) {
+    alert('선수 이름을 정확히 입력해주세요.');
+    return;
+  }
+
+  const statsLabels = [
+    {label: '출전 경기 수', idx: 3, higherBetter: true},
+    {label: '평균 득점', idx: 10, higherBetter: true},
+    {label: '평균 리바운드', idx: 46, higherBetter: true},
+    {label: '평균 어시스트', idx: 58, higherBetter: true},
+    {label: 'FG%', idx: 17, higherBetter: true},
+    {label: '3P%', idx: 33, higherBetter: true},
+    {label: 'FT%', idx: 41, higherBetter: true}
+  ];
+
+  let tableHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>지표</th>
+          ${playersData.map(p => `<th>${p[2]} (${p[1]})</th>`).join('')}
+          ${playersData.length === 2 ? `<th>차이</th>` : ''}
+        </tr>
+      </thead>
+      <tbody>`;
+
+  statsLabels.forEach(stat => {
+    const values = playersData.map(p => parseFloat(p[stat.idx]) || 0);
+    const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
+
+    tableHTML += `<tr><td>${stat.label}</td>`;
+    
+    values.forEach(value => {
+      let highlightClass = '';
+      if (value === sortedValues[0]) highlightClass = 'highlight-first';
+      else if (value === sortedValues[1]) highlightClass = 'highlight-second';
+      else if (playersData.length === 3 && value === sortedValues[2]) highlightClass = 'highlight-third';
+
+      tableHTML += `<td class="${highlightClass}">${value}</td>`;
+    });
+
+    if (playersData.length === 2) {
+      const diff = Math.abs(values[0] - values[1]).toFixed(2);
+      tableHTML += `<td>${diff}</td>`;
+    }
+
+    tableHTML += `</tr>`;
+  });
+
+  tableHTML += `</tbody></table>`;
+  document.getElementById('compareResult').innerHTML = tableHTML;
 }
+
+// 엔터키 입력 기능 추가
+['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
+  document.getElementById(id).addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') comparePlayers();
+  });
+});
+
+// 체크박스 즉시 반응 추가
+document.getElementById('compareMinGames').addEventListener('change', () => {
+  comparePlayers();
+});
+
   
  </script>
  
