@@ -1029,12 +1029,10 @@ function comparePlayers() {
 
   const playersData = [player1, player2, player3]
     .filter(name => name !== '')
-    .map(name =>
-      filteredData.find(cols => cols["Player"].trim().toLowerCase().includes(name.trim().toLowerCase()))
-    );
+    .map(name => filteredData.find(cols => cols["Player"].trim().toLowerCase().includes(name.trim().toLowerCase())));
 
   if (playersData.some(data => data === undefined)) {
-    alert('Player을 정확히 입력해주세요.');
+    alert('선수 이름을 정확히 입력해주세요.');
     return;
   }
 
@@ -1103,16 +1101,34 @@ function comparePlayers() {
   ];
 
   let tableHTML = `<table><thead><tr><th>지표</th>${playersData.map(p => `<th>${p["Player"]} (${p["Team"]})</th>`).join('')}${playersData.length === 2 ? `<th>차이</th>` : ''}</tr></thead><tbody>`;
-  
+
   statsLabels.forEach(stat => {
     const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
     const ranks = values.map(val => calculateRank(filteredData, stat.key, val, stat.higherBetter));
-    const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
+
+    // 하이라이트 클래스 추가
+    let highlightClass = [];
+    if (values.length >= 2) {
+      const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
+      highlightClass = values.map(v => {
+        if (v === sortedValues[0]) return 'highlight-first';
+        if (values.length > 2 && v === sortedValues[1]) return 'highlight-second';
+        return 'highlight-third';
+      });
+    }
 
     tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
     values.forEach((value, idx) => {
-      tableHTML += `<td>${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
+      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
     });
+
+    // 차이값 (2명일 때만 표시)
+    if (values.length === 2) {
+      const diffValue = values[0] - values[1];
+      const diffClass = diffValue > 0 ? 'diff-positive' : diffValue < 0 ? 'diff-negative' : '';
+      const formattedDiff = diffValue !== 0 ? formatStatValue(stat.key, Math.abs(diffValue)) : '-';
+      tableHTML += `<td class="diff-cell"><span class="${diffClass}">${formattedDiff}</span></td>`;
+    }
 
     tableHTML += '</tr>';
   });
