@@ -997,14 +997,13 @@ function formatStatValue(idx, value) {
   let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols[3]) >= 14) : originalData;
 
 const playersData = [player1, player2, player3].filter(name => name !== '').map(name =>
-  filteredData.find(cols => cols[2].trim().toLowerCase() === name.toLowerCase())
+  filteredData.find(cols => cols[2].trim().toLowerCase().includes(name.toLowerCase()))
 );
 
 if (playersData.some(data => data === undefined)) {
   alert('선수 이름을 정확히 입력해주세요.');
   return;
 }
-
 const statsLabels = [
   {label: '출전 경기 수', idx: 3, higherBetter: true},
   {label: '평균 출전 시간(초)', idx: 6, higherBetter: true},
