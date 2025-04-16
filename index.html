@@ -49,7 +49,6 @@ h2 {
   color: #000;
 }
 
-/* ✅ 명확한 탭 콘텐츠 전환 설정 (최종 확정) */
 .tab-content {
   display: none !important;
   flex-direction: column;
@@ -61,76 +60,93 @@ h2 {
   display: flex !important;
 }
 
-/* ✅ 1페이지(전체 선수 통계) 명확한 가로 세로 스크롤 활성화 */
-#tab-all {
-  flex: 1;
+.input-box {
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
-#tab-all .scroll-container {
+.input-box input[type="text"],
+.input-box button {
+  height: 42px;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  border: none;
+  margin: 5px;
+}
+
+.input-box input[type="text"] {
+  width: 250px;
+  font-size: 1rem;
+}
+
+.input-box button {
+  background-color: #88c2dd;
+  color: #121212;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.input-box input[type="checkbox"] {
+  margin: 0 5px;
+}
+
+.input-box label {
+  color: #FFF;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.scroll-container, .stats-container, .compare-result {
   flex: 1;
   overflow: auto;
 }
 
-#tab-all table {
-  min-width: max-content;
-}
-
-
-/* ✅ 2페이지(선수 개인 검색) 깔끔한 세로 스크롤 설정 */
-#tab-player {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-#tab-player .stats-container {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-/* ✅ 스크롤바 디자인 통일 (한 번만 적용) */
 .scroll-container::-webkit-scrollbar,
-.stats-container::-webkit-scrollbar {
+.stats-container::-webkit-scrollbar,
+.compare-result::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 
 .scroll-container::-webkit-scrollbar-track,
-.stats-container::-webkit-scrollbar-track {
+.stats-container::-webkit-scrollbar-track,
+.compare-result::-webkit-scrollbar-track {
   background: #121212;
   border-radius: 5px;
 }
 
 .scroll-container::-webkit-scrollbar-thumb,
-.stats-container::-webkit-scrollbar-thumb {
+.stats-container::-webkit-scrollbar-thumb,
+.compare-result::-webkit-scrollbar-thumb {
   background: #555;
   border-radius: 5px;
   border: 2px solid #121212;
 }
 
 .scroll-container::-webkit-scrollbar-thumb:hover,
-.stats-container::-webkit-scrollbar-thumb:hover {
+.stats-container::-webkit-scrollbar-thumb:hover,
+.compare-result::-webkit-scrollbar-thumb:hover {
   background: #FFA500;
 }
 
-/* ✅ 테이블 기본 설정 (고정열 유지) */
 table {
   border-collapse: collapse;
   white-space: nowrap;
-  width: 100%;
+  width: max-content;
 }
 
 th, td {
-  padding: 6px 8px;
+  padding: 8px;
   border-bottom: 1px solid #333;
   font-size: 0.85rem;
   text-align: center;
   background: #181818;
+  font-weight: bold;
 }
 
 thead th {
@@ -138,25 +154,124 @@ thead th {
   position: sticky;
   top: 0;
   cursor: pointer;
-  z-index: 200;
+  z-index: 500;
+}
+
+#tab-all th:nth-child(1), #tab-all td:nth-child(1),
+#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+  position: sticky;
+  background-color: #282828 !important;
+  z-index: 400;
 }
 
 #tab-all th:nth-child(1), #tab-all td:nth-child(1) {
-  position: sticky;
   left: 0;
-  background-color: #282828;
-  z-index: 400;
 }
 
 #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
-  position: sticky;
   left: 150px;
-  background-color: #282828;
-  z-index: 400;
 }
 
-/* ✅ 기타 스타일 (변경 없음) */
-.highlight { color: #FFFF55 !important; font-weight: bold; }
+.highlight { 
+  color: #FFFF55 !important; 
+  font-weight: bold; 
+}
+
+.player-name {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 15px 0 5px;
+  text-align: center;
+}
+
+.team-name {
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+  padding-bottom: 60px;
+}
+
+.card {
+  background-color: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  min-height: 350px;
+}
+
+.card.primary:nth-child(2) { min-height: 420px; }
+.card.primary h3 { color: #FFA500; }
+.card.secondary h3 { color: #88c2dd; }
+
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.card table {
+  width: 100%;
+}
+
+.card th, .card td {
+  padding: 8px 5px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.card.team-stats {
+  min-height: 380px !important;
+}
+
+.card.team-stats h3 {
+  color: #88c2dd !important;
+}
+
+#tab-compare .compare-result {
+  max-width: none !important;
+  height: calc(100vh - 260px);
+  padding: 15px;
+  margin: 0 auto;
+}
+
+#tab-compare .compare-result table {
+  table-layout: auto !important;
+  transform: none !important;
+}
+
+#tab-compare .compare-result th,
+#tab-compare .compare-result td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 10px 15px !important;
+  font-size: 0.85rem !important;
+}
+
+#tab-compare .compare-result th {
+  background-color: #282828 !important;
+  padding: 15px !important;
+}
+
+.highlight-first {
+  background-color: rgba(255,140,0,0.95) !important;
+  color: #FFF !important;
+}
+
+.highlight-second {
+  background-color: rgba(70,150,200,0.95) !important;
+  color: #FFF !important;
+}
+
+.highlight-third {
+  background-color: rgba(160,160,160,0.95) !important;
+  color: #FFF !important;
+}
 
 .footer {
   text-align: center;
@@ -171,296 +286,6 @@ thead th {
   pointer-events: none;
 }
 
-.input-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.input-box input[type="text"] {
-  width: 250px;
-  height: 42px;
-  padding: 5px 10px;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: none;
-  box-sizing: border-box;
-  margin: 0 5px;
-}
-
-.input-box button {
-  height: 42px;
-  padding: 5px 15px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 5px;
-  background-color: #88c2dd;
-  color: #121212;
-  border: none;
-  margin: 0 5px;
-}
-
-.input-box input[type="checkbox"] {
-  margin: 0 5px;
-}
-
-.input-box label {
-  color: #FFF;
-  font-size: 0.9rem;
-  cursor: pointer;
-  user-select: none;
-  margin: 0 5px;
-}
-
-.player-name {
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 15px 0 5px 0;
-  text-align: center;
-  color: #FFF;
-}
-
-.team-name {
-  font-size: 1rem;
-  text-align: center;
-  color: #FFF;
-  margin-bottom: 15px;
-}
-
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-top: 20px;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
-.card {
-  background-color: rgba(255,255,255,0.05);
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  box-sizing: border-box;
-  min-height: 350px;
-}
-
-.card.primary:nth-child(2) { min-height: 420px; }
-.card.primary h3 { color: #FFA500; }
-.card.secondary h3 { color: #88c2dd; }
-
-.card h3 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-}
-
-.card table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.card th, .card td {
-  padding: 8px 5px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-  font-size: 0.9rem;
-}
-#tab-all .scroll-container {
-  overflow: auto !important;
-  height: calc(100vh - 250px) !important;
-}
-
-#tab-all table {
-  min-width: max-content !important;
-  width: max-content !important;
-}
-/* ✅ 최종 긴급해결: 1,2열 완벽 고정 */
-#tab-all th:nth-child(1),
-#tab-all th:nth-child(2) {
-  position: sticky;
-  top: 0; /* 필수 */
-  z-index: 500;
-  background-color: #282828 !important;
-}
-
-#tab-all td:nth-child(1),
-#tab-all td:nth-child(2) {
-  position: sticky;
-  left: 0; /* 1열 고정 */
-  z-index: 400;
-  background-color: #282828 !important;
-}
-
-#tab-all th:nth-child(2),
-#tab-all td:nth-child(2) {
-  left: 150px; /* 2열 정확히 고정 */
-}
-/* ✅ 카드 영역 하단 여백 추가 (긴급 해결) */
-#tab-player .stats-container {
-  padding-bottom: 60px !important; /* 하단 여백 추가 */
-}    
-#tab-player .stats-container .card.team-stats {
-  min-height: 380px !important; /* 다른 카드보다 높이 증가 */
-}
-#tab-player .stats-container .card.team-stats h3 {
-  color: #88c2dd !important; /* 하늘색 적용 */
-}
-
-#tab-compare .input-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-#tab-compare .input-box input[type="text"] {
-  width: 200px;
-  height: 42px; /* 기존 페이지 높이와 통일 */
-  padding: 5px 10px;
-  font-size: 1rem; /* 기존 페이지 폰트 크기와 통일 */
-  border-radius: 5px;
-  border: none;
-  box-sizing: border-box;
-  margin: 5px;
-}
-
-#tab-compare .input-box button {
-  height: 42px; /* 기존 페이지 버튼과 정확히 통일 */
-  padding: 5px 15px;
-  font-size: 0.9rem; /* 기존 버튼 폰트 크기 동일 */
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 5px;
-  background-color: #88c2dd; /* 기존 버튼과 동일 색상 */
-  color: #121212;
-  border: none;
-  margin: 5px;
-}
-
-#tab-compare .input-box input[type="checkbox"] {
-  margin: 0 5px;
-}
-
-#tab-compare .input-box label {
-  color: #FFF;
-  font-size: 0.9rem;
-  cursor: pointer;
-  user-select: none;
-  margin: 0 5px;
-}
-
-
-#tab-compare .compare-result {
-  width: 100%;
-  max-width: 900px; /* 정확한 범위 내 설정 */
-  height: calc(100vh - 250px); /* 테이블 높이 명확히 설정 */
-  overflow: auto !important; /* 세로 및 가로 스크롤 명확히 활성화 */
-  margin: 0 auto;
-  padding: 10px;
-  transform: none !important; /* 확대 제거 */
-}
-
-#tab-compare .compare-result table {
-  width: 100% !important;
-  transform: none !important; /* 확대 제거 */
-  table-layout: fixed;
-  border-collapse: collapse;
-  font-size: 0.85rem !important;
-}
-
-#tab-compare .compare-result th,
-#tab-compare .compare-result td {
-  padding: 8px;
-  font-size: 0.85rem; /* 원본 폰트 크기로 정확히 유지 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: bold !important; /* 볼드 유지 */
-}
-#tab-compare .compare-result table th {
-  position: sticky !important;
-  top: 0 !important; /* 헤더 행 완벽 고정 (필수 설정) */
-  background-color: #282828 !important;
-  z-index: 1000 !important;
-  padding: 12px 8px !important; /* 제목 헤더 높이 1.5배 유지 */
-}
-
-#tab-compare .compare-result table td {
-  padding: 8px !important;
-  font-weight: bold !important; /* 데이터 볼드체 유지 */
-  background-color: #181818 !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 테이블 제목 헤더 높이 1.5배 증가 */
-#tab-compare .compare-result table th {
-  padding-top: 18px !important;
-  padding-bottom: 18px !important;
-}
-.highlight-first {
-  background-color: rgba(255, 140, 0, 0.95) !important; /* 더 진한 주황 */
-  color: #FFF !important;
-  font-weight: bold;
-  position: relative;
-  z-index: 1;
-}
-
-.highlight-second {
-  background-color: rgba(70, 150, 200, 0.95) !important; /* 더 진한 하늘색 */
-  color: #FFF !important;
-  font-weight: bold;
-  position: relative;
-  z-index: 1;
-}
-
-.highlight-third {
-  background-color: rgba(160, 160, 160, 0.95) !important; /* 더 진한 회색 */
-  color: #FFF !important;
-  font-weight: bold;
-  position: relative;
-  z-index: 1;
-}
-/* 스크롤바 디자인 통일 */
-#tab-compare .compare-result::-webkit-scrollbar {
-  width: 10px;
-}
-
-#tab-compare .compare-result::-webkit-scrollbar-track {
-  background: #121212;
-  border-radius: 5px;
-}
-
-#tab-compare .compare-result::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 5px;
-  border: 2px solid #121212;
-}
-
-#tab-compare .compare-result::-webkit-scrollbar-thumb:hover {
-  background: #FFA500;
-}
-
-
-/* ✅ 지표 데이터 볼드체 적용 */
-td {
-  font-weight: bold !important;
-}
-
-/* ✅ 강조 셀 배경색 더 진하게 조정 */
-.highlight-first {
-  background-color: rgba(255, 165, 0, 0.8) !important; /* 더 진한 주황 */
-}
-.highlight-second {
-  background-color: rgba(136, 194, 221, 0.8) !important; /* 더 진한 하늘색 */
-}
-.highlight-third {
-  background-color: rgba(200, 200, 200, 0.8) !important; /* 더 진한 회색 */
-}
 
   </style>
 </head>
