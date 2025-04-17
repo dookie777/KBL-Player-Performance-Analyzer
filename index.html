@@ -543,7 +543,7 @@ thead th {
     <th>2P%</th>
     <th>3PA</th>
     <th>3P</th>
-    <th>평균 3p 성공</th>
+    <th>평균 3p 시도</th>
     <th>평균 3p 성공</th>
     <th>3P%</th>
     <th>FTA</th>
@@ -718,7 +718,7 @@ const statsFormats = {
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
 async function loadPlayersData() {
-  if (originalData.length === 0) { // 로컬 파일이 로딩되지 않았을 때만 웹에서 로딩
+  if (originalData.length === 0) {
     try {
       const url = 'https://cdn.jsdelivr.net/gh/dookie777/KBL-Player-Performance-Analyzer@main/23-24_KBL_stats.xlsx';
       const response = await fetch(url);
@@ -735,6 +735,7 @@ async function loadPlayersData() {
         cols["총 출전 시간(초)"] = minutes * 60 + seconds;
       });
 
+      console.log("웹 데이터 로딩 성공!", originalData); // ✅ 확인용 로그
       renderTable(originalData);
 
     } catch (error) {
@@ -743,6 +744,7 @@ async function loadPlayersData() {
     }
   }
 }
+
 
 
 
