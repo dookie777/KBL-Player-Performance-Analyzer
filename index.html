@@ -721,9 +721,10 @@ async function loadPlayersData() {
     const firstSheet = workbook.SheetNames[0];
     originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-    originalData.forEach(cols => {
-      cols["총 출전 시간(초)"] = parseInt(cols["m(분)"]) * 60 + parseInt(cols["s(초)"]);
-    });
+originalData.forEach(cols => {
+  cols["총 출전 시간(초)"] = parseInt(cols["m"]) * 60 + parseInt(cols["s"]);
+});
+
 
     renderTable(originalData);
 
