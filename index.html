@@ -1290,9 +1290,20 @@ function comparePlayers() {
     if (playersData.length === 2) {
       const diff = values[0] - values[1];
       const diffClass = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : '';
-const formattedDiff = (stat.key === '총 출전 시간(초)') ?
-  `${Math.floor(Math.abs(diff)/60)}분 ${Math.abs(diff)%60}초` :
-  `${Math.abs(diff).toFixed(statsFormats[stat.key]?.decimals || 2)}${statsFormats[stat.key]?.unit || ''}`;
+const format = statsFormats[stat.key] || {unit: '', decimals: 2};
+
+let formattedDiff;
+if (stat.key === "총 출전 시간(초)" || format.unit === '분 초') {
+  const diffSeconds = Math.abs(diff);
+  const minutes = Math.floor(diffSeconds / 60);
+  const seconds = diffSeconds % 60;
+  formattedDiff = `${minutes}분 ${seconds}초`;
+} else if (format.decimals === 0) {
+  formattedDiff = `${Math.abs(diff)}${format.unit}`;
+} else {
+  formattedDiff = `${Math.abs(diff).toFixed(format.decimals)}${format.unit}`;
+}
+
 
 
       tableHTML += `<td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>`;
