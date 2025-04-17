@@ -514,6 +514,13 @@ thead th {
     <input type="checkbox" id="minGamesCheckbox">
     <label for="minGamesCheckbox">규정 경기 이상(14G)</label>
   </div>
+
+<div class="input-box">
+  <input type="file" id="fileUploader" accept=".xlsx, .xls">
+  <button onclick="loadLocalFile()">파일 업로드</button>
+</div>
+
+  
   <div class="scroll-container" style="overflow:auto; flex:1;">
     <table id="statsTable" style="width:max-content; min-width:100%;">
      <thead>
@@ -711,30 +718,32 @@ const statsFormats = {
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
 async function loadPlayersData() {
-  try {
-    const url = 'https://cdn.jsdelivr.net/gh/dookie777/KBL-Player-Performance-Analyzer@main/23-24_KBL_stats.xlsx';
-    const response = await fetch(url);
-    const data = await response.arrayBuffer();
+  if (originalData.length === 0) { // 로컬 파일이 로딩되지 않았을 때만 웹에서 로딩
+    try {
+      const url = 'https://cdn.jsdelivr.net/gh/dookie777/KBL-Player-Performance-Analyzer@main/23-24_KBL_stats.xlsx';
+      const response = await fetch(url);
+      const data = await response.arrayBuffer();
 
-    const workbook = XLSX.read(data, { type: "array" });
+      const workbook = XLSX.read(data, { type: "array" });
 
-    const firstSheet = workbook.SheetNames[0];
-    originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+      const firstSheet = workbook.SheetNames[0];
+      originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-originalData.forEach(cols => {
-  let minutes = parseInt(cols["m"]) || 0;
-  let seconds = parseInt(cols["s"]) || 0;
-  cols["총 출전 시간(초)"] = minutes * 60 + seconds;
-});
+      originalData.forEach(cols => {
+        let minutes = parseInt(cols["m"]) || 0;
+        let seconds = parseInt(cols["s"]) || 0;
+        cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+      });
 
+      renderTable(originalData);
 
-    renderTable(originalData);
-
-  } catch (error) {
-    console.error("엑셀 데이터 로딩 오류:", error);
-    alert("엑셀 데이터 로딩 중 문제가 발생했습니다.");
+    } catch (error) {
+      console.error("엑셀 데이터 로딩 오류:", error);
+      alert("엑셀 데이터 로딩 중 문제가 발생했습니다.");
+    }
   }
 }
+
 
 
 function renderTable(data) {
@@ -1391,6 +1400,43 @@ function getCategoryByStat(statLabel) {
 window.addEventListener('DOMContentLoaded', () => {
   filterCompareTable();
 });
+
+async function loadLocalFile() {
+  const fileInput = document.getElementById('fileUploader');
+
+  if (fileInput.files.length === 0) {
+    alert('엑셀 파일을 선택해 주세요.');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, {type: 'array'});
+
+    const firstSheet = workbook.SheetNames[0];
+    originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+    originalData.forEach(cols => {
+      let minutes = parseInt(cols["m"]) || 0;
+      let seconds = parseInt(cols["s"]) || 0;
+      cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+    });
+
+    renderTable(originalData);
+    alert("엑셀 파일이 성공적으로 로드되었습니다!");
+  };
+
+  reader.onerror = function(e) {
+    console.error("파일 로딩 오류", e);
+    alert("파일 로딩 중 오류가 발생했습니다.");
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
   
  </script>
 
