@@ -517,10 +517,11 @@ thead th {
     <label for="minGamesCheckbox">규정 경기 이상(14G)</label>
   </div>
 
-<div class="input-box">
-  <input type="file" id="fileUploader" accept=".xlsx, .xls">
-  <button onclick="loadLocalFile()">파일 업로드</button>
+<div style="position:fixed; top:10px; right:10px; display:flex; align-items:center; gap:5px;">
+  <input type="file" id="fileUploader" accept=".xlsx, .xls" style="font-size:0.75rem; color:#FFF;">
+  <button onclick="loadLocalFile()" style="background:#555; color:#FFF; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; border:none;">업로드</button>
 </div>
+
 
   
   <div class="scroll-container" style="overflow:auto; flex:1;">
@@ -1217,7 +1218,7 @@ function comparePlayers() {
     {label: '2P%', key: "2P%", higherBetter: true},
     {label: '3PA', key: "3PA", higherBetter: true},
     {label: '3P', key: "3P", higherBetter: true},
-    {label: '평균 3p 성공', key: "평균 3p 성공", higherBetter: true},
+    {label: '평균 3p 시도', key: "평균 3p 시도", higherBetter: true},
     {label: '평균 3p 성공', key: "평균 3p 성공", higherBetter: true},
     {label: '3P%', key: "3P%", higherBetter: true},
     {label: 'FTA', key: "FTA", higherBetter: true},
@@ -1266,40 +1267,44 @@ function comparePlayers() {
 
   let tableHTML = `<table><thead><tr><th>지표</th>${playersData.map(p => `<th>${p["Player"]} (${p["Team"]})</th>`).join('')}${playersData.length === 2 ? `<th>차이</th>` : ''}</tr></thead><tbody>`;
 
-statsLabels.forEach(stat => {
-  const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
-  const ranks = values.map(val => calculateRank(filteredData, stat.key, val, stat.higherBetter));
+  statsLabels.forEach(stat => {
+    const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
+    const ranks = values.map(val => calculateRank(filteredData, stat.key, val, stat.higherBetter));
 
-  let highlightClass = [];
-  if (values.length >= 2) {
-    const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
-    highlightClass = values.map(v => {
-      if (v === sortedValues[0]) return 'highlight-first';
-      if (values.length > 2 && v === sortedValues[1]) return 'highlight-second';
-      return 'highlight-third';
+    let highlightClass = [];
+    if (values.length >= 2) {
+      const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
+      highlightClass = values.map(v => {
+        if (v === sortedValues[0]) return 'highlight-first';
+        if (values.length > 2 && v === sortedValues[1]) return 'highlight-second';
+        return 'highlight-third';
+      });
+    }
+
+    tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
+
+    values.forEach((value, idx) => {
+      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
     });
-  }
 
-  tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
+    if (playersData.length === 2) {
+      const diff = values[0] - values[1];
+      const diffClass = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : '';
+      const formattedDiff = (stat.key === '총 출전 시간(초)') ?
+        `${Math.floor(Math.abs(diff)/60)}분 ${Math.abs(diff)%60}초` :
+        `${Math.abs(diff).toFixed(statsFormats[stat.key]?.decimals || 2)}${statsFormats[stat.key]?.unit || ''}`;
 
-  values.forEach((value, idx) => {
-    tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
+      tableHTML += `<td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>`;
+    }
+
+    tableHTML += '</tr>';
   });
-
-  if (playersData.length === 2) {
-    const diff = values[0] - values[1];
-    const diffClass = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : '';
-const formattedDiff = Math.abs(diff).toFixed(statsFormats[stat.label]?.decimals || 2);
-    tableHTML += `<td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>`;
-  }
-
-  tableHTML += '</tr>';
-});
 
   tableHTML += '</tbody></table>';
   document.getElementById('compareResult').innerHTML = tableHTML;
   filterCompareTable();
 }
+
 
 
 
