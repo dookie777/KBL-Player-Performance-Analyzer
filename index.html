@@ -4,6 +4,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <meta charset="UTF-8">
   <title>23-24 KBL Player Stats Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+
   <style>
 body { 
   background-color: #121212; 
@@ -530,6 +532,29 @@ thead th {
   height: auto;
   display: block;
   margin: auto;
+}
+/* ✅ 제목 트렌디 스타일링 추가 */
+h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  text-shadow: 
+    0 0 5px #ff8c00, 
+    0 0 10px #ff8c00, 
+    0 0 20px #ff4500, 
+    0 0 30px #ff4500, 
+    0 0 40px #ff4500;
+  letter-spacing: 2px;
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from { 
+    text-shadow: 0 0 5px #ff8c00, 0 0 10px #ff8c00, 0 0 20px #ff4500; 
+  }
+  to { 
+    text-shadow: 0 0 10px #ff8c00, 0 0 20px #ff4500, 0 0 30px #ff4500; 
+  }
 }
     
   </style>
