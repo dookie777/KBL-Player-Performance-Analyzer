@@ -516,7 +516,13 @@ thead th {
 }
 
 .side-logo.right {
-  right: 80px; 
+  position: fixed;
+  top: calc(65% - 80px); /* 로고 높이(160px)의 절반인 80px을 빼서 하단부를 흰 선에 정확히 맞춤 */
+  right: 50px;
+  width: 160px;
+  height: 160px;
+  background: transparent;
+  z-index: 1000;
 }
 
 .side-logo img {
