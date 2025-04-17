@@ -722,7 +722,9 @@ async function loadPlayersData() {
     originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
 originalData.forEach(cols => {
-  cols["총 출전 시간(초)"] = parseInt(cols["m"]) * 60 + parseInt(cols["s"]);
+  let minutes = parseInt(cols["m"]) || 0;
+  let seconds = parseInt(cols["s"]) || 0;
+  cols["총 출전 시간(초)"] = minutes * 60 + seconds;
 });
 
 
