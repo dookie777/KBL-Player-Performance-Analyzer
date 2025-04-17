@@ -501,11 +501,41 @@ thead th {
 .category-checkboxes label:nth-child(10) {
   margin-left: -38px; /* Team내 비중 지표를 어시스트에 맞춤 */
 }
+.side-logo {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 160px; /* 화면의 파란 박스 정도 크기 */
+  height: 160px;
+  background: transparent;
+  z-index: 1000; /* 항상 위에 보이도록 설정 */
+}
 
+.side-logo.left {
+  left: 50px; /* 화면 좌측 끝에서 50px 떨어진 위치 */
+}
+
+.side-logo.right {
+  right: 50px; /* 화면 우측 끝에서 50px 떨어진 위치 */
+}
+
+.side-logo img {
+  width: 90%;  /* 박스 대비 로고 크기 90% */
+  height: auto;
+  display: block;
+  margin: auto;
+}
     
   </style>
 </head>
 <body>
+  <div class="side-logo left">
+  <img src="Seoul_SK_Knights_logo.svg.png" alt="Seoul SK Knights Logo">
+</div>
+
+<div class="side-logo right">
+  <img src="SK텔레콤_로고.svg.png" alt="SK Telecom Logo">
+</div>
 <div class="container">
   <h2>23-24 KBL Player Stats Analyzer</h2>
   <div class="tabs">
