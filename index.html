@@ -450,11 +450,6 @@ thead th {
   position: relative !important;
   z-index: 1 !important;
 }
-#tab-compare .compare-result td,
-#tab-compare .compare-result th {
-  position: relative;
-  z-index: 1;
-}
     
 /* 빨간 정삼각형 아이콘 추가 스타일 */
 .diff-positive::before {
@@ -573,7 +568,7 @@ h2 {
   right: 0;
   height: 42px;
   background-color: #121212;
-  z-index: 1001; /* ✔ 헤더/데이터보다 위 */
+  z-index: 5;
   pointer-events: none;
 }
     
