@@ -327,6 +327,7 @@ thead th {
 }
 
 .footer {
+  z-index: 1 !important;
   text-align: center;
   padding: 10px;
   font-size: 0.8rem;
@@ -338,14 +339,14 @@ thead th {
   background-color: #000;
   pointer-events: none;
 }
-/* ✅ 1페이지 헤더 완벽 고정 (긴급 해결 재적용) */
+    
 #tab-all th:nth-child(1),
 #tab-all th:nth-child(2) {
   position: sticky;
   top: 0 !important;
   background-color: #282828 !important;
-  z-index: 500 !important;
-}
+  z-index: 0 !important;
+}}
 
 #tab-all td:nth-child(1),
 #tab-all td:nth-child(2) {
