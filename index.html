@@ -830,73 +830,74 @@ function renderTable(data) {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
 
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${playerName} <span class="${cols["출전 경기 수"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
-      <td>${cols["Team"]}</td>
-      <td>${cols["출전 경기 수"]}</td>
-      <td data-time="${totalSeconds}">${minutes}분 ${seconds}초</td>
-      <td>${cols["득점"]}</td>
-      <td>${parseFloat(cols["평균 득점"]).toFixed(2)}</td>
-      <td>${cols["FGA"]}</td>
-      <td>${cols["FG"]}</td>
-      <td>${cols["평균 FG 시도"]}</td>
-      <td>${cols["평균 FG 성공"]}</td>
-      <td>${cols["FG%"]}</td>
-      <td>${cols["2PA"]}</td>
-      <td>${cols["2P"]}</td>
-      <td>${cols["평균 2p 시도"]}</td>
-      <td>${cols["평균 2p 성공"]}</td>
-      <td>${cols["2P%"]}</td>
-      <td>${cols["3PA"]}</td>
-      <td>${cols["3P"]}</td>
-      <td>${cols["평균 3p 성공"]}</td>
-      <td>${cols["평균 3p 성공"]}</td>
-      <td>${cols["3P%"]}</td>
-      <td>${cols["FTA"]}</td>
-      <td>${cols["FT"]}</td>
-      <td>${cols["평균 FT 시도"]}</td>
-      <td>${cols["평균 FT 성공"]}</td>
-      <td>${cols["FT%"]}</td>
-      <td>${cols["리바운드"]}</td>
-      <td>${cols["평균 리바운드"]}</td>
-      <td>${cols["공격 리바운드"]}</td>
-      <td>${cols["평균 공격 리바운드"]}</td>
-      <td>${cols["수비 리바운드"]}</td>
-      <td>${cols["평균 수비 리바운드"]}</td>
-      <td>${cols["어시스트"]}</td>
-      <td>${cols["평균 어시스트"]}</td>
-      <td>${cols["스틸"]}</td>
-      <td>${cols["평균 스틸"]}</td>
-      <td>${cols["블록"]}</td>
-      <td>${cols["평균 블록"]}</td>
-      <td>${cols["턴오버"]}</td>
-      <td>${cols["평균 턴오버"]}</td>
-      <td>${cols["파울"]}</td>
-      <td>${cols["평균 파울"]}</td>
-      <td>${cols["WS"]}</td>
-      <td>${cols["WS/40"]}</td>
-      <td>${cols["Offensive_WS"]}</td>
-      <td>${cols["Defensive_WS"]}</td>
-      <td>${cols["PER"]}</td>
-      <td>${cols["EFF"]}</td>
-      <td>${cols["EFF/40"]}</td>
-      <td>${cols["Offensive_rating"]}</td>
-      <td>${cols["Defensive_rating"]}</td>
-      <td>${cols["USG%"]}</td>
-      <td>${cols["TS%"]}</td>
-      <td>${cols["eFG%"]}</td>
-      <td>${cols["3PAr"]}</td>
-      <td>${cols["FTr"]}</td>
-      <td>${cols["ORB%"]}</td>
-      <td>${cols["DRB%"]}</td>
-      <td>${cols["TRB%"]}</td>
-      <td>${cols["AST%"]}</td>
-      <td>${cols["STL%"]}</td>
-      <td>${cols["BS%"]}</td>
-      <td>${cols["TOV%"]}</td>
-    `;
-    tableBody.appendChild(row);
+const row = document.createElement('tr');
+row.innerHTML = `
+  <td>${playerName} <span class="${cols["출전 경기 수"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+  <td>${cols["Team"]}</td>
+  <td>${formatStatValue("출전 경기 수", cols["출전 경기 수"])}</td>
+  <td data-time="${totalSeconds}">${formatStatValue("총 출전 시간(초)", totalSeconds)}</td>
+  <td>${formatStatValue("득점", cols["득점"])}</td>
+  <td>${formatStatValue("평균 득점", cols["평균 득점"])}</td>
+  <td>${formatStatValue("FGA", cols["FGA"])}</td>
+  <td>${formatStatValue("FG", cols["FG"])}</td>
+  <td>${formatStatValue("평균 FG 시도", cols["평균 FG 시도"])}</td>
+  <td>${formatStatValue("평균 FG 성공", cols["평균 FG 성공"])}</td>
+  <td>${formatStatValue("FG%", cols["FG%"])}</td>
+  <td>${formatStatValue("2PA", cols["2PA"])}</td>
+  <td>${formatStatValue("2P", cols["2P"])}</td>
+  <td>${formatStatValue("평균 2p 시도", cols["평균 2p 시도"])}</td>
+  <td>${formatStatValue("평균 2p 성공", cols["평균 2p 성공"])}</td>
+  <td>${formatStatValue("2P%", cols["2P%"])}</td>
+  <td>${formatStatValue("3PA", cols["3PA"])}</td>
+  <td>${formatStatValue("3P", cols["3P"])}</td>
+  <td>${formatStatValue("평균 3p 시도", cols["평균 3p 시도"])}</td>
+  <td>${formatStatValue("평균 3p 성공", cols["평균 3p 성공"])}</td>
+  <td>${formatStatValue("3P%", cols["3P%"])}</td>
+  <td>${formatStatValue("FTA", cols["FTA"])}</td>
+  <td>${formatStatValue("FT", cols["FT"])}</td>
+  <td>${formatStatValue("평균 FT 시도", cols["평균 FT 시도"])}</td>
+  <td>${formatStatValue("평균 FT 성공", cols["평균 FT 성공"])}</td>
+  <td>${formatStatValue("FT%", cols["FT%"])}</td>
+  <td>${formatStatValue("리바운드", cols["리바운드"])}</td>
+  <td>${formatStatValue("평균 리바운드", cols["평균 리바운드"])}</td>
+  <td>${formatStatValue("공격 리바운드", cols["공격 리바운드"])}</td>
+  <td>${formatStatValue("평균 공격 리바운드", cols["평균 공격 리바운드"])}</td>
+  <td>${formatStatValue("수비 리바운드", cols["수비 리바운드"])}</td>
+  <td>${formatStatValue("평균 수비 리바운드", cols["평균 수비 리바운드"])}</td>
+  <td>${formatStatValue("어시스트", cols["어시스트"])}</td>
+  <td>${formatStatValue("평균 어시스트", cols["평균 어시스트"])}</td>
+  <td>${formatStatValue("스틸", cols["스틸"])}</td>
+  <td>${formatStatValue("평균 스틸", cols["평균 스틸"])}</td>
+  <td>${formatStatValue("블록", cols["블록"])}</td>
+  <td>${formatStatValue("평균 블록", cols["평균 블록"])}</td>
+  <td>${formatStatValue("턴오버", cols["턴오버"])}</td>
+  <td>${formatStatValue("평균 턴오버", cols["평균 턴오버"])}</td>
+  <td>${formatStatValue("파울", cols["파울"])}</td>
+  <td>${formatStatValue("평균 파울", cols["평균 파울"])}</td>
+  <td>${formatStatValue("WS", cols["WS"])}</td>
+  <td>${formatStatValue("WS/40", cols["WS/40"])}</td>
+  <td>${formatStatValue("Offensive_WS", cols["Offensive_WS"])}</td>
+  <td>${formatStatValue("Defensive_WS", cols["Defensive_WS"])}</td>
+  <td>${formatStatValue("PER", cols["PER"])}</td>
+  <td>${formatStatValue("EFF", cols["EFF"])}</td>
+  <td>${formatStatValue("EFF/40", cols["EFF/40"])}</td>
+  <td>${formatStatValue("Offensive_rating", cols["Offensive_rating"])}</td>
+  <td>${formatStatValue("Defensive_rating", cols["Defensive_rating"])}</td>
+  <td>${formatStatValue("USG%", cols["USG%"])}</td>
+  <td>${formatStatValue("TS%", cols["TS%"])}</td>
+  <td>${formatStatValue("eFG%", cols["eFG%"])}</td>
+  <td>${formatStatValue("3PAr", cols["3PAr"])}</td>
+  <td>${formatStatValue("FTr", cols["FTr"])}</td>
+  <td>${formatStatValue("ORB%", cols["ORB%"])}</td>
+  <td>${formatStatValue("DRB%", cols["DRB%"])}</td>
+  <td>${formatStatValue("TRB%", cols["TRB%"])}</td>
+  <td>${formatStatValue("AST%", cols["AST%"])}</td>
+  <td>${formatStatValue("STL%", cols["STL%"])}</td>
+  <td>${formatStatValue("BS%", cols["BS%"])}</td>
+  <td>${formatStatValue("TOV%", cols["TOV%"])}</td>
+`;
+tableBody.appendChild(row);
+
   });
 }
 
