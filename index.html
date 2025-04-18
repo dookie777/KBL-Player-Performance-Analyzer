@@ -848,7 +848,7 @@ function renderTable(data) {
     const seconds = totalSeconds % 60;
 
 const row = document.createElement('tr');
-row.innerHTML = 
+row.innerHTML = `
   <td>${playerName} <span class="${cols["출전 경기 수"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
   <td>${cols["Team"]}</td>
   <td>${formatStatValue("출전 경기 수", cols["출전 경기 수"])}</td>
@@ -912,8 +912,9 @@ row.innerHTML =
   <td>${formatStatValue("STL%", cols["STL%"])}</td>
   <td>${formatStatValue("BS%", cols["BS%"])}</td>
   <td>${formatStatValue("TOV%", cols["TOV%"])}</td>
-;
+`;
 tableBody.appendChild(row);
+
 
   });
 }
