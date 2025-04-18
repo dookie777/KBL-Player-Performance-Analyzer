@@ -1230,15 +1230,11 @@ document.getElementById('minGames').addEventListener('change', function() {
   }
 });
 
-// ✅ 최종 완성된 전체 지표 포함 비교 함수
 function formatStatValue(key, value) {
   const format = statsFormats[key];
   if (!format) return value;
 
-  // ⚠️ 단위 없이 표시할 지표 목록
   const percentExcludedKeys = ['ORB%', 'DRB%', 'TRB%', 'AST%', 'STL%', 'BS%', 'TOV%'];
-
-  let formattedValue;
 
   if (key === "총 출전 시간(초)" || format.unit === '분 초') {
     const totalSeconds = parseInt(value, 10);
@@ -1247,21 +1243,22 @@ function formatStatValue(key, value) {
     return `${minutes}분 ${seconds}초`;
   }
 
-  const numericValue = parseFloat(value);
-  formattedValue = numericValue.toFixed(format.decimals);
+  let numericValue = parseFloat(value);
 
-  // ✅ 단위 제외 대상이면 그냥 숫자만 반환
-  if (percentExcludedKeys.includes(key)) {
-    return formattedValue;
+  // ✅ 퍼센트 항목 보정: 값이 1 미만이면 100을 곱해서 % 형태로 전환
+  if (format.unit === '%' && !percentExcludedKeys.includes(key) && numericValue < 1.0) {
+    numericValue *= 100;
   }
 
-  // ✅ 퍼센트 단위인데, 값이 1보다 큰 경우 그대로 출력
-  if (format.unit === '%' && numericValue > 1.0) {
-    return formattedValue + '%';
+  const formattedValue = numericValue.toFixed(format.decimals);
+
+  if (percentExcludedKeys.includes(key)) {
+    return formattedValue; // 단위 제거 대상
   }
 
   return formattedValue + (format.unit !== '분 초' ? format.unit : '');
 }
+
 
 function comparePlayers() {
   const player1 = document.getElementById('comparePlayer1').value.trim();
