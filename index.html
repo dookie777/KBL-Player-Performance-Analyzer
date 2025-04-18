@@ -296,9 +296,11 @@ thead th {
   font-size: 0.85rem !important;
 }
 
-#tab-compare .compare-result th {
+#tab-compare .compare-result thead th {
+  position: sticky;
+  top: 0;
   background-color: #282828 !important;
-  padding: 15px !important;
+  z-index: 10;
 }
 
 .highlight-first {
@@ -556,12 +558,14 @@ h2 {
 }
 #tab-compare .compare-result::before {
   content: '';
-  position: sticky;
+  position: absolute;
   top: 0;
-  height: 48px; /* 헤더 높이와 같게 */
-  background-color: #121212; /* 테이블 배경색과 동일 */
-  display: block;
-  z-index: 999; /* 데이터 셀보다 위, 헤더보다 아래 */
+  left: 0;
+  right: 0;
+  height: 42px; /* 헤더 높이에 맞춰 조정 */
+  background-color: #121212; /* 다크 배경 */
+  z-index: 5; /* 헤더보다 아래, 데이터보다 위 */
+  pointer-events: none;
 }
     
   </style>
