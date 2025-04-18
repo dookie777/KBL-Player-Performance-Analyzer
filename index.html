@@ -91,12 +91,12 @@ h2 {
 }
 
 .tab-content {
-  display: none;
+  display: none; /* 반드시 있어야 JS에서 초기 비활성 탭 숨김 처리 */
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  height: 100%; /* ← 반드시 있어야 자식이 꽉 채움 */
 }
+
 .tab-content.active {
   display: flex;
 }
@@ -776,14 +776,16 @@ const statsFormats = {
  const tabs = document.querySelectorAll('.tab-button');
  const contents = document.querySelectorAll('.tab-content');
  
- tabs.forEach(tab => {
-   tab.onclick = () => {
-     tabs.forEach(t => t.classList.remove('active'));
-     contents.forEach(c => c.classList.remove('active'));
-     document.getElementById(tab.dataset.tab).classList.add('active');
-     tab.classList.add('active');
-   };
- });
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    contents.forEach(c => c.style.display = 'none');
+    const activeTab = document.getElementById(tab.dataset.tab);
+    activeTab.style.display = 'flex';
+  });
+});
  
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
