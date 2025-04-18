@@ -91,14 +91,14 @@ h2 {
 }
 
 .tab-content {
-  display: none; /* 반드시 있어야 JS에서 초기 비활성 탭 숨김 처리 */
+  display: none !important;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .tab-content.active {
-  display: flex;
+  display: flex !important;
 }
 
 .input-box {
@@ -274,12 +274,7 @@ thead th {
 .card.team-stats h3 {
   color: #88c2dd !important;
 }
-#tab-compare {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-}
+
 
 #tab-compare .compare-result table {
   table-layout: auto !important;
@@ -402,10 +397,13 @@ thead th {
 
 /* ✅ 선수 비교 검색 데이터 영역 넓이 정확히 조정 (중요!) */
 #tab-compare .compare-result {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 10px 80px 10px;
-  box-sizing: border-box;
+  max-width: 900px !important;
+  width: 100% !important;
+  margin: 0 auto;
+  padding: 10px 10px 60px 10px !important; /* 하단 padding-bottom 60px 추가 */
+  overflow: auto !important;
+  height: calc(100vh - 260px) !important; /* 기존보다 40px 줄임 */
+  box-sizing: border-box !important;
 }
 
 /* 테이블 너비 정확히 조정 */
@@ -776,16 +774,14 @@ const statsFormats = {
  const tabs = document.querySelectorAll('.tab-button');
  const contents = document.querySelectorAll('.tab-content');
  
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-
-    contents.forEach(c => c.style.display = 'none');
-    const activeTab = document.getElementById(tab.dataset.tab);
-    activeTab.style.display = 'flex';
-  });
-});
+ tabs.forEach(tab => {
+   tab.onclick = () => {
+     tabs.forEach(t => t.classList.remove('active'));
+     contents.forEach(c => c.classList.remove('active'));
+     document.getElementById(tab.dataset.tab).classList.add('active');
+     tab.classList.add('active');
+   };
+ });
  
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
@@ -836,7 +832,7 @@ function renderTable(data) {
     const seconds = totalSeconds % 60;
 
 const row = document.createElement('tr');
-row.innerHTML = `
+row.innerHTML = 
   <td>${playerName} <span class="${cols["출전 경기 수"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
   <td>${cols["Team"]}</td>
   <td>${formatStatValue("출전 경기 수", cols["출전 경기 수"])}</td>
@@ -900,7 +896,7 @@ row.innerHTML = `
   <td>${formatStatValue("STL%", cols["STL%"])}</td>
   <td>${formatStatValue("BS%", cols["BS%"])}</td>
   <td>${formatStatValue("TOV%", cols["TOV%"])}</td>
-`;
+;
 tableBody.appendChild(row);
 
   });
@@ -1195,7 +1191,7 @@ statsContainer.innerHTML += createCard('Team내 비중 지표', [
 });
 
 function createCard(title, stats, type = 'primary') {
-  return `
+  return 
     <div class="card ${type}">
       <h3>${title}</h3>
       <table>
@@ -1207,17 +1203,17 @@ function createCard(title, stats, type = 'primary') {
           </tr>
         </thead>
         <tbody>
-          ${stats.map(stat => `
+          ${stats.map(stat => 
             <tr>
               <td>${stat.label}</td>
               <td>${stat.value}</td>
               <td>${stat.rank}</td>
             </tr>
-          `).join('')}
+          ).join('')}
         </tbody>
       </table>
     </div>
-  `;
+  ;
 }
 
 
@@ -1245,7 +1241,7 @@ function formatStatValue(key, value) {
     const totalSeconds = parseInt(value, 10);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes}분 ${seconds}초`;
+    return ${minutes}분 ${seconds}초;
   }
 
   let numericValue = parseFloat(value);
@@ -1348,7 +1344,7 @@ function comparePlayers() {
     {label: 'TOV%', key: "TOV%", higherBetter: false}
   ];
 
-  let tableHTML = `<table><thead><tr><th>지표</th>${playersData.map(p => `<th>${p["Player"]} (${p["Team"]})</th>`).join('')}${playersData.length === 2 ? `<th>차이</th>` : ''}</tr></thead><tbody>`;
+  let tableHTML = <table><thead><tr><th>지표</th>${playersData.map(p => <th>${p["Player"]} (${p["Team"]})</th>).join('')}${playersData.length === 2 ? <th>차이</th> : ''}</tr></thead><tbody>;
 
   statsLabels.forEach(stat => {
     const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
@@ -1364,10 +1360,10 @@ function comparePlayers() {
       });
     }
 
-    tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
+    tableHTML += <tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>;
 
     values.forEach((value, idx) => {
-      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
+      tableHTML += <td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>;
     });
 
     if (playersData.length === 2) {
@@ -1380,16 +1376,16 @@ if (stat.key === "총 출전 시간(초)" || format.unit === '분 초') {
   const diffSeconds = Math.abs(diff);
   const minutes = Math.floor(diffSeconds / 60);
   const seconds = diffSeconds % 60;
-  formattedDiff = `${minutes}분 ${seconds}초`;
+  formattedDiff = ${minutes}분 ${seconds}초;
 } else if (format.decimals === 0) {
-  formattedDiff = `${Math.abs(diff)}${format.unit}`;
+  formattedDiff = ${Math.abs(diff)}${format.unit};
 } else {
-  formattedDiff = `${Math.abs(diff).toFixed(format.decimals)}${format.unit}`;
+  formattedDiff = ${Math.abs(diff).toFixed(format.decimals)}${format.unit};
 }
 
 
 
-      tableHTML += `<td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>`;
+      tableHTML += <td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>;
     }
 
     tableHTML += '</tr>';
