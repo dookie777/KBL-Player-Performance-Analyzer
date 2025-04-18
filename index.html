@@ -446,7 +446,10 @@ thead th {
 #tab-compare .compare-result td.diff-cell span {
   font-size: 0.9rem !important; /* 폰트 크기 1.2rem으로 지정 */
 }
-
+#tab-compare .compare-result td {
+  position: relative;
+  z-index: 1;
+}
 /* 빨간 정삼각형 아이콘 추가 스타일 */
 .diff-positive::before {
   content: "▲";
