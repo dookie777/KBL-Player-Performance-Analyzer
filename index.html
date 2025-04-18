@@ -554,6 +554,15 @@ h2 {
     text-shadow: 0 0 6px #ff8c00, 0 0 12px #ff4500; 
   }
 }
+#tab-compare .compare-result::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  height: 48px; /* 헤더 높이와 같게 */
+  background-color: #121212; /* 테이블 배경색과 동일 */
+  display: block;
+  z-index: 999; /* 데이터 셀보다 위, 헤더보다 아래 */
+}
     
   </style>
 </head>
