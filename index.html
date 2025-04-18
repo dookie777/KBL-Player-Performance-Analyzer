@@ -7,100 +7,91 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 
   <style>
-body { 
-  background-color: #121212; 
-  background-image: 
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 30px 30px;
-  background-position: center;
-  color: #FFF;
+body {
+  background: #121212;
+  color: #fff;
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   overflow: hidden;
-}
-/* ✅ 좌우 스크롤 시 1,2열 제목 고정 완벽 복구 */
-#tab-all table {
-  position: relative;
-}
-
-#tab-all th:nth-child(1),
-#tab-all td:nth-child(1),
-#tab-all th:nth-child(2),
-#tab-all td:nth-child(2) {
-  position: sticky;
-  background-color: #282828 !important;
-  z-index: 10;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center;
 }
 
-#tab-all th:nth-child(1),
-#tab-all td:nth-child(1) {
-  left: 0;
-  z-index: 11; /* 이름 열이 최우선으로 보이게 설정 */
+h2 {
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  text-shadow: 0 0 3px #ff8c00, 0 0 6px #ff8c00, 0 0 12px #ff4500;
+  letter-spacing: 1px;
+  animation: glow 2s infinite alternate;
 }
 
-#tab-all th:nth-child(2),
-#tab-all td:nth-child(2) {
-  left: 150px;
-  z-index: 10; /* 팀 열이 이름 열 다음으로 보이게 설정 */
-}
-
-/* 스크롤 시 헤더 열 (상단) 고정 */
-#tab-all thead th {
-  position: sticky;
-  top: 0;
-  background-color: #282828 !important;
-  z-index: 12; /* 열 제목이 가장 위에 오도록 설정 */
+@keyframes glow {
+  from { text-shadow: 0 0 3px #ff8c00, 0 0 6px #ff4500; }
+  to   { text-shadow: 0 0 6px #ff8c00, 0 0 12px #ff4500; }
 }
 
 .container {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
-  box-sizing: border-box;
   height: 100vh;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
-h2 {
+.footer {
   text-align: center;
-  color: #FFA500;
+  padding: 10px;
+  font-size: 0.8rem;
+  color: #888;
+  background: #000;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  pointer-events: none;
 }
 
+/* =======================
+   Tab Navigation
+======================= */
 .tabs {
   text-align: center;
   margin-bottom: 15px;
 }
-
 .tabs button {
   background: #282828;
-  color: #FFF;
-  padding: 10px 20px;
+  color: #fff;
+  font-weight: bold;
   border: none;
   cursor: pointer;
+  padding: 10px 20px;
   margin: 0 5px;
-  font-weight: bold;
   width: 160px;
 }
-
 .tabs button.active {
-  background: #E0E0E0;
+  background: #e0e0e0;
   color: #000;
 }
 
 .tab-content {
   display: none !important;
-  flex-direction: column;
   flex: 1;
   overflow: hidden !important;
+  flex-direction: column;
 }
-
 .tab-content.active {
   display: flex !important;
 }
 
+/* =======================
+   Input and Forms
+======================= */
 .input-box {
   display: flex;
   justify-content: center;
@@ -108,61 +99,49 @@ h2 {
   flex-wrap: wrap;
   margin-bottom: 20px;
 }
-
 .input-box input[type="text"],
 .input-box button {
-  height: 42px !important; /* 정확히 버튼 높이와 동일하게 고정 */
+  height: 42px !important;
   padding: 5px 15px;
   font-size: 0.9rem;
   border-radius: 5px;
   border: none;
   margin: 5px;
-  box-sizing: border-box; /* padding과 border가 height에 포함되도록 설정 */
+  box-sizing: border-box;
 }
-
-
 .input-box input[type="text"] {
   width: 250px;
   font-size: 1rem;
 }
-
 .input-box button {
-  background-color: #88c2dd;
+  background: #88c2dd;
   color: #121212;
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
 }
-
 .input-box input[type="checkbox"] {
   margin: 0 5px;
 }
-
 .input-box label {
-  color: #FFF;
+  color: #fff;
   font-size: 0.9rem;
   cursor: pointer;
   user-select: none;
 }
 
+/* =======================
+   Scrollable Areas
+======================= */
 .scroll-container, .stats-container, .compare-result {
   flex: 1;
   overflow: auto;
 }
-
 .scroll-container::-webkit-scrollbar,
 .stats-container::-webkit-scrollbar,
 .compare-result::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-
-.scroll-container::-webkit-scrollbar-track,
-.stats-container::-webkit-scrollbar-track,
-.compare-result::-webkit-scrollbar-track {
-  background: #121212;
-  border-radius: 5px;
-}
-
 .scroll-container::-webkit-scrollbar-thumb,
 .stats-container::-webkit-scrollbar-thumb,
 .compare-result::-webkit-scrollbar-thumb {
@@ -170,28 +149,33 @@ h2 {
   border-radius: 5px;
   border: 2px solid #121212;
 }
-
+.scroll-container::-webkit-scrollbar-track,
+.stats-container::-webkit-scrollbar-track,
+.compare-result::-webkit-scrollbar-track {
+  background: #121212;
+}
 .scroll-container::-webkit-scrollbar-thumb:hover,
 .stats-container::-webkit-scrollbar-thumb:hover,
 .compare-result::-webkit-scrollbar-thumb:hover {
-  background: #FFA500;
+  background: #ffa500;
 }
 
+/* =======================
+   Table Structure
+======================= */
 table {
   border-collapse: collapse;
   white-space: nowrap;
   width: max-content;
 }
-
 th, td {
   padding: 8px;
-  border-bottom: 1px solid #333;
   font-size: 0.85rem;
-  text-align: center;
-  background: #181818;
   font-weight: bold;
+  background: #181818;
+  border-bottom: 1px solid #333;
+  text-align: center;
 }
-
 thead th {
   background: #282828;
   position: sticky;
@@ -200,39 +184,36 @@ thead th {
   z-index: 500;
 }
 
+/* sticky columns */
 #tab-all th:nth-child(1), #tab-all td:nth-child(1),
 #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
   position: sticky;
   background-color: #282828 !important;
   z-index: 400;
 }
-
 #tab-all th:nth-child(1), #tab-all td:nth-child(1) {
   left: 0;
+  z-index: 500;
 }
-
 #tab-all th:nth-child(2), #tab-all td:nth-child(2) {
   left: 150px;
+  z-index: 450;
 }
 
-.highlight { 
-  color: #FFFF55 !important; 
-  font-weight: bold; 
-}
-
+/* =======================
+   Player Info Cards
+======================= */
 .player-name {
   font-size: 2rem;
   font-weight: bold;
   margin: 15px 0 5px;
   text-align: center;
 }
-
 .team-name {
   font-size: 1rem;
   text-align: center;
   margin-bottom: 15px;
 }
-
 .stats-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -240,225 +221,60 @@ thead th {
   margin-top: 20px;
   padding-bottom: 60px;
 }
-
 .card {
-  background-color: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.05);
   padding: 10px;
   border-radius: 10px;
   text-align: center;
   min-height: 350px;
 }
-
 .card.primary:nth-child(2) { min-height: 420px; }
-.card.primary h3 { color: #FFA500; }
-.card.secondary h3 { color: #88c2dd; }
-
-.card h3 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-}
-
-.card table {
-  width: 100%;
-}
-
+.card.primary h3 { color: #ffa500; }
+.card.secondary h3, .card.team-stats h3 { color: #88c2dd !important; }
+.card table { width: 100%; }
 .card th, .card td {
   padding: 8px 5px;
   border-bottom: 1px solid rgba(255,255,255,0.2);
 }
 
-.card.team-stats {
-  min-height: 380px !important;
-}
-
-.card.team-stats h3 {
-  color: #88c2dd !important;
-}
-
+/* =======================
+   Compare Table Styling
+======================= */
 #tab-compare .compare-result {
-  max-width: none !important;
-  height: calc(100vh - 260px);
-  padding: 15px;
+  max-width: 900px;
+  width: 100%;
   margin: 0 auto;
+  padding: 10px;
+  overflow: auto;
+  height: calc(100vh - 250px);
+  background: #121212;
+  box-sizing: border-box;
+  padding-bottom: 60px;
 }
-
 #tab-compare .compare-result table {
-  table-layout: auto !important;
-  transform: none !important;
+  width: 100%;
+  table-layout: fixed;
+  min-width: 100%;
 }
-
-#tab-compare .compare-result th,
-#tab-compare .compare-result td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 10px 15px !important;
-  font-size: 0.85rem !important;
-}
-
-#tab-compare .compare-result thead th {
+#tab-compare .compare-result th {
+  background: #282828 !important;
   position: sticky;
   top: 0;
-  background-color: #282828 !important;
-  z-index: 10;
+  z-index: 1000;
 }
-
-.highlight-first {
-  background-color: rgba(255,140,0,0.95) !important;
-  color: #FFF !important;
-}
-
-.highlight-second {
-  background-color: rgba(70,150,200,0.95) !important;
-  color: #FFF !important;
-}
-
-.highlight-third {
-  background-color: rgba(160,160,160,0.95) !important;
-  color: #FFF !important;
-}
-
-.footer {
-  text-align: center;
-  padding: 10px;
-  font-size: 0.8rem;
-  color: #888;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #000;
-  pointer-events: none;
-}
-/* ✅ 1페이지 헤더 완벽 고정 (긴급 해결 재적용) */
-#tab-all th:nth-child(1),
-#tab-all th:nth-child(2) {
-  position: sticky;
-  top: 0 !important;
-  background-color: #282828 !important;
-  z-index: 500 !important;
-}
-
-#tab-all td:nth-child(1),
-#tab-all td:nth-child(2) {
-  position: sticky;
-  left: 0;
-  background-color: #282828 !important;
-  z-index: 400 !important;
-}
-
-#tab-all th:nth-child(2),
-#tab-all td:nth-child(2) {
-  left: 150px;
-}
-
-/* ✅ 선수 개인 검색 페이지 간격 축소 (중요 수정) */
-#tab-player .input-box {
-  margin-bottom: 10px !important; /* 기존 20px → 절반으로 수정 */
-}
-
-#tab-player .player-name {
-  margin: 8px 0 3px 0 !important; /* 기존 15px, 5px → 절반으로 수정 */
-}
-
-#tab-player .team-name {
-  margin-bottom: 8px !important; /* 기존 15px → 절반으로 수정 */
-}
-
-#tab-player .stats-container {
-  margin-top: 10px !important; /* 기존 20px → 절반으로 수정 */
-}
-
-/* ✅ 선수 비교 페이지 입력창 크기 및 영역 최적화 (중요 수정) */
-#tab-compare .input-box input[type="text"] {
-  width: 150px !important; /* 기존 200px → 2/3 크기 */
-}
-
-#tab-compare .input-box {
-  justify-content: space-between; /* 넓은 영역 활용 */
-  max-width: 900px;
-  margin: 0 auto 10px auto !important;
-  padding: 0;
-}
-
-/* 입력창과 버튼 정렬 최적화 */
-#tab-compare .input-box button {
-  flex-grow: 1;
-  max-width: 100px;
-  margin: 5px;
-}
-
-/* 체크박스 및 라벨 우측 정렬 */
-#tab-compare .input-box input[type="checkbox"],
-#tab-compare .input-box label {
-  flex-grow: 1;
-  text-align: right;
-  margin: 0 5px;
-}
-
-/* 비교 결과 테이블 가로 영역 최적화 */
-#tab-compare .compare-result {
-  max-width: 100% !important;
-  width: 100% !important;
-  height: calc(100vh - 220px) !important;
-  overflow: auto !important;
-  margin: 0 auto;
-  padding: 10px !important;
-}
-
-#tab-compare .compare-result table {
-  width: max-content !important;
-  min-width: 100% !important;
-}
-
-/* ✅ 선수 비교 검색 데이터 영역 넓이 정확히 조정 (중요!) */
-#tab-compare .compare-result {
-  max-width: 900px !important; /* 선수 입력창과 규정 경기 이상(14G) 체크박스 끝까지 정렬 */
-  width: 100% !important;
-  margin: 0 auto;
-  padding: 10px !important;
-  overflow: auto !important;
-  height: calc(100vh - 220px) !important;
-  box-sizing: border-box !important;
-}
-
-/* 테이블 너비 정확히 조정 */
-#tab-compare .compare-result table {
-  width: 100% !important;
-  min-width: 100% !important;
-  table-layout: fixed !important; /* 균일하게 너비 적용 */
-}
-/* 스크롤 시 데이터가 헤더 뒤로 보이는 현상 수정 */
-#tab-compare .compare-result th {
-  background-color: #282828 !important;
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-}
-
-/* 제목 헤더 배경으로 데이터가 보이지 않게 설정 */
-#tab-compare .compare-result {
-  position: relative;
-  background-color: #121212 !important;
-}
-
-/* 차이 열 결과값 폰트 작게 조정 */
 #tab-compare .compare-result td.diff-cell span {
-  font-size: 0.9rem !important; /* 폰트 크기 1.2rem으로 지정 */
+  font-size: 0.9rem;
 }
 #tab-compare .compare-result td {
-  position: relative !important;
-  z-index: 1 !important;
+  position: relative;
+  z-index: 1;
 }
-    
-/* 빨간 정삼각형 아이콘 추가 스타일 */
 .diff-positive::before {
   content: "▲";
   color: red;
   margin-right: 4px;
   font-size: 0.8rem;
 }
-/* 음수(-)값: 파란 역삼각형 아이콘 추가 */
 .diff-negative::before {
   content: "▼";
   color: skyblue;
@@ -466,111 +282,67 @@ thead th {
   font-size: 0.8rem;
 }
 
+/* =======================
+   Checkbox Filters
+======================= */
 .category-checkboxes {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 상단 6개 항목을 균등하게 나누기 위해 6칸 설정 */
-  gap: 10px 20px; /* 세로 10px, 가로 20px 간격 */
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px 20px;
   max-width: 900px;
   margin: 10px auto;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
-
 .category-checkboxes label {
   white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0;
 }
-
 .category-checkboxes input[type="checkbox"] {
   margin-right: 5px;
 }
-
-/* 상단 6개 항목 정확히 균등 배치 (한 행에 하나씩 정확히 들어가도록 설정) */
-.category-checkboxes label:nth-child(-n+6) {
-  grid-column: span 1; /* 6개 항목 정확히 한 칸씩 나눔 */
-}
-
-/* 하단 4개 항목은 더 넓게, 정확히 중앙 정렬 */
-.category-checkboxes label:nth-child(n+7) {
-  grid-column: span 1; /* 넓게 2칸씩 사용하여 여유를 둠 */
-}
-
-/* 하단 4개 항목이 정확히 중앙 정렬되도록 시작 위치 지정 */
-.category-checkboxes label:nth-child(7) {
-  grid-column-start: 2; /* 정확히 중앙 시작점 지정 */
-}
-
 .category-checkboxes label:nth-child(2) {
-  margin-left: -40px; /* 슈팅 지표를 WinShare 지표에 맞춤 */
+  margin-left: -40px;
+}
+.category-checkboxes label:nth-child(10) {
+  margin-left: -38px;
 }
 
-.category-checkboxes label:nth-child(10) {
-  margin-left: -38px; /* Team내 비중 지표를 어시스트에 맞춤 */
-}
+/* =======================
+   Fixed Side Logos
+======================= */
 .side-logo {
   position: fixed;
-  top: 65%; /* 화면 중앙보다 조금 아래 (제시하신 흰색 선 높이) */
-  transform: translateY(-50%);
-  width: 160px; 
-  height: 160px;
-  background: transparent;
-  z-index: 1000;
-}
-
-.side-logo.left {
-  left: 120px; 
-}
-
-.side-logo.right {
-  position: fixed;
-  top: calc(50% + 170px); /* 중앙에서 아래로 80px 내려감 (나이츠 로고 중심점 맞추기) */
-  right: 120px;
   width: 160px;
-  height: 150px;
   background: transparent;
   z-index: 1000;
 }
-
+.side-logo.left {
+  top: 65%;
+  left: 120px;
+  transform: translateY(-50%);
+}
+.side-logo.right {
+  top: calc(50% + 170px);
+  right: 120px;
+}
 .side-logo img {
   width: 90%;
   height: auto;
   display: block;
   margin: auto;
 }
-/* ✅ 제목 트렌디 스타일링 추가 */
-h2 {
-  font-family: 'Poppins', sans-serif;
-  font-size: 2rem;
-  color: #fff;
-  text-shadow: 
-    0 0 3px #ff8c00, 
-    0 0 6px #ff8c00, 
-    0 0 12px #ff4500; 
-  letter-spacing: 1px;
-  animation: glow 2s infinite alternate;
-}
 
-@keyframes glow {
-  from { 
-    text-shadow: 0 0 3px #ff8c00, 0 0 6px #ff4500; 
-  }
-  to { 
-    text-shadow: 0 0 6px #ff8c00, 0 0 12px #ff4500; 
-  }
-}
-#tab-compare .compare-result::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 42px;
-  background-color: #121212;
-  z-index: 5;
-  pointer-events: none;
-}
+/* =======================
+   Utility Classes
+======================= */
+.highlight { color: #FFFF55 !important; font-weight: bold; }
+.highlight-first { background: rgba(255,140,0,0.95) !important; color: #fff !important; }
+.highlight-second { background: rgba(70,150,200,0.95) !important; color: #fff !important; }
+.highlight-third { background: rgba(160,160,160,0.95) !important; color: #fff !important; }
     
   </style>
 </head>
