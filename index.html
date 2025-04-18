@@ -24,14 +24,14 @@ body {
 }
 /* ✅ 좌우 스크롤 시 1,2열 제목 고정 완벽 복구 */
 #tab-all table {
-  position: relative;     /* 기존에도 있으면 생략 가능 */
-  margin-bottom: 80px;    /* 푸터에 닿지 않도록 여유 공간 확보 */
+  position: relative;
+  margin-bottom: 80px;      /* 푸터 침범 방지 */
 }
 .scroll-container {
   flex: 1;
   overflow: auto;
-  padding-bottom: 80px;   /* 푸터 공간 확보 */
-  position: relative;     /* sticky 기준 위치로 지정 */
+  padding-bottom: 80px;     /* 푸터와 겹치지 않게 아래 여백 확보 */
+  position: relative;       /* sticky 기준 위치가 되도록 설정 */
 }
 
     
@@ -584,7 +584,15 @@ h2 {
   color: white;
   font-family: 'Poppins', sans-serif;
 }  
+#tab-all td:nth-child(1),
+#tab-all td:nth-child(2) {
+  z-index: 0 !important;
+}
 
+#tab-all th:nth-child(1),
+#tab-all th:nth-child(2) {
+  z-index: 1 !important;
+}
     
   </style>
 </head>
