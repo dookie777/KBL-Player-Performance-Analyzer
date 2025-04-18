@@ -59,8 +59,7 @@ body {
   margin: auto;
   padding: 20px;
   box-sizing: border-box;
-  /* height: 100vh; */  /* ⛔ 이 줄 삭제 또는 주석 처리 */
-  min-height: 100vh;    /* ✅ 수정: 내용이 footer보다 많으면 페이지 전체가 스크롤되도록 */
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -314,18 +313,16 @@ thead th {
 }
 
 .footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.8rem;
+  color: #888;
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 60px; /* ✅ 정확히 높이 지정 */
-  padding: 10px;
-  font-size: 0.8rem;
-  color: #888;
   background-color: #000;
-  text-align: center;
   pointer-events: none;
-  z-index: 9999;
 }
 /* ✅ 1페이지 헤더 완벽 고정 (긴급 해결 재적용) */
 #tab-all th:nth-child(1),
@@ -403,9 +400,9 @@ thead th {
   max-width: 900px !important;
   width: 100% !important;
   margin: 0 auto;
-  padding: 10px 10px 100px 10px !important; /* ✅ 하단 여백 충분히 확보 */
-  overflow-x: auto !important;
-  overflow-y: visible !important; /* ✅ 내부에서 스크롤 제한하지 않음 */
+  padding: 10px 10px 60px 10px !important; /* 하단 padding-bottom 60px 추가 */
+  overflow: auto !important;
+  height: calc(100vh - 260px) !important; /* 기존보다 40px 줄임 */
   box-sizing: border-box !important;
 }
 
