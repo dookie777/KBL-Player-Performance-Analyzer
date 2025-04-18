@@ -275,12 +275,6 @@ thead th {
   color: #88c2dd !important;
 }
 
-#tab-compare .compare-result {
-  max-width: none !important;
-  height: calc(100vh - 260px);
-  padding: 15px;
-  margin: 0 auto;
-}
 
 #tab-compare .compare-result table {
   table-layout: auto !important;
@@ -396,16 +390,6 @@ thead th {
   margin: 0 5px;
 }
 
-/* 비교 결과 테이블 가로 영역 최적화 */
-#tab-compare .compare-result {
-  max-width: 100% !important;
-  width: 100% !important;
-  height: calc(100vh - 220px) !important;
-  overflow: auto !important;
-  margin: 0 auto;
-  padding: 10px !important;
-}
-
 #tab-compare .compare-result table {
   width: max-content !important;
   min-width: 100% !important;
@@ -413,12 +397,12 @@ thead th {
 
 /* ✅ 선수 비교 검색 데이터 영역 넓이 정확히 조정 (중요!) */
 #tab-compare .compare-result {
-  max-width: 900px !important; /* 선수 입력창과 규정 경기 이상(14G) 체크박스 끝까지 정렬 */
+  max-width: 900px !important;
   width: 100% !important;
   margin: 0 auto;
-  padding: 10px !important;
+  padding: 10px 10px 60px 10px !important; /* 하단 padding-bottom 60px 추가 */
   overflow: auto !important;
-  height: calc(100vh - 220px) !important;
+  height: calc(100vh - 260px) !important; /* 기존보다 40px 줄임 */
   box-sizing: border-box !important;
 }
 
