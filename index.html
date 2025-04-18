@@ -1235,18 +1235,34 @@ function formatStatValue(key, value) {
   const format = statsFormats[key];
   if (!format) return value;
 
+  // ⚠️ 단위 없이 표시할 지표 목록
+  const percentExcludedKeys = ['ORB%', 'DRB%', 'TRB%', 'AST%', 'STL%', 'BS%', 'TOV%'];
+
   let formattedValue;
+
   if (key === "총 출전 시간(초)" || format.unit === '분 초') {
     const totalSeconds = parseInt(value, 10);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    formattedValue = `${minutes}분 ${seconds}초`;
-  } else {
-    formattedValue = parseFloat(value).toFixed(format.decimals);
+    return `${minutes}분 ${seconds}초`;
   }
 
-  return formattedValue + (format.unit && format.unit !== '분 초' ? format.unit : '');
+  const numericValue = parseFloat(value);
+  formattedValue = numericValue.toFixed(format.decimals);
+
+  // ✅ 단위 제외 대상이면 그냥 숫자만 반환
+  if (percentExcludedKeys.includes(key)) {
+    return formattedValue;
+  }
+
+  // ✅ 퍼센트 단위인데, 값이 1보다 큰 경우 그대로 출력
+  if (format.unit === '%' && numericValue > 1.0) {
+    return formattedValue + '%';
+  }
+
+  return formattedValue + (format.unit !== '분 초' ? format.unit : '');
 }
+
 function comparePlayers() {
   const player1 = document.getElementById('comparePlayer1').value.trim();
   const player2 = document.getElementById('comparePlayer2').value.trim();
