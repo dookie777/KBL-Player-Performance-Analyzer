@@ -91,14 +91,13 @@ h2 {
 }
 
 .tab-content {
-  display: none !important;
+  display: none;
   flex-direction: column;
   flex: 1;
-  overflow: hidden !important;
+  overflow: auto; /* ✅ 중요 */
 }
-
 .tab-content.active {
-  display: flex !important;
+  display: flex;
 }
 
 .input-box {
