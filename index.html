@@ -24,9 +24,17 @@ body {
 }
 /* ✅ 좌우 스크롤 시 1,2열 제목 고정 완벽 복구 */
 #tab-all table {
-  position: relative;
+  position: relative;     /* 기존에도 있으면 생략 가능 */
+  margin-bottom: 80px;    /* 푸터에 닿지 않도록 여유 공간 확보 */
+}
+.scroll-container {
+  flex: 1;
+  overflow: auto;
+  padding-bottom: 80px;   /* 푸터 공간 확보 */
+  position: relative;     /* sticky 기준 위치로 지정 */
 }
 
+    
 #tab-all th:nth-child(1),
 #tab-all td:nth-child(1),
 #tab-all th:nth-child(2),
@@ -73,7 +81,7 @@ h2 {
 
 .tabs {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 .tabs button {
