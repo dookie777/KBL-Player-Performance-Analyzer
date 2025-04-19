@@ -362,9 +362,7 @@ thead th {
   max-width: 900px !important;
   width: 100% !important;
   margin: 0 auto;
-  padding: 10px !important;
-  overflow: auto !important;
-  height: auto !important;  /* ✅ 핵심 수정 */
+  padding-bottom: 80px; /* 하단 푸터 여유 공간 */
   box-sizing: border-box !important;
 }
 
@@ -591,7 +589,10 @@ h2 {
   overflow-y: auto;
   padding-top: 10px;
   padding-bottom: 10px; /* 푸터와 너무 붙지 않게 */
-}    
+}
+  #tab-compare {
+  max-height: calc(100vh - 160px); /* 탭/헤더 등 고려한 값 */
+}
   </style>
 </head>
 <body>
