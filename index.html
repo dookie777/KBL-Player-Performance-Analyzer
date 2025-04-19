@@ -63,16 +63,7 @@ body {
   background-color: #282828 !important;
   z-index: 12; /* 열 제목이 가장 위에 오도록 설정 */
 }
-#tab-all th:nth-child(1) {
-  left: 0 !important;
-  z-index: 12 !important;
-}
 
-#tab-all th:nth-child(2) {
-  left: 150px !important;
-  z-index: 11 !important;
-}
-    
 .container {
   max-width: 1200px;
   margin: auto;
@@ -641,73 +632,73 @@ h2 {
 
 
   
-  <div class="scroll-container" style="overflow:auto; flex:1; max-height: calc(100vh - 250px);">
-<table id="statsTable" style="min-width: 100%; border-collapse: collapse;">
+  <div class="scroll-container" style="overflow:auto; flex:1;">
+    <table id="statsTable" style="width:max-content; min-width:100%;">
      <thead>
   <tr>
-    <th style="position: sticky; top: 0; left: 0; z-index: 6; background: #282828;">Player</th>
-    <th style="position: sticky; top: 0; left: 150px; z-index: 5; background: #282828;">Team</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">출전 경기 수</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">출전 시간(초)</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">득점</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 득점</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">FGA</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">FG</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 FG 시도</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 FG 성공</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">FG%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">2PA</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">2P</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 2p 시도</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 2p 성공</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">2P%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">3PA</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">3P</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 3p 시도</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 3p 성공</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">3P%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">FTA</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">FT</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 FT 시도</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 FT 성공</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">FT%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">리바운드</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 리바운드</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">공격 리바운드</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 공격 리바운드</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">수비 리바운드</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 수비 리바운드</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">어시스트</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 어시스트</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">스틸</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 스틸</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">블록</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 블록</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">턴오버</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 턴오버</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">파울</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">평균 파울</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">WS</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">WS/40</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">Offensive_WS</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">Defensive_WS</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">PER</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">EFF</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">EFF/40</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">Offensive_rating</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">Defensive_rating</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">USG%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">TS%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">eFG%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">3PAr</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">FTr</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">ORB%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">DRB%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">TRB%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">AST%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">STL%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">BS%</th>
-    <th style="position: sticky; top: 0; z-index: 5; background: #282828;">TOV%</th>
+    <th>Player</th>
+    <th>Team</th>
+    <th>출전 경기 수</th>
+    <th>출전 시간(초)</th>
+    <th>득점</th>
+    <th>평균 득점</th>
+    <th>FGA</th>
+    <th>FG</th>
+    <th>평균 FG 시도</th>
+    <th>평균 FG 성공</th>
+    <th>FG%</th>
+    <th>2PA</th>
+    <th>2P</th>
+    <th>평균 2p 시도</th>
+    <th>평균 2p 성공</th>
+    <th>2P%</th>
+    <th>3PA</th>
+    <th>3P</th>
+    <th>평균 3p 시도</th>
+    <th>평균 3p 성공</th>
+    <th>3P%</th>
+    <th>FTA</th>
+    <th>FT</th>
+    <th>평균 FT 시도</th>
+    <th>평균 FT 성공</th>
+    <th>FT%</th>
+    <th>리바운드</th>
+    <th>평균 리바운드</th>
+    <th>공격 리바운드</th>
+    <th>평균 공격 리바운드</th>
+    <th>수비 리바운드</th>
+    <th>평균 수비 리바운드</th>
+    <th>어시스트</th>
+    <th>평균 어시스트</th>
+    <th>스틸</th>
+    <th>평균 스틸</th>
+    <th>블록</th>
+    <th>평균 블록</th>
+    <th>턴오버</th>
+    <th>평균 턴오버</th>
+    <th>파울</th>
+    <th>평균 파울</th>
+    <th>WS</th>
+    <th>WS/40</th>
+    <th>Offensive_WS</th>
+    <th>Defensive_WS</th>
+    <th>PER</th>
+    <th>EFF</th>
+    <th>EFF/40</th>
+    <th>Offensive_rating</th>
+    <th>Defensive_rating</th>
+    <th>USG%</th>
+    <th>TS%</th>
+    <th>eFG%</th>
+    <th>3PAr</th>
+    <th>FTr</th>
+    <th>ORB%</th>
+    <th>DRB%</th>
+    <th>TRB%</th>
+    <th>AST%</th>
+    <th>STL%</th>
+    <th>BS%</th>
+    <th>TOV%</th>
   </tr>
 </thead>
 
