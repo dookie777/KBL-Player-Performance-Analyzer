@@ -52,29 +52,37 @@ body {
 
 
 
-/* 스크롤 시 헤더 열 (상단) 고정 */
-#tab-all thead th {
+/* 1열, 2열 헤더 (Player, Team) - 수직만 고정 */
+#tab-all thead th:nth-child(1) {
   position: sticky;
   top: 0;
-  background-color: #282828 !important;
-  z-index: 12; /* 열 제목이 가장 위에 오도록 설정 */
-}
-#tab-all th:nth-child(1),
-#tab-all th:nth-child(2) {
-  position: sticky;
-  top: 0;
-  left: 0; /* 이건 선택적 */
   background-color: #282828;
-  z-index: 15;  /* ✅ 헤더 셀보다 위에 있도록 */
+  z-index: 12;
 }
 
-#tab-all th:nth-child(2),
+#tab-all thead th:nth-child(2) {
+  position: sticky;
+  top: 0;
+  background-color: #282828;
+  z-index: 12;
+}
+
+/* 1열(Player) 고정 - 좌측 고정 */
+#tab-all td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 15;
+}
+
+/* 2열(Team) 고정 - 좌측 고정 */
 #tab-all td:nth-child(2) {
   position: sticky;
   left: 150px;
   background-color: #282828;
   z-index: 14;
 }
+
     
 .container {
   max-width: 1200px;
