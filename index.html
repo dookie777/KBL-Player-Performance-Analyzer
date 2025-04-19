@@ -22,68 +22,22 @@ body {
   padding: 0;
   overflow: hidden;
 }
-/* ✅ 좌우 스크롤 시 1,2열 제목 고정 완벽 복구 */
-#tab-all table {
-  position: relative;
-  margin-bottom: 80px;      /* 푸터 침범 방지 */
-}
-.scroll-container {
+
+.tab-content.active {
+  display: flex !important;
+  flex-direction: column;
   flex: 1;
-  overflow: auto;
-  padding-bottom: 80px;     /* 푸터와 겹치지 않게 아래 여백 확보 */
-  position: relative;       /* sticky 기준 위치가 되도록 설정 */
+  height: 100%;
 }
 
-    
-#tab-all th:nth-child(1),
-#tab-all td:nth-child(1),
-#tab-all th:nth-child(2),
-#tab-all td:nth-child(2) {
-  position: sticky;
-  background-color: #282828 !important;
-  z-index: 10;
-}
-
-#tab-all th:nth-child(1),
-#tab-all td:nth-child(1) {
-  left: 0;
-  z-index: 11; /* 이름 열이 최우선으로 보이게 설정 */
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 
 
-/* 1열, 2열 헤더 (Player, Team) - 수직만 고정 */
-#tab-all thead th:nth-child(1) {
-  position: sticky;
-  top: 0;
-  background-color: #282828;
-  z-index: 12;
-}
-
-#tab-all thead th:nth-child(2) {
-  position: sticky;
-  top: 0;
-  background-color: #282828;
-  z-index: 12;
-}
-
-/* 1열(Player) 고정 - 좌측 고정 */
-#tab-all td:nth-child(1) {
-  position: sticky;
-  left: 0;
-  background-color: #282828;
-  z-index: 15;
-}
-
-/* 2열(Team) 고정 - 좌측 고정 */
-#tab-all td:nth-child(2) {
-  position: sticky;
-  left: 150px;
-  background-color: #282828;
-  z-index: 14;
-}
-
-    
 .container {
   max-width: 1200px;
   margin: auto;
@@ -124,7 +78,6 @@ h2 {
   display: none !important;
   flex-direction: column;
   flex: 1;
-  overflow: hidden !important;
 }
 
 .tab-content.active {
@@ -175,11 +128,6 @@ h2 {
   user-select: none;
 }
 
-.scroll-container, .stats-container, .compare-result {
-  flex: 1;
-  overflow: auto;
-}
-
 .scroll-container::-webkit-scrollbar,
 .stats-container::-webkit-scrollbar,
 .compare-result::-webkit-scrollbar {
@@ -200,12 +148,6 @@ h2 {
   background: #555;
   border-radius: 5px;
   border: 2px solid #121212;
-}
-
-.scroll-container::-webkit-scrollbar-thumb:hover,
-.stats-container::-webkit-scrollbar-thumb:hover,
-.compare-result::-webkit-scrollbar-thumb:hover {
-  background: #FFA500;
 }
 
 table {
@@ -231,19 +173,13 @@ thead th {
   z-index: 500;
 }
 
-#tab-all th:nth-child(1), #tab-all td:nth-child(1),
-#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
+#statsTable td:first-child {
+  z-index: 3;
   position: sticky;
-  background-color: #282828 !important;
-  z-index: 400;
-}
-
-#tab-all th:nth-child(1), #tab-all td:nth-child(1) {
   left: 0;
-}
-
-#tab-all th:nth-child(2), #tab-all td:nth-child(2) {
-  left: 150px;
+  background-color: #282828;
+  max-height: calc(100vh - 100px); /* 현재 있음 */
+  contain: layout; /* ✅ 이 줄을 추가하면 sticky가 푸터를 넘지 못함 */
 }
 
 .highlight { 
@@ -348,7 +284,7 @@ thead th {
 }
 
 .footer {
-  z-index: 1 !important;
+  z-index: 9999 !important;
   text-align: center;
   padding: 10px;
   font-size: 0.8rem;
@@ -360,21 +296,7 @@ thead th {
   background-color: #000;
   pointer-events: none;
 }
-    
 
-
-#tab-all td:nth-child(1),
-#tab-all td:nth-child(2) {
-  position: sticky;
-  left: 0;
-  background-color: #282828 !important;
-  z-index: 400 !important;
-}
-
-#tab-all th:nth-child(2),
-#tab-all td:nth-child(2) {
-  left: 150px;
-}
 
 /* ✅ 선수 개인 검색 페이지 간격 축소 (중요 수정) */
 #tab-player .input-box {
@@ -599,14 +521,70 @@ h2 {
   color: white;
   font-family: 'Poppins', sans-serif;
 }  
-#tab-all td:nth-child(1),
-#tab-all td:nth-child(2) {
-  z-index: 0 !important;
+
+/* 헤더 행 고정 */
+#statsTable thead th {
+  position: sticky;
+  top: 0;
+  background-color: #282828;
+  z-index: 10;
 }
 
-#tab-all th:nth-child(1),
-#tab-all th:nth-child(2) {
-  z-index: 1 !important;
+#statsTable th:first-child,
+#statsTable td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 9;
+}
+
+#statsTable th,
+#statsTable td {
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  background-color: #181818;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.scroll-container {
+  overflow: auto;
+  height: calc(100vh - 270px);  /* 기존보다 40px 줄임 */
+  padding-bottom: 0;            /* spacerRow 필요 없음 */
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+  border: 2px solid #121212;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+#statsTable thead th:first-child {
+  position: sticky;
+  top: 0;
+  left: 0;
+  background-color: #282828;
+  z-index: 11;
+}
+
+/* 푸터 겹침 방지용 여백 */
+#statsTable::after {
+  content: '';
+  display: block;
+  height: 80px;
 }
     
   </style>
@@ -646,8 +624,8 @@ h2 {
 
 
   
-  <div class="scroll-container" style="overflow:auto; flex:1;">
-    <table id="statsTable" style="width:max-content; min-width:100%;">
+<div class="scroll-container">
+  <table id="statsTable" style="min-width: 100%; border-collapse: collapse;">
      <thead>
   <tr>
     <th>Player</th>
@@ -955,8 +933,11 @@ row.innerHTML = `
   <td>${formatStatValue("TOV%", cols["TOV%"])}</td>
 `;
 tableBody.appendChild(row);
-
   });
+// ✅ 푸터 여백 확보용 마지막 빈 행 추가
+const spacerRow = document.createElement('tr');
+spacerRow.innerHTML = '<td colspan="100" style="height: 100px; background: transparent; border: none;"></td>';
+tableBody.appendChild(spacerRow);
 }
 
 
