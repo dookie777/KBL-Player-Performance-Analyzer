@@ -359,12 +359,12 @@ thead th {
 
 /* ✅ 선수 비교 검색 데이터 영역 넓이 정확히 조정 (중요!) */
 #tab-compare .compare-result {
-  max-width: 900px !important; /* 선수 입력창과 규정 경기 이상(14G) 체크박스 끝까지 정렬 */
+  max-width: 900px !important;
   width: 100% !important;
   margin: 0 auto;
   padding: 10px !important;
   overflow: auto !important;
-  height: calc(100vh - 220px) !important;
+  height: auto !important;  /* ✅ 핵심 수정 */
   box-sizing: border-box !important;
 }
 
@@ -586,7 +586,12 @@ h2 {
   display: block;
   height: 80px;
 }
-    
+.compare-scroll-wrapper {
+  max-height: calc(100vh - 230px);  /* 상단 검색 영역 + 여백 고려 */
+  overflow-y: auto;
+  padding-top: 10px;
+  padding-bottom: 10px; /* 푸터와 너무 붙지 않게 */
+}    
   </style>
 </head>
 <body>
@@ -732,8 +737,9 @@ h2 {
     <label><input type="checkbox" value="2차 슈팅 지표" checked> 2차 슈팅 지표</label>
     <label><input type="checkbox" value="Team내 비중 지표" checked> Team내 비중 지표</label>
   </div>
-  <div class="compare-result" id="compareResult">
-  </div>
+<div class="compare-scroll-wrapper">
+  <div class="compare-result" id="compareResult"></div>
+</div>
 </div>
   <footer class="footer">
     © 2025 The Eroom Sports. All rights reserved.
