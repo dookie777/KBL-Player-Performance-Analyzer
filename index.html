@@ -666,39 +666,36 @@ h2 {
   background-color: #282828 !important;
   border-bottom: 2px solid #555 !important;
 }
-
-@media (max-width: 1024px) {
-  /* 1페이지 - 양옆 로고 숨기기 */
+@media (max-width: 1200px) {
+  /* 1페이지 - 좌우 로고 숨김 */
   .side-logo {
     display: none !important;
   }
 
-  /* 2페이지 - 카드 3열 → 2열 */
+  /* 2페이지 - 3열 → 2열 */
   #tab-player .stats-container {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 
-  /* 3페이지 - 비교 테이블 폭 줄이기 */
+  /* 3페이지 - 비교 테이블 컨테이너 폭 자동 조정 */
   #tab-compare .compare-result {
     max-width: 100% !important;
     overflow-x: auto !important;
   }
 }
 
-@media (max-width: 768px) {
-  /* 2페이지 - 카드 2열 → 1열 */
+@media (max-width: 850px) {
+  /* 2페이지 - 2열 → 1열 */
   #tab-player .stats-container {
     grid-template-columns: 1fr !important;
   }
 
-  /* 3페이지 - 폰트 줄이기 + 한 줄 스크롤 대응 */
+  /* 3페이지 - 테이블이 화면에 맞게 줄어들고, 글자 크기 작게 */
   #tab-compare .compare-result table {
-    font-size: 0.75rem !important;
-    min-width: 600px !important; /* 최소 가로폭 강제 */
-  }
-
-  #tab-compare .compare-result {
-    overflow-x: auto !important;
+    width: 100% !important;
+    min-width: unset !important;
+    table-layout: auto !important;
+    font-size: 0.8rem !important;
   }
 }
 
