@@ -685,11 +685,11 @@ h2 {
 }
 
 @media (max-width: 950px) {
-  /* 2페이지 - 2열 → 1열 */
   #tab-player .stats-container {
     grid-template-columns: 1fr !important;
+    display: grid !important;
   }
-
+}
   /* 3페이지 - 테이블이 화면에 맞게 줄어들고, 글자 크기 작게 */
   #tab-compare .compare-result table {
     width: 100% !important;
