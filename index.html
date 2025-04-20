@@ -698,7 +698,11 @@ h2 {
     font-size: 0.8rem !important;
   }
 }
-
+@media (max-width: 1200px) {
+  .upload-box {
+    display: none !important;
+  }
+}
     
   </style>
 </head>
@@ -730,7 +734,7 @@ h2 {
     <label for="minGamesCheckbox">규정 경기 이상(14G)</label>
   </div>
 
-<div style="position:fixed; top:10px; right:10px; display:flex; align-items:center; gap:5px;">
+<div class="upload-box">
   <input type="file" id="fileUploader" accept=".xlsx, .xls" style="font-size:0.75rem; color:#FFF;">
   <button onclick="loadLocalFile()" style="background:#555; color:#FFF; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; border:none;">업로드</button>
 </div>
