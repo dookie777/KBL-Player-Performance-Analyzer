@@ -668,17 +668,21 @@ h2 {
   border-bottom: 2px solid #555 !important;
 }
 @media (max-width: 1200px) {
-  /* 1페이지 - 좌우 로고 숨김 */
+  /* 1페이지: 로고/파일 버튼 숨김 */
   .side-logo {
     display: none !important;
   }
 
-  /* 2페이지 - 3열 → 2열 */
+  .upload-box {
+    display: none !important;
+  }
+
+  /* 2페이지: 카드 3열 → 2열 */
   #tab-player .stats-container {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 
-  /* 3페이지 - 비교 테이블 컨테이너 폭 자동 조정 */
+  /* 3페이지: 비교 테이블 폭 자동 조정 */
   #tab-compare .compare-result {
     max-width: 100% !important;
     overflow-x: auto !important;
@@ -686,12 +690,13 @@ h2 {
 }
 
 @media (max-width: 950px) {
+  /* 2페이지: 카드 2열 → 1열 */
   #tab-player .stats-container {
     grid-template-columns: 1fr !important;
     display: grid !important;
   }
-}
-  /* 3페이지 - 테이블이 화면에 맞게 줄어들고, 글자 크기 작게 */
+
+  /* 3페이지: 테이블 자동 폭 + 폰트 줄이기 */
   #tab-compare .compare-result table {
     width: 100% !important;
     min-width: unset !important;
@@ -699,6 +704,14 @@ h2 {
     font-size: 0.8rem !important;
   }
 }
+
+@media (max-width: 600px) {
+  /* 3페이지: 폰트 더 작게 (모바일 극단적 대응) */
+  #tab-compare .compare-result table {
+    font-size: 0.75rem !important;
+  }
+}
+
 @media (max-width: 1200px) {
   .upload-box {
     display: none !important;
