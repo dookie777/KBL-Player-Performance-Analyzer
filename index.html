@@ -3,7 +3,7 @@
 <head>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <meta charset="UTF-8">
-  <title>KBL Player Stats Analyzer</title>
+  <title>23-24 KBL Player Stats Analyzer</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 
   <style>
@@ -84,24 +84,29 @@ h2 {
 
 .input-box {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
   flex-wrap: wrap;
-  margin: 10px 0 20px 0 !important;  /* ✅ 상:15px, 하:25px */
+  gap: 12px; /* ✅ 모든 요소 간 동일 간격 */
+  margin-top: 0 !important;
+  margin-bottom: 20px;
 }
 
-.input-box select,
 .input-box input[type="text"],
 .input-box button {
-  height: 42px;
-  padding: 0 15px;
+.input-box select#seasonSelector {
+  margin: 0; /* ✅ 개별 마진 제거 */
+}
+.input-box {
+  gap: 12px; /* ✅ 간격은 이걸로 통일 */
+}
+  height: 42px !important; /* 정확히 버튼 높이와 동일하게 고정 */
+  padding: 5px 15px;
   font-size: 0.9rem;
-  border: none;
   border-radius: 5px;
-  font-weight: bold;
-  box-sizing: border-box;
-  margin: 0; /* ✅ 간격 통일 위해 모든 margin 제거 */
+  border: none;
+  margin: 10px;
+  box-sizing: border-box; /* padding과 border가 height에 포함되도록 설정 */
 }
 
 
@@ -339,24 +344,7 @@ thead th {
 }
     
 #tab-player .input-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin: 10px 0 20px 0 !important;
-}
-
-#tab-player .input-box input[type="text"],
-#tab-player .input-box button {
-  height: 42px;
-  padding: 0 15px;
-  font-size: 0.9rem;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  box-sizing: border-box;
-  margin: 0;
+  margin-bottom: 10px !important; /* 기존 20px → 절반으로 수정 */
 }
 
 #tab-player .player-name {
@@ -741,12 +729,18 @@ h2 {
     display: none !important;
   }
 }
-/* 선택창 색상 및 정렬은 그대로 유지 */
 .input-box select#seasonSelector {
+  width: 110px;
+  height: 42px;
   background-color: #181818;
   color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
   text-align: center;
   text-align-last: center;
+  padding: 0 10px;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -767,7 +761,7 @@ h2 {
 </div>
 <div class="logo-title">
   <img src="https://github.com/dookie777/KBL-Player-Performance-Analyzer/blob/main/Logo_white.png?raw=true" alt="The Eroom Sports Logo" class="logo">
-  <span class="title">KBL Player Stats Analyzer</span>
+  <span class="title">23–24 KBL Player Stats Analyzer</span>
 </div>
   
   <div class="container">
@@ -778,16 +772,16 @@ h2 {
   </div>
 
 <div id="tab-all" class="tab-content active">
-<div class="input-box">
-<select id="seasonSelector" onchange="loadPlayersData(this.value)">
+  <div class="input-box">
+  <select id="seasonSelector" onchange="loadPlayersData()">
   <option value="23-24">23-24 시즌</option>
   <option value="24-25">24-25 시즌</option>
-</select>
-  <input type="text" id="searchPlayer" placeholder="Search player...">
-  <button onclick="showPlayerStats()">Search</button>
-  <input type="checkbox" id="minGames">
-  <label for="minGames">규정 경기 이상(14G)</label>
-</div>
+  </select>
+    <input type="text" id="searchPlayerAll" placeholder="Search player...">
+    <button onclick="searchPlayer()">Search</button>
+    <input type="checkbox" id="minGamesCheckbox">
+    <label for="minGamesCheckbox">규정 경기 이상(14G)</label>
+  </div>
 
 <div class="upload-box" style="position:fixed; top:10px; right:10px; display:flex; align-items:center; gap:5px;">
   <input type="file" id="fileUploader" accept=".xlsx, .xls" style="font-size:0.75rem; color:#FFF;">
@@ -915,8 +909,6 @@ h2 {
 </div>
 
 <script>
-  const tabs = document.querySelectorAll('.tab-button');
-  const contents = document.querySelectorAll('.tab-content');
 const statsFormats = {
   "출전 경기 수": {unit: '경기', decimals: 0},
   "총 출전 시간(초)": {unit: '분 초', decimals: 0, convert: true},
@@ -982,45 +974,47 @@ const statsFormats = {
 };
 
   
-tabs.forEach(tab => {
-  tab.onclick = () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    contents.forEach(c => c.classList.remove('active'));
-    document.getElementById(tab.dataset.tab).classList.add('active');
-    tab.classList.add('active');
-  };
-});
+ const tabs = document.querySelectorAll('.tab-button');
+ const contents = document.querySelectorAll('.tab-content');
+ 
+ tabs.forEach(tab => {
+   tab.onclick = () => {
+     tabs.forEach(t => t.classList.remove('active'));
+     contents.forEach(c => c.classList.remove('active'));
+     document.getElementById(tab.dataset.tab).classList.add('active');
+     tab.classList.add('active');
+   };
+ });
  
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
-function loadPlayersData(season) {
+async function loadPlayersData() {
+  const season = document.getElementById('seasonSelector')?.value || '23-24';
   const fileMap = {
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
   };
   const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
-  
-  fetch(url)
-    .then(response => response.arrayBuffer())
-    .then(data => {
-      const workbook = XLSX.read(data, { type: "array" });
-      const firstSheet = workbook.SheetNames[0];
-      originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-      originalData.forEach(cols => {
-        let minutes = parseInt(cols["m"]) || 0;
-        let seconds = parseInt(cols["s"]) || 0;
-        cols["총 출전 시간(초)"] = minutes * 60 + seconds;
-      });
+  try {
+    const response = await fetch(url);
+    const data = await response.arrayBuffer();
+    const workbook = XLSX.read(data, { type: "array" });
+    const firstSheet = workbook.SheetNames[0];
+    originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-      renderTable(originalData);
-    })
-    .catch(error => {
-      console.error("데이터 로딩 오류:", error);
-      alert("데이터를 불러오는 중 문제가 발생했습니다.");
+    originalData.forEach(cols => {
+      let minutes = parseInt(cols["m"]) || 0;
+      let seconds = parseInt(cols["s"]) || 0;
+      cols["총 출전 시간(초)"] = minutes * 60 + seconds;
     });
-}
 
+    renderTable(originalData);
+  } catch (error) {
+    console.error("데이터 로딩 오류:", error);
+    alert("데이터를 불러오는 중 문제가 발생했습니다.");
+  }
+}
 
 
 
@@ -1761,9 +1755,7 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
 });
 
 window.onload = function() {
-  const defaultSelector = document.getElementById('seasonSelector');
-  const season = defaultSelector?.value || '23-24';
-  loadPlayersData(season);
+  loadPlayersData();
 };
 </script>
 
