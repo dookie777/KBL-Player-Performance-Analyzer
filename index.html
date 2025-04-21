@@ -873,10 +873,6 @@ h2 {
 
 
   <div id="tab-player" class="tab-content">
-  <select id="seasonSelectorPlayer" onchange="loadPlayersData()">
-  <option value="23-24">23-24 시즌</option>
-  <option value="24-25">24-25 시즌</option>
-  </select>
     <div class="input-box">
       <input type="text" id="searchPlayer" placeholder="Search player...">
       <button onclick="showPlayerStats()">Search</button>
@@ -1003,7 +999,7 @@ function loadPlayersData(season) {
     '24-25': '24-25_KBL_stats.xlsx'
   };
   const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
-
+  
   fetch(url)
     .then(response => response.arrayBuffer())
     .then(data => {
@@ -1765,7 +1761,7 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
 });
 
 window.onload = function() {
-  const defaultSelector = document.getElementById('seasonSelector') || document.getElementById('seasonSelectorPlayer');
+  const defaultSelector = document.getElementById('seasonSelector');
   const season = defaultSelector?.value || '23-24';
   loadPlayersData(season);
 };
