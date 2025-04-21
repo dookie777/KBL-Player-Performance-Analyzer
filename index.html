@@ -779,10 +779,10 @@ h2 {
 
 <div id="tab-all" class="tab-content active">
 <div class="input-box">
-  <select id="seasonSelectorPlayer" onchange="loadPlayersData()">
-    <option value="23-24">23-24 시즌</option>
-    <option value="24-25">24-25 시즌</option>
-  </select>
+<select id="seasonSelector" onchange="loadPlayersData(this.value)">
+  <option value="23-24">23-24 시즌</option>
+  <option value="24-25">24-25 시즌</option>
+</select>
   <input type="text" id="searchPlayer" placeholder="Search player...">
   <button onclick="showPlayerStats()">Search</button>
   <input type="checkbox" id="minGames">
