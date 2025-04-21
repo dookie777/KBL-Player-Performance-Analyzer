@@ -980,17 +980,19 @@ const statsFormats = {
 };
 
   
- const tabs = document.querySelectorAll('.tab-button');
- const contents = document.querySelectorAll('.tab-content');
- 
- tabs.forEach(tab => {
-   tab.onclick = () => {
-     tabs.forEach(t => t.classList.remove('active'));
-     contents.forEach(c => c.classList.remove('active'));
-     document.getElementById(tab.dataset.tab).classList.add('active');
-     tab.classList.add('active');
-   };
- });
+tabs.forEach(tab => {
+  tab.onclick = () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    contents.forEach(c => c.classList.remove('active'));
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    tab.classList.add('active');
+
+    // ✅ 2페이지로 이동 시마다 최신 시즌 데이터 다시 불러오기
+    if (tab.dataset.tab === "tab-player") {
+      loadPlayersData();  // 최신 시즌 선택값에 따라 다시 불러옴
+    }
+  };
+});
  
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
