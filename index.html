@@ -84,29 +84,24 @@ h2 {
 
 .input-box {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  gap: 10px; /* 버튼, 입력창, 셀렉트 간 동일 간격 */
   flex-wrap: wrap;
-  gap: 12px; /* ✅ 모든 요소 간 동일 간격 */
-  margin-top: 0 !important;
-  margin-bottom: 20px;
+  margin: 0 0 20px 0 !important;
 }
 
+.input-box select,
 .input-box input[type="text"],
 .input-box button {
-.input-box select#seasonSelector {
-  margin: 0; /* ✅ 개별 마진 제거 */
-}
-.input-box {
-  gap: 12px; /* ✅ 간격은 이걸로 통일 */
-}
-  height: 42px !important; /* 정확히 버튼 높이와 동일하게 고정 */
-  padding: 5px 15px;
+  height: 42px;
+  padding: 0 15px;
   font-size: 0.9rem;
-  border-radius: 5px;
   border: none;
-  margin: 10px;
-  box-sizing: border-box; /* padding과 border가 height에 포함되도록 설정 */
+  border-radius: 5px;
+  font-weight: bold;
+  box-sizing: border-box;
+  margin: 0; /* ✅ 간격 통일 위해 모든 margin 제거 */
 }
 
 
@@ -729,18 +724,12 @@ h2 {
     display: none !important;
   }
 }
+/* 선택창 색상 및 정렬은 그대로 유지 */
 .input-box select#seasonSelector {
-  width: 100px;
-  height: 42px;
   background-color: #181818;
   color: #fff;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  font-size: 0.9rem;
   text-align: center;
   text-align-last: center;
-  padding: 0 10px;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
