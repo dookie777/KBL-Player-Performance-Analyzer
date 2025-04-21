@@ -997,33 +997,33 @@ tabs.forEach(tab => {
  
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
-async function loadPlayersData() {
-const season = (document.getElementById('seasonSelector') || document.getElementById('seasonSelectorPlayer'))?.value || '23-24';
+function loadPlayersData(season) {
   const fileMap = {
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
   };
   const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
 
-  try {
-    const response = await fetch(url);
-    const data = await response.arrayBuffer();
-    const workbook = XLSX.read(data, { type: "array" });
-    const firstSheet = workbook.SheetNames[0];
-    originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+  fetch(url)
+    .then(response => response.arrayBuffer())
+    .then(data => {
+      const workbook = XLSX.read(data, { type: "array" });
+      const firstSheet = workbook.SheetNames[0];
+      originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-    originalData.forEach(cols => {
-      let minutes = parseInt(cols["m"]) || 0;
-      let seconds = parseInt(cols["s"]) || 0;
-      cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+      originalData.forEach(cols => {
+        let minutes = parseInt(cols["m"]) || 0;
+        let seconds = parseInt(cols["s"]) || 0;
+        cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+      });
+
+      renderTable(originalData);
+    })
+    .catch(error => {
+      console.error("데이터 로딩 오류:", error);
+      alert("데이터를 불러오는 중 문제가 발생했습니다.");
     });
-
-    renderTable(originalData);
-  } catch (error) {
-    console.error("데이터 로딩 오류:", error);
-    alert("데이터를 불러오는 중 문제가 발생했습니다.");
-  }
-}  // ✅ 여기서 정확하게 닫아줘야 함!! ← 현재 주인님 코드에 이게 빠져있음
+}
 
 
 
@@ -1765,7 +1765,9 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
 });
 
 window.onload = function() {
-  loadPlayersData();
+  const defaultSelector = document.getElementById('seasonSelector') || document.getElementById('seasonSelectorPlayer');
+  const season = defaultSelector?.value || '23-24';
+  loadPlayersData(season);
 };
 </script>
 
