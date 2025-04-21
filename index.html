@@ -1029,14 +1029,20 @@ const statsFormats = {
  const tabs = document.querySelectorAll('.tab-button');
  const contents = document.querySelectorAll('.tab-content');
  
- tabs.forEach(tab => {
-   tab.onclick = () => {
-     tabs.forEach(t => t.classList.remove('active'));
-     contents.forEach(c => c.classList.remove('active'));
-     document.getElementById(tab.dataset.tab).classList.add('active');
-     tab.classList.add('active');
-   };
- });
+tabs.forEach(tab => {
+  tab.onclick = () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    contents.forEach(c => c.classList.remove('active'));
+
+    // ✅ compare 탭 들어가기 전, 결과 초기화
+    if (tab.dataset.tab === 'tab-compare') {
+      document.getElementById('compareResult').innerHTML = '';
+    }
+
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    tab.classList.add('active');
+  };
+});
  let playerDataBySeason = {};  // ✅ 이 줄을 추가
  let originalData = [], highlightedPlayer = '', fixedRow = null;
   let playersData = [];
@@ -1507,6 +1513,11 @@ function comparePlayers() {
   const player3 = document.getElementById('comparePlayer3').value.trim();
   const minGamesChecked = document.getElementById('compareMinGames').checked;
 
+    if (!player1 && !player2 && !player3) {
+    document.getElementById('compareResult').innerHTML = '';
+    return;
+  }
+
   let filteredData = minGamesChecked
     ? originalData.filter(cols => parseInt(cols["출전 경기 수"]) >= 14)
     : originalData;
@@ -1909,6 +1920,8 @@ function loadPlayersData2() {
 window.onload = function() {
   loadPlayersData();  // 1페이지
   loadPlayersData2(); // ✅ 2페이지 초기 데이터도 함께 로딩
+  document.getElementById('compareResult').innerHTML = '';
+
 };
 </script>
 
