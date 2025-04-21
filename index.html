@@ -778,16 +778,16 @@ h2 {
   </div>
 
 <div id="tab-all" class="tab-content active">
-  <div class="input-box">
-  <select id="seasonSelector" onchange="loadPlayersData()">
-  <option value="23-24">23-24 시즌</option>
-  <option value="24-25">24-25 시즌</option>
+<div class="input-box">
+  <select id="seasonSelectorPlayer" onchange="loadPlayersData()">
+    <option value="23-24">23-24 시즌</option>
+    <option value="24-25">24-25 시즌</option>
   </select>
-    <input type="text" id="searchPlayerAll" placeholder="Search player...">
-    <button onclick="searchPlayer()">Search</button>
-    <input type="checkbox" id="minGamesCheckbox">
-    <label for="minGamesCheckbox">규정 경기 이상(14G)</label>
-  </div>
+  <input type="text" id="searchPlayer" placeholder="Search player...">
+  <button onclick="showPlayerStats()">Search</button>
+  <input type="checkbox" id="minGames">
+  <label for="minGames">규정 경기 이상(14G)</label>
+</div>
 
 <div class="upload-box" style="position:fixed; top:10px; right:10px; display:flex; align-items:center; gap:5px;">
   <input type="file" id="fileUploader" accept=".xlsx, .xls" style="font-size:0.75rem; color:#FFF;">
@@ -873,6 +873,10 @@ h2 {
 
 
   <div id="tab-player" class="tab-content">
+  <select id="seasonSelectorPlayer" onchange="loadPlayersData()">
+  <option value="23-24">23-24 시즌</option>
+  <option value="24-25">24-25 시즌</option>
+  </select>
     <div class="input-box">
       <input type="text" id="searchPlayer" placeholder="Search player...">
       <button onclick="showPlayerStats()">Search</button>
@@ -994,7 +998,7 @@ tabs.forEach(tab => {
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
 async function loadPlayersData() {
-  const season = document.getElementById('seasonSelector')?.value || '23-24';
+const season = (document.getElementById('seasonSelector') || document.getElementById('seasonSelectorPlayer'))?.value || '23-24';
   const fileMap = {
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
