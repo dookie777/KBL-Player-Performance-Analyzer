@@ -986,11 +986,6 @@ tabs.forEach(tab => {
     contents.forEach(c => c.classList.remove('active'));
     document.getElementById(tab.dataset.tab).classList.add('active');
     tab.classList.add('active');
-
-    // ✅ 2페이지 전환 시, seasonSelector 존재할 때만 로드
-    if (tab.dataset.tab === "tab-player" && document.getElementById('seasonSelector')) {
-      loadPlayersData();
-    }
   };
 });
  
