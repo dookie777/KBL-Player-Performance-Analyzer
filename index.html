@@ -87,12 +87,19 @@ h2 {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  margin-top: 0 !important;  /* 상단 여백은 그대로 두거나 10px 정도만 부여 */
+  gap: 12px; /* ✅ 모든 요소 간 동일 간격 */
+  margin-top: 0 !important;
   margin-bottom: 20px;
 }
 
 .input-box input[type="text"],
 .input-box button {
+.input-box select#seasonSelector {
+  margin: 0; /* ✅ 개별 마진 제거 */
+}
+.input-box {
+  gap: 12px; /* ✅ 간격은 이걸로 통일 */
+}
   height: 42px !important; /* 정확히 버튼 높이와 동일하게 고정 */
   padding: 5px 15px;
   font-size: 0.9rem;
@@ -722,7 +729,26 @@ h2 {
     display: none !important;
   }
 }
-    
+.input-box select#seasonSelector {
+  width: 110px;
+  height: 42px;
+  background-color: #181818;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  text-align: center;
+  text-align-last: center;
+  padding: 0 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none !important;
+}
+.input-box select#seasonSelector::-ms-expand {
+  display: none; /* IE에서 화살표 제거 */
+}
   </style>
 </head>
 <body>
@@ -747,6 +773,10 @@ h2 {
 
 <div id="tab-all" class="tab-content active">
   <div class="input-box">
+  <select id="seasonSelector" onchange="loadPlayersData()">
+  <option value="23-24">23-24 시즌</option>
+  <option value="24-25">24-25 시즌</option>
+  </select>
     <input type="text" id="searchPlayerAll" placeholder="Search player...">
     <button onclick="searchPlayer()">Search</button>
     <input type="checkbox" id="minGamesCheckbox">
@@ -959,31 +989,33 @@ const statsFormats = {
  let originalData = [], highlightedPlayer = '', fixedRow = null;
  
 async function loadPlayersData() {
-  if (originalData.length === 0) {
-    try {
-const url = 'https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/23-24_KBL_stats.xlsx';
-      const response = await fetch(url);
-      const data = await response.arrayBuffer();
+  const season = document.getElementById('seasonSelector')?.value || '23-24';
+  const fileMap = {
+    '23-24': '23-24_KBL_stats.xlsx',
+    '24-25': '24-25_KBL_stats.xlsx'
+  };
+  const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
 
-      const workbook = XLSX.read(data, { type: "array" });
+  try {
+    const response = await fetch(url);
+    const data = await response.arrayBuffer();
+    const workbook = XLSX.read(data, { type: "array" });
+    const firstSheet = workbook.SheetNames[0];
+    originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-      const firstSheet = workbook.SheetNames[0];
-      originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+    originalData.forEach(cols => {
+      let minutes = parseInt(cols["m"]) || 0;
+      let seconds = parseInt(cols["s"]) || 0;
+      cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+    });
 
-      originalData.forEach(cols => {
-        let minutes = parseInt(cols["m"]) || 0;
-        let seconds = parseInt(cols["s"]) || 0;
-        cols["총 출전 시간(초)"] = minutes * 60 + seconds;
-      });
-
-      console.log("웹 데이터 로딩 성공!", originalData); // ✅ 확인용 로그
-      renderTable(originalData);
-
-    } catch (error) {
-      console.error("엑셀 데이터 로딩 오류:", error);
-      alert("엑셀 데이터 로딩 중 문제가 발생했습니다.");
-    }
+    renderTable(originalData);
+  } catch (error) {
+    console.error("데이터 로딩 오류:", error);
+    alert("데이터를 불러오는 중 문제가 발생했습니다.");
   }
+}
+
 }
 
 
