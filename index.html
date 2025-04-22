@@ -1047,7 +1047,70 @@ tabs.forEach(tab => {
  let originalData = [], highlightedPlayer = '', fixedRow = null;
   let playersData = [];
 
- 
+ const statsLabels = [
+    {label: '출전 경기 수', key: "출전 경기 수", higherBetter: true},
+    {label: '평균 출전 시간', key: "총 출전 시간(초)", higherBetter: true},
+    {label: '득점', key: "득점", higherBetter: true},
+    {label: '평균 득점', key: "평균 득점", higherBetter: true},
+    {label: 'FGA', key: "FGA", higherBetter: true},
+    {label: 'FG', key: "FG", higherBetter: true},
+    {label: '평균 FG 시도', key: "평균 FG 시도", higherBetter: true},
+    {label: '평균 FG 성공', key: "평균 FG 성공", higherBetter: true},
+    {label: 'FG%', key: "FG%", higherBetter: true},
+    {label: '2PA', key: "2PA", higherBetter: true},
+    {label: '2P', key: "2P", higherBetter: true},
+    {label: '평균 2p 시도', key: "평균 2p 시도", higherBetter: true},
+    {label: '평균 2p 성공', key: "평균 2p 성공", higherBetter: true},
+    {label: '2P%', key: "2P%", higherBetter: true},
+    {label: '3PA', key: "3PA", higherBetter: true},
+    {label: '3P', key: "3P", higherBetter: true},
+    {label: '평균 3p 시도', key: "평균 3p 시도", higherBetter: true},
+    {label: '평균 3p 성공', key: "평균 3p 성공", higherBetter: true},
+    {label: '3P%', key: "3P%", higherBetter: true},
+    {label: 'FTA', key: "FTA", higherBetter: true},
+    {label: 'FT', key: "FT", higherBetter: true},
+    {label: '평균 FT 시도', key: "평균 FT 시도", higherBetter: true},
+    {label: '평균 FT 성공', key: "평균 FT 성공", higherBetter: true},
+    {label: 'FT%', key: "FT%", higherBetter: true},
+    {label: '리바운드', key: "리바운드", higherBetter: true},
+    {label: '평균 리바운드', key: "평균 리바운드", higherBetter: true},
+    {label: '공격 리바운드', key: "공격 리바운드", higherBetter: true},
+    {label: '평균 공격 리바운드', key: "평균 공격 리바운드", higherBetter: true},
+    {label: '수비 리바운드', key: "수비 리바운드", higherBetter: true},
+    {label: '평균 수비 리바운드', key: "평균 수비 리바운드", higherBetter: true},
+    {label: '어시스트', key: "어시스트", higherBetter: true},
+    {label: '평균 어시스트', key: "평균 어시스트", higherBetter: true},
+    {label: '스틸', key: "스틸", higherBetter: true},
+    {label: '평균 스틸', key: "평균 스틸", higherBetter: true},
+    {label: '블록', key: "블록", higherBetter: true},
+    {label: '평균 블록', key: "평균 블록", higherBetter: true},
+    {label: '턴오버', key: "턴오버", higherBetter: false},
+    {label: '평균 턴오버', key: "평균 턴오버", higherBetter: false},
+    {label: '파울', key: "파울", higherBetter: false},
+    {label: '평균 파울', key: "평균 파울", higherBetter: false},
+    {label: 'WS', key: "WS", higherBetter: true},
+    {label: 'WS/40', key: "WS/40", higherBetter: true},
+    {label: 'Offensive_WS', key: "Offensive_WS", higherBetter: true},
+    {label: 'Defensive_WS', key: "Defensive_WS", higherBetter: true},
+    {label: 'Offensive_rating', key: "Offensive_rating", higherBetter: true},
+    {label: 'Defensive_rating', key: "Defensive_rating", higherBetter: false},
+    {label: 'PER', key: "PER", higherBetter: true},
+    {label: 'EFF', key: "EFF", higherBetter: true},
+    {label: 'EFF/40', key: "EFF/40", higherBetter: true},
+    {label: 'TS%', key: "TS%", higherBetter: true},
+    {label: 'eFG%', key: "eFG%", higherBetter: true},
+    {label: 'USG%', key: "USG%", higherBetter: true},
+    {label: '3PAr', key: "3PAr", higherBetter: true},
+    {label: 'FTr', key: "FTr", higherBetter: true},
+    {label: 'ORB%', key: "ORB%", higherBetter: true},
+    {label: 'DRB%', key: "DRB%", higherBetter: true},
+    {label: 'TRB%', key: "TRB%", higherBetter: true},
+    {label: 'AST%', key: "AST%", higherBetter: true},
+    {label: 'STL%', key: "STL%", higherBetter: true},
+    {label: 'BS%', key: "BS%", higherBetter: true},
+    {label: 'TOV%', key: "TOV%", higherBetter: false}
+  ];  
+  
 async function loadPlayersData() {
   const season = document.getElementById('seasonSelector')?.value || '23-24';
   const fileMap = {
@@ -1507,7 +1570,10 @@ function formatStatValue(key, value) {
 }
 
 
-function comparePlayers() {
+window.comparePlayers = function() {
+  console.log("✅ comparePlayers() 호출됨");
+  console.log("📦 originalData 상태 확인:", originalData);
+  
   const player1 = document.getElementById('comparePlayer1').value.trim();
   const player2 = document.getElementById('comparePlayer2').value.trim();
   const player3 = document.getElementById('comparePlayer3').value.trim();
@@ -1526,11 +1592,81 @@ playersData = [player1, player2, player3]
     .filter(name => name !== '')
     .map(name => filteredData.find(cols => cols["Player"].trim().toLowerCase().includes(name.trim().toLowerCase())));
 
-if (playersData.some(data => data === undefined)) {
-  alert('선수 이름을 정확히 입력해주세요.');
-  return;
-}  // ← 반드시 여기서 함수 닫기
+  console.log("👤 입력된 선수 이름들:", player1, player2, player3);
+  console.log("📊 찾은 선수 데이터 객체:", playersData);
+  
+  if (playersData.some(data => data === undefined)) {
+    alert('선수 이름을 정확히 입력해주세요.');
+    return;
+  }
 
+  let tableHTML = `<table><thead><tr><th>지표</th>`;
+
+  playersData.forEach((p, idx) => {
+    const selectedSeason = p.__season || '23-24';
+    tableHTML += `<th>${p["Player"]} (${p["Team"]})<br>
+      <select onchange="changeSeason(${idx}, this.value)">
+        <option value="23-24" ${selectedSeason === '23-24' ? 'selected' : ''}>23-24</option>
+        <option value="24-25" ${selectedSeason === '24-25' ? 'selected' : ''}>24-25</option>
+      </select></th>`;
+  });
+
+  if (playersData.length === 2) tableHTML += `<th>차이</th>`;
+
+  statsLabels.forEach(stat => {
+    const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
+    const ranks = values.map(val => calculateRank(filteredData, stat.key, val, stat.higherBetter));
+
+    let highlightClass = [];
+    if (values.length >= 2) {
+      const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
+      highlightClass = values.map(v => {
+        if (v === sortedValues[0]) return 'highlight-first';
+        if (values.length > 2 && v === sortedValues[1]) return 'highlight-second';
+        return 'highlight-third';
+      });
+    }
+
+    tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
+
+    values.forEach((value, idx) => {
+      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
+    });
+
+    if (playersData.length === 2) {
+      const diff = values[0] - values[1];
+      const diffClass = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : '';
+      const format = statsFormats[stat.key] || {unit: '', decimals: 2};
+
+      let formattedDiff;
+      if (stat.key === "총 출전 시간(초)" || format.unit === '분 초') {
+        const diffSeconds = Math.abs(diff);
+        const minutes = Math.floor(diffSeconds / 60);
+        const seconds = diffSeconds % 60;
+        formattedDiff = `${minutes}분 ${seconds}초`;
+      } else if (format.decimals === 0) {
+        formattedDiff = `${Math.abs(diff)}${format.unit}`;
+      } else {
+        formattedDiff = `${Math.abs(diff).toFixed(format.decimals)}${format.unit}`;
+      }
+
+      tableHTML += `<td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>`;
+    }
+
+    tableHTML += '</tr>';
+  });
+
+  tableHTML += '</tbody></table>';
+
+  document.getElementById('compareResult').innerHTML = tableHTML;
+  filterCompareTable();
+
+  const spacer = document.createElement('div');
+  spacer.style.height = '5px';
+  document.getElementById('compareResult').appendChild(spacer);
+}
+
+  
 // ✅ 여기부터 새로 붙여넣기
 function changeSeason(playerIndex, season) {
   const playerName = document.getElementById(`comparePlayer${playerIndex + 1}`)?.value.trim();
@@ -1570,139 +1706,6 @@ function changeSeason(playerIndex, season) {
 
   
   }
-
-  const statsLabels = [
-    {label: '출전 경기 수', key: "출전 경기 수", higherBetter: true},
-    {label: '평균 출전 시간', key: "총 출전 시간(초)", higherBetter: true},
-    {label: '득점', key: "득점", higherBetter: true},
-    {label: '평균 득점', key: "평균 득점", higherBetter: true},
-    {label: 'FGA', key: "FGA", higherBetter: true},
-    {label: 'FG', key: "FG", higherBetter: true},
-    {label: '평균 FG 시도', key: "평균 FG 시도", higherBetter: true},
-    {label: '평균 FG 성공', key: "평균 FG 성공", higherBetter: true},
-    {label: 'FG%', key: "FG%", higherBetter: true},
-    {label: '2PA', key: "2PA", higherBetter: true},
-    {label: '2P', key: "2P", higherBetter: true},
-    {label: '평균 2p 시도', key: "평균 2p 시도", higherBetter: true},
-    {label: '평균 2p 성공', key: "평균 2p 성공", higherBetter: true},
-    {label: '2P%', key: "2P%", higherBetter: true},
-    {label: '3PA', key: "3PA", higherBetter: true},
-    {label: '3P', key: "3P", higherBetter: true},
-    {label: '평균 3p 시도', key: "평균 3p 시도", higherBetter: true},
-    {label: '평균 3p 성공', key: "평균 3p 성공", higherBetter: true},
-    {label: '3P%', key: "3P%", higherBetter: true},
-    {label: 'FTA', key: "FTA", higherBetter: true},
-    {label: 'FT', key: "FT", higherBetter: true},
-    {label: '평균 FT 시도', key: "평균 FT 시도", higherBetter: true},
-    {label: '평균 FT 성공', key: "평균 FT 성공", higherBetter: true},
-    {label: 'FT%', key: "FT%", higherBetter: true},
-    {label: '리바운드', key: "리바운드", higherBetter: true},
-    {label: '평균 리바운드', key: "평균 리바운드", higherBetter: true},
-    {label: '공격 리바운드', key: "공격 리바운드", higherBetter: true},
-    {label: '평균 공격 리바운드', key: "평균 공격 리바운드", higherBetter: true},
-    {label: '수비 리바운드', key: "수비 리바운드", higherBetter: true},
-    {label: '평균 수비 리바운드', key: "평균 수비 리바운드", higherBetter: true},
-    {label: '어시스트', key: "어시스트", higherBetter: true},
-    {label: '평균 어시스트', key: "평균 어시스트", higherBetter: true},
-    {label: '스틸', key: "스틸", higherBetter: true},
-    {label: '평균 스틸', key: "평균 스틸", higherBetter: true},
-    {label: '블록', key: "블록", higherBetter: true},
-    {label: '평균 블록', key: "평균 블록", higherBetter: true},
-    {label: '턴오버', key: "턴오버", higherBetter: false},
-    {label: '평균 턴오버', key: "평균 턴오버", higherBetter: false},
-    {label: '파울', key: "파울", higherBetter: false},
-    {label: '평균 파울', key: "평균 파울", higherBetter: false},
-    {label: 'WS', key: "WS", higherBetter: true},
-    {label: 'WS/40', key: "WS/40", higherBetter: true},
-    {label: 'Offensive_WS', key: "Offensive_WS", higherBetter: true},
-    {label: 'Defensive_WS', key: "Defensive_WS", higherBetter: true},
-    {label: 'Offensive_rating', key: "Offensive_rating", higherBetter: true},
-    {label: 'Defensive_rating', key: "Defensive_rating", higherBetter: false},
-    {label: 'PER', key: "PER", higherBetter: true},
-    {label: 'EFF', key: "EFF", higherBetter: true},
-    {label: 'EFF/40', key: "EFF/40", higherBetter: true},
-    {label: 'TS%', key: "TS%", higherBetter: true},
-    {label: 'eFG%', key: "eFG%", higherBetter: true},
-    {label: 'USG%', key: "USG%", higherBetter: true},
-    {label: '3PAr', key: "3PAr", higherBetter: true},
-    {label: 'FTr', key: "FTr", higherBetter: true},
-    {label: 'ORB%', key: "ORB%", higherBetter: true},
-    {label: 'DRB%', key: "DRB%", higherBetter: true},
-    {label: 'TRB%', key: "TRB%", higherBetter: true},
-    {label: 'AST%', key: "AST%", higherBetter: true},
-    {label: 'STL%', key: "STL%", higherBetter: true},
-    {label: 'BS%', key: "BS%", higherBetter: true},
-    {label: 'TOV%', key: "TOV%", higherBetter: false}
-  ];
-
-let tableHTML = `<table><thead><tr><th>지표</th>`;
-
-playersData.forEach((p, idx) => {
-  const selectedSeason = p.__season || '23-24'; // 기본값
-  tableHTML += `<th>
-    ${p["Player"]} (${p["Team"]})<br>
-    <select onchange="changeSeason(${idx}, this.value)">
-      <option value="23-24" ${selectedSeason === '23-24' ? 'selected' : ''}>23-24</option>
-      <option value="24-25" ${selectedSeason === '24-25' ? 'selected' : ''}>24-25</option>
-    </select>
-  </th>`;
-});
-
-if (playersData.length === 2) tableHTML += `<th>차이</th>`;
-  statsLabels.forEach(stat => {
-    const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
-    const ranks = values.map(val => calculateRank(filteredData, stat.key, val, stat.higherBetter));
-
-    let highlightClass = [];
-    if (values.length >= 2) {
-      const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
-      highlightClass = values.map(v => {
-        if (v === sortedValues[0]) return 'highlight-first';
-        if (values.length > 2 && v === sortedValues[1]) return 'highlight-second';
-        return 'highlight-third';
-      });
-    }
-
-    tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
-
-    values.forEach((value, idx) => {
-      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
-    });
-
-    if (playersData.length === 2) {
-      const diff = values[0] - values[1];
-      const diffClass = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : '';
-const format = statsFormats[stat.key] || {unit: '', decimals: 2};
-
-let formattedDiff;
-if (stat.key === "총 출전 시간(초)" || format.unit === '분 초') {
-  const diffSeconds = Math.abs(diff);
-  const minutes = Math.floor(diffSeconds / 60);
-  const seconds = diffSeconds % 60;
-  formattedDiff = `${minutes}분 ${seconds}초`;
-} else if (format.decimals === 0) {
-  formattedDiff = `${Math.abs(diff)}${format.unit}`;
-} else {
-  formattedDiff = `${Math.abs(diff).toFixed(format.decimals)}${format.unit}`;
-}
-
-
-
-      tableHTML += `<td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>`;
-    }
-
-    tableHTML += '</tr>';
-  });
-
-  tableHTML += '</tbody></table>';
-  document.getElementById('compareResult').innerHTML = tableHTML;
-  filterCompareTable();
-
-  const spacer = document.createElement('div');
-  spacer.style.height = '5px';
-  document.getElementById('compareResult').appendChild(spacer);
-}
-
 
 
 
