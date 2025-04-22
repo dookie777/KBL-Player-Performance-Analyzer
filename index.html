@@ -1662,7 +1662,7 @@ setTimeout(() => {
 
   statsLabels.forEach(stat => {
     const values = playersData.map(p => parseFloat(p[stat.key]) || 0);
-    const ranks = values.map(val => calculateRank(filteredData, stat.key, val, stat.higherBetter));
+    const ranks = values.map(val => calculateRank(originalData, stat.key, val, stat.higherBetter));
 
     let highlightClass = [];
     if (values.length >= 2) {
@@ -1832,12 +1832,11 @@ window.changeSeason = function(playerIndex, season) {
       }
 
       matchedPlayer.__season = season;
-
-      // ✅ 해당 선수만 따로 저장
+      originalData = seasonData; // ← 이 줄을 꼭 추가!
       playerSeasonData[playerIndex] = matchedPlayer;
 
-      // ✅ 새 비교 테이블 다시 그림
       comparePlayersFromCache();
+      
     })
     .catch(err => {
       console.error("시즌 데이터 로딩 오류:", err);
