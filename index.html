@@ -1677,15 +1677,39 @@ function comparePlayersFromCache() {
   tableHTML += `</tr></thead><tbody>`;
 
   statsLabels.forEach(stat => {
-    const values = players.map(p => parseFloat(p[stat.key]) || 0);
-const ranks = values.map((val, idx) => {
-  const seasonRaw = fullSeasonDataMap[players[idx].__season] || [];
-  const minGamesChecked = document.getElementById('compareMinGames').checked;
-  const seasonData = minGamesChecked
-    ? seasonRaw.filter(p => parseInt(p["출전 경기 수"]) >= 14)
-    : seasonRaw;
-  return calculateRank(seasonData, stat.key, val, stat.higherBetter);
+// 강제 재매핑된 playerSeasonData 기준으로 새롭게 pull 해와야 함
+const minGamesChecked = document.getElementById('compareMinGames').checked;
+
+const values = players.map((p, idx) => {
+  const season = p.__season;
+  const seasonData = fullSeasonDataMap[season] || [];
+
+  const filtered = minGamesChecked
+    ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
+    : seasonData;
+
+  const matched = filtered.find(row => row["Player"].trim().toLowerCase() === p["Player"].trim().toLowerCase());
+
+  // 이 matched 값을 새로 저장 (이제 완전하게 playerSeasonData 재정의됨)
+  if (matched) {
+    matched.__season = season;
+    playerSeasonData[idx] = matched;
+  }
+
+  return parseFloat(matched?.[stat.key]) || 0;
 });
+
+const ranks = values.map((val, idx) => {
+  const season = players[idx].__season;
+  const seasonData = fullSeasonDataMap[season] || [];
+
+  const filtered = minGamesChecked
+    ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
+    : seasonData;
+
+  return calculateRank(filtered, stat.key, val, stat.higherBetter);
+});
+
 
     const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
     const highlightClass = values.map(v => {
@@ -1827,25 +1851,27 @@ document.getElementById('compareMinGames').addEventListener('change', async () =
   });
 
   await Promise.all(promises);
-  // 🔥 기존 playerSeasonData 재매핑 (필수)
-playersData.forEach((p, idx) => {
-  const season = p.__season;
-  const seasonData = fullSeasonDataMap[season] || [];
 
-  const filtered = document.getElementById('compareMinGames').checked
-    ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
-    : seasonData;
+  // ✅ 정확히 덮어쓰기만 수행 — 덮어쓰기 전에 초기화 X
+  playersData.forEach((p, idx) => {
+    const season = p.__season;
+    const seasonData = fullSeasonDataMap[season] || [];
 
-  const matched = filtered.find(row => row["Player"].trim().toLowerCase() === p["Player"].trim().toLowerCase());
+    const filtered = document.getElementById('compareMinGames').checked
+      ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
+      : seasonData;
 
-  if (matched) {
-    matched.__season = season;
-    playerSeasonData[idx] = matched;
-  }
-});
+    const matched = filtered.find(row => row["Player"].trim().toLowerCase() === p["Player"].trim().toLowerCase());
+
+    if (matched) {
+      matched.__season = season;
+      playerSeasonData[idx] = matched;
+    }
+  });
 
   comparePlayersFromCache();
 });
+
 
 
 // 체크박스 이벤트 핸들러 추가
