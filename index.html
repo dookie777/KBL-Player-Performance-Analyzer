@@ -1678,10 +1678,14 @@ function comparePlayersFromCache() {
 
   statsLabels.forEach(stat => {
     const values = players.map(p => parseFloat(p[stat.key]) || 0);
-    const ranks = values.map((val, idx) => {
-      const seasonData = fullSeasonDataMap[players[idx].__season] || [];
-      return calculateRank(seasonData, stat.key, val, stat.higherBetter);
-    });
+const ranks = values.map((val, idx) => {
+  const seasonRaw = fullSeasonDataMap[players[idx].__season] || [];
+  const minGamesChecked = document.getElementById('compareMinGames').checked;
+  const seasonData = minGamesChecked
+    ? seasonRaw.filter(p => parseInt(p["출전 경기 수"]) >= 14)
+    : seasonRaw;
+  return calculateRank(seasonData, stat.key, val, stat.higherBetter);
+});
 
     const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
     const highlightClass = values.map(v => {
@@ -1794,9 +1798,55 @@ if (e.key === 'Enter') comparePlayers();
 });
 
 // 체크박스 즉시 반응 추가 (유지)
-document.getElementById('compareMinGames').addEventListener('change', () => {
-  comparePlayers();
+document.getElementById('compareMinGames').addEventListener('change', async () => {
+  const promises = playersData.map(p => {
+    const season = p.__season;
+    if (!fullSeasonDataMap[season]) {
+      const fileMap = {
+        '23-24': '23-24_KBL_stats.xlsx',
+        '24-25': '24-25_KBL_stats.xlsx'
+      };
+      const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
+      return fetch(url)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const seasonData = XLSX.utils.sheet_to_json(sheet);
+          seasonData.forEach(cols => {
+            const m = parseInt(cols["m"]) || 0;
+            const s = parseInt(cols["s"]) || 0;
+            cols["총 출전 시간(초)"] = m * 60 + s;
+            cols["Player"] = (cols["Player"] || "").trim();
+            cols["Team"] = (cols["Team"] || "").trim();
+          });
+          fullSeasonDataMap[season] = seasonData;
+        });
+    }
+    return Promise.resolve();
+  });
+
+  await Promise.all(promises);
+  // 🔥 기존 playerSeasonData 재매핑 (필수)
+playersData.forEach((p, idx) => {
+  const season = p.__season;
+  const seasonData = fullSeasonDataMap[season] || [];
+
+  const filtered = document.getElementById('compareMinGames').checked
+    ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
+    : seasonData;
+
+  const matched = filtered.find(row => row["Player"].trim().toLowerCase() === p["Player"].trim().toLowerCase());
+
+  if (matched) {
+    matched.__season = season;
+    playerSeasonData[idx] = matched;
+  }
 });
+
+  comparePlayersFromCache();
+});
+
 
 // 체크박스 이벤트 핸들러 추가
 document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]').forEach(checkbox => {
