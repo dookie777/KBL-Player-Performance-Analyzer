@@ -1066,6 +1066,7 @@ tabs.forEach(tab => {
  let playerDataBySeason = {};  // ✅ 이 줄을 추가
  let originalData = [], highlightedPlayer = '', fixedRow = null;
   let playersData = [];
+  let playerSeasonData = {}; // 선수별 시즌 데이터 저장용
 
  const statsLabels = [
     {label: '출전 경기 수', key: "출전 경기 수", higherBetter: true},
@@ -1150,11 +1151,15 @@ try {
   const firstSheet = workbook.SheetNames[0];
   originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-  originalData.forEach(cols => {
-    let minutes = parseInt(cols["m"]) || 0;
-    let seconds = parseInt(cols["s"]) || 0;
-    cols["총 출전 시간(초)"] = minutes * 60 + seconds;
-  });
+originalData.forEach(cols => {
+  let minutes = parseInt(cols["m"]) || 0;
+  let seconds = parseInt(cols["s"]) || 0;
+  cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+
+  // ✅ 이름, 팀명 공백 제거
+  cols["Player"] = (cols["Player"] || "").trim();
+  cols["Team"] = (cols["Team"] || "").trim();
+});
 
   renderTable(originalData);
 } catch (error) {
@@ -1321,10 +1326,12 @@ function calculateRank(filteredData, statKey, playerValue, isHigherBetter = true
 function showPlayerStats() {
   const season = document.getElementById('seasonSelectorPlayer')?.value || '23-24';
   const playerNameInput = document.getElementById('searchPlayer').value.trim();
-
   const minGamesChecked = document.getElementById('minGames').checked;
-  let filteredData = minGamesChecked ? originalData.filter(cols => parseInt(cols["출전 경기 수"]) >= 14) : originalData;
 
+  const filteredData = minGamesChecked
+    ? originalData.filter(cols => parseInt(cols["출전 경기 수"]) >= 14)
+    : originalData;
+  
   const playerData = filteredData.find(cols => 
     cols["Player"].trim().toLowerCase().includes(playerNameInput.toLowerCase())
   );
@@ -1607,7 +1614,7 @@ window.comparePlayers = function() {
   let filteredData = minGamesChecked
     ? originalData.filter(cols => parseInt(cols["출전 경기 수"]) >= 14)
     : originalData;
-
+  
 playersData = [player1, player2, player3]
     .filter(name => name !== '')
     .map(name => filteredData.find(cols => cols["Player"].trim().toLowerCase().includes(name.trim().toLowerCase())));
@@ -1622,19 +1629,30 @@ playersData = [player1, player2, player3]
 
   let tableHTML = `<table><thead><tr><th>지표</th>`;
 
-  playersData.forEach((p, idx) => {
-    const selectedSeason = p.__season || '23-24';
-tableHTML += `<th>
-  <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-    <span style="font-weight: bold; color: #FFF;">${p["Player"]} (${p["Team"]})</span>
-    <select class="season-switch" onchange="changeSeason(${idx}, this.value)">
-      <option value="23-24" ${selectedSeason === '23-24' ? 'selected' : ''}>23-24</option>
-      <option value="24-25" ${selectedSeason === '24-25' ? 'selected' : ''}>24-25</option>
-    </select>
-  </div>
-</th>`;
-  });
+playersData.forEach((p, idx) => {
+  const selectedSeason = p.__season || '23-24';
+  tableHTML += `<th>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <span style="font-weight: bold; color: #FFF;">${p["Player"]} (${p["Team"]})</span>
+      <select id="seasonSwitch-${idx}" class="season-switch">
+        <option value="23-24" ${selectedSeason === '23-24' ? 'selected' : ''}>23-24</option>
+        <option value="24-25" ${selectedSeason === '24-25' ? 'selected' : ''}>24-25</option>
+      </select>
+    </div>
+  </th>`;
+});
 
+setTimeout(() => {
+  playersData.forEach((p, idx) => {
+    const selector = document.getElementById(`seasonSwitch-${idx}`);
+    if (selector) {
+      selector.onchange = (e) => {
+        changeSeason(idx, e.target.value);
+      };
+    }
+  });
+}, 0);
+  
   if (playersData.length === 2) tableHTML += `<th>차이</th>`;
 
   statsLabels.forEach(stat => {
@@ -1690,12 +1708,92 @@ tableHTML += `<th>
   document.getElementById('compareResult').appendChild(spacer);
 }
 
+function comparePlayersFromCache() {
+  const players = Object.values(playerSeasonData);
+  if (players.length < 1) return;
+
+  playersData = players;
+
+  let tableHTML = `<table><thead><tr><th>지표</th>`;
+
+  players.forEach((p, idx) => {
+    const selectedSeason = p.__season || '23-24';
+    tableHTML += `<th>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span style="font-weight: bold; color: #FFF;">${p["Player"]} (${p["Team"]})</span>
+        <select id="seasonSwitch-${idx}" class="season-switch">
+          <option value="23-24" ${selectedSeason === '23-24' ? 'selected' : ''}>23-24</option>
+          <option value="24-25" ${selectedSeason === '24-25' ? 'selected' : ''}>24-25</option>
+        </select>
+      </div>
+    </th>`;
+  });
+
+  if (players.length === 2) tableHTML += `<th>차이</th>`;
+
+  statsLabels.forEach(stat => {
+    const values = players.map(p => parseFloat(p[stat.key]) || 0);
+    const ranks = values.map(val => calculateRank(players, stat.key, val, stat.higherBetter));
+
+    let highlightClass = [];
+    if (values.length >= 2) {
+      const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
+      highlightClass = values.map(v => {
+        if (v === sortedValues[0]) return 'highlight-first';
+        if (values.length > 2 && v === sortedValues[1]) return 'highlight-second';
+        return 'highlight-third';
+      });
+    }
+
+    tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
+
+    values.forEach((value, idx) => {
+      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
+    });
+
+    if (players.length === 2) {
+      const diff = values[0] - values[1];
+      const diffClass = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : '';
+      const format = statsFormats[stat.key] || {unit: '', decimals: 2};
+
+      let formattedDiff;
+      if (stat.key === "총 출전 시간(초)" || format.unit === '분 초') {
+        const diffSeconds = Math.abs(diff);
+        const minutes = Math.floor(diffSeconds / 60);
+        const seconds = diffSeconds % 60;
+        formattedDiff = `${minutes}분 ${seconds}초`;
+      } else if (format.decimals === 0) {
+        formattedDiff = `${Math.abs(diff)}${format.unit}`;
+      } else {
+        formattedDiff = `${Math.abs(diff).toFixed(format.decimals)}${format.unit}`;
+      }
+
+      tableHTML += `<td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>`;
+    }
+
+    tableHTML += '</tr>';
+  });
+
+  tableHTML += '</tbody></table>';
+
+  document.getElementById('compareResult').innerHTML = tableHTML;
+  filterCompareTable();
+
+  setTimeout(() => {
+    players.forEach((_, idx) => {
+      const selector = document.getElementById(`seasonSwitch-${idx}`);
+      if (selector) {
+        selector.onchange = (e) => {
+          window.changeSeason(idx, e.target.value);
+        };
+      }
+    });
+  }, 0);
+}
+  
   
 // ✅ 여기부터 새로 붙여넣기
-function changeSeason(playerIndex, season) {
-  const playerName = document.getElementById(`comparePlayer${playerIndex + 1}`)?.value.trim();
-  if (!playerName) return;
-
+window.changeSeason = function(playerIndex, season) {
   const fileMap = {
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
@@ -1709,49 +1807,41 @@ function changeSeason(playerIndex, season) {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const seasonData = XLSX.utils.sheet_to_json(sheet);
 
+      // 시간 계산
       seasonData.forEach(cols => {
-        const minutes = parseInt(cols["m"]) || 0;
-        const seconds = parseInt(cols["s"]) || 0;
-        cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+        const m = parseInt(cols["m"]) || 0;
+        const s = parseInt(cols["s"]) || 0;
+        cols["총 출전 시간(초)"] = m * 60 + s;
       });
 
-      const matchedPlayer = seasonData.find(p =>
-        p["Player"]?.trim().toLowerCase() === playerName.toLowerCase()
-      );
+      // 선수 이름 가져오기
+      const input = document.getElementById(`comparePlayer${playerIndex + 1}`);
+      if (!input) return;
+
+      const name = input.value.trim().toLowerCase();
+      const matchedPlayer = seasonData.find(p => p["Player"]?.trim().toLowerCase() === name);
 
       if (!matchedPlayer) {
-        alert(`${playerName}의 ${season} 시즌 데이터가 없습니다.`);
+        alert("선수를 찾을 수 없습니다.");
         return;
       }
 
       matchedPlayer.__season = season;
-      playersData[playerIndex] = matchedPlayer;
 
-      // ✅ 여기서 중요한 부분
-      // 이 시점의 플레이어 리스트를 기준으로 새롭게 seasonData에서 전체 재매칭
-      const minGamesChecked = document.getElementById('compareMinGames').checked;
-      const filteredData = minGamesChecked
-        ? seasonData.filter(p => parseInt(p["출전 경기 수"]) >= 14)
-        : seasonData;
+      // ✅ 해당 선수만 따로 저장
+      playerSeasonData[playerIndex] = matchedPlayer;
 
-      // ✅ playersData 배열 전체 재구성
-      playersData = playersData.map((p, idx) => {
-        const nameInput = document.getElementById(`comparePlayer${idx + 1}`).value.trim();
-        const found = filteredData.find(obj => obj["Player"]?.trim().toLowerCase() === nameInput.toLowerCase());
-        if (found) {
-          found.__season = season;
-        }
-        return found || p; // 못 찾으면 기존 유지
-      });
-
-      originalData = seasonData;
-      comparePlayers();
+      // ✅ 새 비교 테이블 다시 그림
+      comparePlayersFromCache();
     })
     .catch(err => {
       console.error("시즌 데이터 로딩 오류:", err);
       alert("시즌 변경 중 오류 발생");
     });
-}
+};
+
+
+
 
 
 
@@ -1946,11 +2036,15 @@ function loadPlayersData2() {
       const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
       // ✅ 시간 변환 보장
-      jsonData.forEach(cols => {
-        const minutes = parseInt(cols["m"]) || 0;
-        const seconds = parseInt(cols["s"]) || 0;
-        cols["총 출전 시간(초)"] = minutes * 60 + seconds;
-      });
+jsonData.forEach(cols => {
+  const minutes = parseInt(cols["m"]) || 0;
+  const seconds = parseInt(cols["s"]) || 0;
+  cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+
+  // ✅ 이름/팀명 공백 제거 (중복/디자인 오류 방지)
+  cols["Player"] = (cols["Player"] || "").trim();
+  cols["Team"] = (cols["Team"] || "").trim();
+});
 
       // ✅ 데이터 갱신 필수
       originalData = jsonData;
