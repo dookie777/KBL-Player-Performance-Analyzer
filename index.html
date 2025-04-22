@@ -1314,13 +1314,18 @@ function clearFixedRow() {
    renderTable(originalData);
  });
 
-function calculateRank(filteredData, statKey, playerValue, isHigherBetter = true) {
-  const sorted = filteredData
+function calculateRank(data, statKey, playerValue, isHigherBetter = true) {
+  const validValues = data
     .map(cols => parseFloat(cols[statKey]))
-    .filter(value => !isNaN(value))
-    .sort((a, b) => isHigherBetter ? b - a : a - b);
+    .filter(value => !isNaN(value));
 
-  return sorted.indexOf(parseFloat(playerValue)) + 1;
+  if (validValues.length === 0 || isNaN(parseFloat(playerValue))) {
+    return '-'; // 데이터 없거나 값이 NaN일 경우
+  }
+
+  const sorted = [...validValues].sort((a, b) => isHigherBetter ? b - a : a - b);
+  const rank = sorted.indexOf(parseFloat(playerValue)) + 1;
+  return rank || '-';
 }
 
 function showPlayerStats() {
@@ -1733,7 +1738,7 @@ function comparePlayersFromCache() {
 
   statsLabels.forEach(stat => {
     const values = players.map(p => parseFloat(p[stat.key]) || 0);
-    const ranks = values.map(val => calculateRank(players, stat.key, val, stat.higherBetter));
+    const ranks = values.map(val => calculateRank(originalData, stat.key, val, stat.higherBetter));
 
     let highlightClass = [];
     if (values.length >= 2) {
