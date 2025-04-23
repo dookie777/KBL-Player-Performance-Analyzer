@@ -823,8 +823,42 @@ h2 {
 .season-switch:hover {
   background-color: rgba(255, 255, 255, 0.18); /* 마우스 오버 시 약간 더 밝아짐 */
 }
+.filter-box-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-left: 5px;
+}
+
+.filter-toggle {
+  padding: 0 12px;
+  height: 28px; /* 주인님이 요청하신 낮은 높이로 조정 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #888;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.filter-toggle.selected {
+  background-color: #FFA500;
+  color: #000;
+  font-weight: bold;
+  border-color: #FFA500;
+}
     
-  
+.filter-box-inline {
+  position: sticky;
+  top: 174px; /* ← 이 값만 수정 */
+  z-index: 10;
+  background-color: #000;
+}
+
   </style>
 </head>
 <body>
@@ -848,6 +882,7 @@ h2 {
   </div>
 
 <div id="tab-all" class="tab-content active">
+
   <div class="input-box">
   <select id="seasonSelector" onchange="loadPlayersData()">
   <option value="23-24">23-24 시즌</option>
@@ -864,7 +899,11 @@ h2 {
   <button onclick="loadLocalFile()" style="background:#555; color:#FFF; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; border:none;">업로드</button>
 </div>
 
-
+<div class="filter-box-inline" style="margin: 2px 0 8px 0; padding-left: 5px;">
+<div class="filter-toggle selected" data-type="국내">국내 선수</div>
+<div class="filter-toggle selected" data-type="외인">외국인 선수</div>
+<div class="filter-toggle selected" data-type="아시아쿼터">아시아쿼터</div>
+</div>
   
 <div class="scroll-container">
   <table id="statsTable" style="min-width: 100%; border-collapse: collapse;">
@@ -1078,6 +1117,7 @@ tabs.forEach(tab => {
  let playerDataBySeason = {};  // ✅ 이 줄을 추가
   let fullSeasonDataMap = {};  // ← ✅ 반드시 여기 위치해도 됨
   let originalData = [], highlightedPlayer = '', fixedRow = null;
+  let activeTypes = new Set(["국내", "외인", "아시아쿼터"]);
   let playersData = [];
   let playerSeasonData = {}; // 선수별 시즌 데이터 저장용
 
@@ -1169,12 +1209,16 @@ originalData.forEach(cols => {
   let seconds = parseInt(cols["s"]) || 0;
   cols["총 출전 시간(초)"] = minutes * 60 + seconds;
 
-  // ✅ 이름, 팀명 공백 제거
+  // ✅ 이름, 팀명, 구분 공백 제거
   cols["Player"] = (cols["Player"] || "").trim();
   cols["Team"] = (cols["Team"] || "").trim();
+  cols["구분"] = (cols["구분"] || "").trim(); // ← 이거만 해주시면 됩니다
 });
 
   renderTable(originalData);
+
+  
+  
 } catch (error) {
   console.error("데이터 로딩 오류:", error);
   alert(`데이터 로딩 실패: ${error.message}`);
@@ -1189,8 +1233,10 @@ function renderTable(data) {
   tableBody.innerHTML = '';
 
   const minGamesOnly = document.getElementById('minGamesCheckbox').checked;
-  const filteredData = minGamesOnly ? data.filter(cols => parseInt(cols["출전 경기 수"]) >= 14) : data;
-
+  const filteredData = data.filter(cols =>
+    activeTypes.has(cols["구분"]) &&
+    (!minGamesOnly || parseInt(cols["출전 경기 수"]) >= 14)
+  );
   filteredData.forEach(cols => {
     const playerName = cols["Player"];
     const status = parseInt(cols["출전 경기 수"]) >= 14 ? '✅' : '⚠️';
@@ -2124,12 +2170,41 @@ jsonData.forEach(cols => {
 }
 
 
-
 document.addEventListener("DOMContentLoaded", function () {
   loadPlayersData();
   loadPlayersData2();
   document.getElementById('compareResult').innerHTML = '';
+
+  // ✅ 여기에 필터 버튼 이벤트 연결 코드 삽입
+document.querySelectorAll('.filter-toggle').forEach(btn => {
+  const type = btn.dataset.type;
+
+  // ✅ 저장된 상태 복원
+  const saved = localStorage.getItem('activeTypes');
+  if (saved) {
+    activeTypes = new Set(JSON.parse(saved));
+    if (!activeTypes.has(type)) btn.classList.remove('selected');
+  }
+
+  // ✅ 클릭 이벤트 연결
+  btn.addEventListener('click', () => {
+    if (activeTypes.has(type)) {
+      activeTypes.delete(type);
+      btn.classList.remove('selected');
+    } else {
+      activeTypes.add(type);
+      btn.classList.add('selected');
+    }
+
+    // ✅ 저장 후 렌더링
+    localStorage.setItem('activeTypes', JSON.stringify([...activeTypes]));
+    renderTable(originalData);
+
+  });
 });
+  setTimeout(() => renderTable(originalData), 200);  // ← 요거 꼭 추가해주세요
+});
+  
 </script>
 
  
