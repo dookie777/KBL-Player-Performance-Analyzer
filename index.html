@@ -1763,6 +1763,47 @@ const ranks = values.map((val, idx) => {
     });
   }, 0);
 }
+setTimeout(() => {
+  const minGamesCheckbox = document.getElementById('compareMinGames');
+  if (!minGamesCheckbox) return;
+
+  minGamesCheckbox.onchange = () => {
+    const names = playersData.map(p => p["Player"].trim());
+    if (names.length === 0) {
+      alert('선수 이름을 입력해주세요.');
+      return;
+    }
+
+    const updatedData = {};
+    const newPlayers = [];
+
+    names.forEach((name, idx) => {
+      const selector = document.getElementById(`seasonSwitch-${idx}`);
+      const season = selector ? selector.value : '23-24';
+      const seasonData = fullSeasonDataMap[season] || [];
+
+      const filtered = minGamesCheckbox.checked
+        ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
+        : seasonData;
+
+      const matched = filtered.find(row => row["Player"].trim().toLowerCase() === name.toLowerCase());
+      if (matched) {
+        matched.__season = season;
+        updatedData[idx] = matched;
+        newPlayers.push(matched);
+      }
+    });
+
+    if (newPlayers.length === 0) {
+      alert('규정 경기 이상을 만족하는 선수가 없습니다.');
+      return;
+    }
+
+    playerSeasonData = updatedData;
+    playersData = newPlayers;
+    comparePlayersFromCache();
+  };
+}, 10);
 
   
   
@@ -1822,55 +1863,52 @@ if (e.key === 'Enter') comparePlayers();
 });
 
 // 체크박스 즉시 반응 추가 (유지)
-document.getElementById('compareMinGames').addEventListener('change', async () => {
-  const promises = playersData.map(p => {
-    const season = p.__season;
-    if (!fullSeasonDataMap[season]) {
-      const fileMap = {
-        '23-24': '23-24_KBL_stats.xlsx',
-        '24-25': '24-25_KBL_stats.xlsx'
-      };
-      const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
-      return fetch(url)
-        .then(response => response.arrayBuffer())
-        .then(data => {
-          const workbook = XLSX.read(data, { type: "array" });
-          const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const seasonData = XLSX.utils.sheet_to_json(sheet);
-          seasonData.forEach(cols => {
-            const m = parseInt(cols["m"]) || 0;
-            const s = parseInt(cols["s"]) || 0;
-            cols["총 출전 시간(초)"] = m * 60 + s;
-            cols["Player"] = (cols["Player"] || "").trim();
-            cols["Team"] = (cols["Team"] || "").trim();
-          });
-          fullSeasonDataMap[season] = seasonData;
-        });
+// 체크박스 즉시 반응 추가 (유지)
+// comparePlayersFromCache 맨 마지막에 추가하세요 (이벤트 덮어쓰기)
+setTimeout(() => {
+  document.getElementById('compareMinGames').onchange = () => {
+    const p1 = document.getElementById('comparePlayer1').value.trim();
+    const p2 = document.getElementById('comparePlayer2').value.trim();
+    const p3 = document.getElementById('comparePlayer3').value.trim();
+    const names = [p1, p2, p3].filter(n => n !== '');
+
+    if (names.length === 0) {
+      alert('선수 이름을 입력해주세요.');
+      return;
     }
-    return Promise.resolve();
-  });
 
-  await Promise.all(promises);
+    const updatedData = {};
+    const newPlayers = [];
 
-  // ✅ 정확히 덮어쓰기만 수행 — 덮어쓰기 전에 초기화 X
-  playersData.forEach((p, idx) => {
-    const season = p.__season;
-    const seasonData = fullSeasonDataMap[season] || [];
+    names.forEach((name, idx) => {
+      const selector = document.getElementById(`seasonSwitch-${idx}`);
+      const season = selector ? selector.value : '23-24';
+      const seasonData = fullSeasonDataMap[season] || [];
 
-    const filtered = document.getElementById('compareMinGames').checked
-      ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
-      : seasonData;
+      const filtered = document.getElementById('compareMinGames').checked
+        ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
+        : seasonData;
 
-    const matched = filtered.find(row => row["Player"].trim().toLowerCase() === p["Player"].trim().toLowerCase());
+      const matched = filtered.find(row => row["Player"].trim().toLowerCase() === name.toLowerCase());
 
-    if (matched) {
-      matched.__season = season;
-      playerSeasonData[idx] = matched;
+      if (matched) {
+        matched.__season = season;
+        updatedData[idx] = matched;
+        newPlayers.push(matched);
+      }
+    });
+
+    if (newPlayers.length === 0) {
+      alert('규정 경기 이상을 만족하는 선수가 없습니다.');
+      return;
     }
-  });
 
-  comparePlayersFromCache();
-});
+    playerSeasonData = updatedData;
+    playersData = newPlayers;
+    comparePlayersFromCache();
+  };
+}, 0);
+
 
 
 
