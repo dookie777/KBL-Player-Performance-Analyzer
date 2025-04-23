@@ -117,7 +117,7 @@ h2 {
 }
 
 .input-box input[type="checkbox"] {
-  margin: 0 5px;
+  margin: 0 1px;
 }
 
 .input-box label {
@@ -487,10 +487,11 @@ thead th {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.85rem;       /* ✅ 텍스트 크기 줄임 */
 }
 
 .category-checkboxes input[type="checkbox"] {
-  margin-right: 5px;
+  margin-right: 7px;
 }
 
 /* 상단 6개 항목 정확히 균등 배치 (한 행에 하나씩 정확히 들어가도록 설정) */
@@ -790,9 +791,18 @@ h2 {
 .checkbox-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px; /* 체크박스와 텍스트 사이 간격 */
+  margin-left: 10px; /* Compare 버튼과의 간격 */
+}
+.checkbox-group input[type="checkbox"] {
+  margin: 0; /* 기본 여백 제거 */
 }
 
+.checkbox-group label {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: #FFF;
+}
 .season-switch {
   background-color: rgba(255, 255, 255, 0.12); /* 검은 배경보다 확실히 밝고 깨끗한 대비 */
   color: #fff; /* 텍스트는 흰색으로 유지 */
