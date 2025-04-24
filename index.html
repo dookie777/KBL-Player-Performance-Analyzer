@@ -1184,6 +1184,7 @@ tabs.forEach(tab => {
     {label: 'BS%', key: "BS%", higherBetter: true},
     {label: 'TOV%', key: "TOV%", higherBetter: false}
   ];  
+window.renderTable = renderTable; // ✅ 여기에 이 줄 추가
   
 async function loadPlayersData() {
   const season = document.getElementById('seasonSelector')?.value || '23-24';
@@ -1223,9 +1224,6 @@ originalData.forEach(cols => {
   console.error("데이터 로딩 오류:", error);
   alert(`데이터 로딩 실패: ${error.message}`);
 }
-
-
-
 
 
 function renderTable(data) {
@@ -1319,6 +1317,7 @@ spacerRow.innerHTML = '<td colspan="100" style="height: 100px; background: trans
 tableBody.appendChild(spacerRow);
 }
 
+window.renderTable = renderTable; // ✅ 여기 있어야만 작동함
 
  
 function searchPlayer(){
@@ -2187,23 +2186,20 @@ document.querySelectorAll('.filter-toggle').forEach(btn => {
   }
 
   // ✅ 클릭 이벤트 연결
-  btn.addEventListener('click', () => {
-    if (activeTypes.has(type)) {
-      activeTypes.delete(type);
-      btn.classList.remove('selected');
-    } else {
-      activeTypes.add(type);
-      btn.classList.add('selected');
-    }
+    btn.addEventListener('click', () => {
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        btn.classList.remove('selected');
+      } else {
+        activeTypes.add(type);
+        btn.classList.add('selected');
+      }
 
-    // ✅ 저장 후 렌더링
-    localStorage.setItem('activeTypes', JSON.stringify([...activeTypes]));
-    renderTable(originalData);
-
+      localStorage.setItem('activeTypes', JSON.stringify([...activeTypes]));
+      renderTable(originalData);  // ✅ 이건 유지
+    });
   });
-});
-  setTimeout(() => renderTable(originalData), 200);  // ← 요거 꼭 추가해주세요
-});
+}); // ✅ 여기까지만 있어야 함
   
 </script>
 
