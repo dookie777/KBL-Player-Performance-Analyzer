@@ -215,7 +215,7 @@ thead th {
 .card {
   background-color: rgba(255,255,255,0.05);
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 0px;
   text-align: center;
   min-height: 350px;
 }
@@ -347,16 +347,17 @@ thead th {
 }
 
 #tab-player .player-name {
-  margin: 8px 0 3px 0 !important; /* 기존 15px, 5px → 절반으로 수정 */
+  margin-bottom: 3px !important;
 }
 
 #tab-player .team-name {
-  margin-bottom: 8px !important; /* 기존 15px → 절반으로 수정 */
+  margin-bottom: 2px !important;
 }
 
 #tab-player .stats-container {
   margin-top: 10px !important;
   padding-bottom: 0px !important; /* ✅ 푸터와 겹침 방지 여백 추가 */
+  padding-right: 15px !important; /* ✅ 오른쪽 스크롤바와 간격 확보 */
   max-height: calc(100vh - 240px);
   overflow-y: auto;
 }
@@ -366,6 +367,33 @@ thead th {
   display: block;
   height: 0px;
 }
+#tab-player .filter-box-inline {
+  margin-top: 0px !important;        /* 팀명 아래 여백 최소화 */
+  margin-bottom: 40px !important;    /* 카드 위 여백 충분히 확보 */
+  justify-content: flex-start;
+  padding-left: 10px;
+}
+
+#tab-player .filter-box-inline .filter-btn {
+  padding: 0 12px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #888;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+#tab-player .filter-box-inline .filter-btn.active {
+  background-color: #FFA500;
+  color: #000;
+  border-color: #FFA500;
+}
+
 
 /* ✅ 선수 비교 페이지 입력창 크기 및 영역 최적화 (중요 수정) */
 #tab-compare .input-box input[type="text"] {
@@ -657,6 +685,22 @@ h2 {
   height: 80px;
 }
 
+#tab-player .player-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 8px 0 3px 0 !important;
+  text-align: center;
+}
+
+#tab-player .team-name {
+  font-size: 1rem;
+  margin-bottom: 10px !important;
+  text-align: center;
+}
+
+
+
+    
 /* 테이블 셀 외곽선 정리 (모든 셀 동일 선 색) */
 #tab-compare .compare-result th,
 #tab-compare .compare-result td {
@@ -864,6 +908,57 @@ h2 {
   background-color: #000;
 }
 
+.filter-box-inline .filter-btn {
+  padding: 6px 12px;
+  border: 1px solid #FFA500;
+  background-color: #000;
+  color: #FFA500;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.filter-box-inline .filter-btn.active {
+  background-color: #FFA500;
+  color: #000;
+}
+
+
+#tab-compare .filter-box-inline {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin: 12px 0 20px 0;
+  padding-left: 0px;
+  padding-bottom: 10px;
+  width: fit-content;
+  box-sizing: border-box;
+  transform: translateX(133px); /* ✅ Player 열과 정확히 같은 위치로 이동 */
+}
+    
+#tab-compare .filter-box-inline .filter-btn {
+  padding: 0 12px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #888;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#tab-compare .filter-box-inline .filter-btn.active {
+  background-color: #FFA500;
+  color: #000;
+  border-color: #FFA500;
+}
+
+
+    
   </style>
 </head>
 <body>
@@ -993,16 +1088,28 @@ h2 {
       <option value="24-25">24-25 시즌</option>
     </select>
     <input type="text" id="searchPlayer" placeholder="Search player...">
-<!-- HTML 버튼 -->
-<button id="searchPlayerButton">Search</button>
+    <button id="searchPlayerButton">Search</button>
     <input type="checkbox" id="minGames">
     <label for="minGames">규정 경기 이상(14G)</label>
   </div>
+
+  <!-- 선수명/팀명 -->
   <div class="player-name" id="playerName"></div>
   <div class="team-name" id="teamName"></div>
-  <div class="stats-container" id="statsContainer"></div>
+
+  <!-- ✅ 필터 버튼: 카드 상단 좌측 정렬 -->
+  <div class="filter-box-inline" id="playerFilterBox"
+       style="display: flex; gap: 10px; justify-content: flex-start; margin: 10px 0 0 0; padding-left: 10px;">
+    <button class="filter-btn active" data-type="국내">국내 선수</button>
+    <button class="filter-btn active" data-type="외국인">외국인 선수</button>
+    <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
+  </div>
+
+  <!-- 결과 카드 -->
+  <div class="stats-container" id="statsContainer" style="margin-top: 15px;"></div>
   <div style="height: 80px;"></div>
 </div>
+
 
 <!-- ✅ 3페이지 복구 시작 -->
 <div id="tab-compare" class="tab-content">
@@ -1026,6 +1133,12 @@ h2 {
     <label><input type="checkbox" value="2차 슈팅 지표" checked> 2차 슈팅 지표</label>
     <label><input type="checkbox" value="Team내 비중 지표" checked> Team내 비중 지표</label>
   </div>
+<div class="filter-box-inline" id="compareFilterBox"
+     style="display: flex; gap: 10px; justify-content: flex-start; margin: 10px 0 0 0; padding-left: 10px;">
+  <button class="filter-btn active" data-type="국내">국내 선수</button>
+  <button class="filter-btn active" data-type="외국인">외국인 선수</button>
+  <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
+</div>
   <div class="compare-result" id="compareResult"></div>
 </div>
 </div>
@@ -1220,8 +1333,9 @@ originalData.forEach(cols => {
   cols["Team"] = (cols["Team"] || "").trim();
   cols["구분"] = (cols["구분"] || "").trim(); // ← 이거만 해주시면 됩니다
 });
+fullSeasonDataMap[season] = originalData;  // ✅ 꼭 추가하세요
 
-  renderTable(originalData);
+renderTable(originalData);
 
   
   
@@ -1398,9 +1512,11 @@ const playerNameInput = document.getElementById('searchPlayer').value.trim();
 const minGamesChecked = document.getElementById('minGames').checked;
 
 const data = fullSeasonDataMap[season] || originalData;  // ✅ 시즌별 데이터 기반
-const filteredData = minGamesChecked
-  ? data.filter(cols => parseInt(cols["출전 경기 수"]) >= 14)
-  : data;
+const filteredData = data.filter(cols => {
+  const isTypeMatched = activeTypes.has(cols["구분"]);
+  const isMinGames = !minGamesChecked || parseInt(cols["출전 경기 수"]) >= 14;
+  return isTypeMatched && isMinGames;
+});
   
   const playerData = filteredData.find(cols => 
     cols["Player"].trim().toLowerCase().includes(playerNameInput.toLowerCase())
@@ -1409,6 +1525,7 @@ const filteredData = minGamesChecked
   if (playerData) {
     document.getElementById('playerName').innerText = playerData["Player"];
     document.getElementById('teamName').innerText = '(' + playerData["Team"] + ')';
+    
 
     const statsContainer = document.getElementById('statsContainer');
     statsContainer.innerHTML = '';
@@ -2193,7 +2310,35 @@ document.addEventListener("DOMContentLoaded", function () {
   loadPlayersData2();
   document.getElementById('compareResult').innerHTML = '';
 
-  // ✅ 여기에 필터 버튼 이벤트 연결 코드 삽입
+  // ✅ compareFilterBox 버튼 클릭 이벤트 연결
+(function () {
+  const compareFilterBox = document.querySelectorAll('#compareFilterBox .filter-btn');
+  const savedCompareTypes = localStorage.getItem('activeTypesCompare');
+  if (savedCompareTypes) {
+    activeTypes = new Set(JSON.parse(savedCompareTypes));
+    compareFilterBox.forEach(btn => {
+      if (!activeTypes.has(btn.dataset.type)) {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  compareFilterBox.forEach(btn => {
+    const type = btn.dataset.type;
+    btn.addEventListener('click', () => {
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        btn.classList.remove('active');
+      } else {
+        activeTypes.add(type);
+        btn.classList.add('active');
+      }
+      localStorage.setItem('activeTypesCompare', JSON.stringify([...activeTypes]));
+    });
+  });
+})();
+
+   // ✅ 여기에 필터 버튼 이벤트 연결 코드 삽입
 document.querySelectorAll('.filter-toggle').forEach(btn => {
   const type = btn.dataset.type;
 
@@ -2219,6 +2364,27 @@ document.querySelectorAll('.filter-toggle').forEach(btn => {
     });
   });
 }); // ✅ 여기까지만 있어야 함
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#playerFilterBox .filter-btn').forEach(btn => {
+    const type = btn.dataset.type;
+
+    btn.addEventListener('click', () => {
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        btn.classList.remove('active');
+      } else {
+        activeTypes.add(type);
+        btn.classList.add('active');
+      }
+
+      localStorage.setItem('activeTypesPlayer', JSON.stringify([...activeTypes]));
+
+      showPlayerStats(); // 🔥 이게 즉시 카드 갱신시키는 핵심
+    });
+  });
+});
+
   
 </script>
 
