@@ -1313,6 +1313,7 @@ tableBody.appendChild(row);
   });
 // ✅ 푸터 여백 확보용 마지막 빈 행 추가
 const spacerRow = document.createElement('tr');
+spacerRow.id = 'spacerRow'; // ✅ 명시적 식별자 부여
 spacerRow.innerHTML = '<td colspan="100" style="height: 100px; background: transparent; border: none;"></td>';
 tableBody.appendChild(spacerRow);
 }
@@ -2102,8 +2103,14 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
   sortDirections[index] = 'asc';
   header.onclick = () => {
     const tableBody = document.getElementById('tableBody');
+
+    // ✅ 기존 spacerRow 삭제
+    const oldSpacer = document.getElementById('spacerRow');
+    if (oldSpacer) oldSpacer.remove();
+
+    // ✅ 실제 데이터 행만 필터링
     const rows = Array.from(tableBody.querySelectorAll('tr'))
-      .filter(row => row.querySelectorAll('td').length > 0);
+      .filter(row => row.id !== 'spacerRow' && row.querySelectorAll('td').length > 0);
 
     const direction = sortDirections[index] === 'asc' ? 'desc' : 'asc';
     sortDirections[index] = direction;
@@ -2112,7 +2119,6 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
       let x = a.cells[index]?.getAttribute('data-time') || a.cells[index]?.innerText || '';
       let y = b.cells[index]?.getAttribute('data-time') || b.cells[index]?.innerText || '';
 
-      // ✅ 위험 문자 제거
       x = x.replace(/</g, '').replace(/>/g, '');
       y = y.replace(/</g, '').replace(/>/g, '');
 
@@ -2122,9 +2128,17 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
       return direction === 'asc' ? x - y : y - x;
     });
 
+    // ✅ 정렬된 행 다시 추가
     rows.forEach(row => tableBody.appendChild(row));
+
+    // ✅ spacerRow 다시 맨 아래에 추가
+    const spacerRow = document.createElement('tr');
+    spacerRow.id = 'spacerRow';
+    spacerRow.innerHTML = '<td colspan="100" style="height: 100px; background: transparent; border: none;"></td>';
+    tableBody.appendChild(spacerRow);
   };
 });
+
 function loadPlayersData2() {
   const season = document.getElementById('seasonSelectorPlayer')?.value || '23-24';
   const fileMap = {
