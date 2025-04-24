@@ -172,6 +172,11 @@ thead th {
   z-index: 500;
 }
 
+#statsTable {
+  min-width: max-content !important;
+  width: max-content !important;
+}    
+    
 #statsTable td:first-child {
   z-index: 3;
   position: sticky;
@@ -616,7 +621,7 @@ h2 {
 
 .scroll-container {
   overflow: auto;
-  height: calc(100vh - 270px);  /* 기존보다 40px 줄임 */
+  height: calc(100vh - 290px);  /* 기존보다 40px 줄임 */
   padding-bottom: 0;            /* spacerRow 필요 없음 */
   position: relative;
   z-index: 1;
@@ -906,7 +911,7 @@ h2 {
 </div>
   
 <div class="scroll-container">
-  <table id="statsTable" style="min-width: 100%; border-collapse: collapse;">
+<table id="statsTable" style="border-collapse: collapse;">
      <thead>
   <tr>
     <th>Player</th>
@@ -1313,8 +1318,8 @@ tableBody.appendChild(row);
   });
 // ✅ 푸터 여백 확보용 마지막 빈 행 추가
 const spacerRow = document.createElement('tr');
-spacerRow.id = 'spacerRow'; // ✅ 명시적 식별자 부여
-spacerRow.innerHTML = '<td colspan="100" style="height: 100px; background: transparent; border: none;"></td>';
+spacerRow.id = 'spacerRow';
+spacerRow.innerHTML = `<td style="padding: 0; height: 80px; background: transparent; border: none;" colspan="${document.querySelectorAll('#statsTable thead th').length}"></td>`;
 tableBody.appendChild(spacerRow);
 }
 
