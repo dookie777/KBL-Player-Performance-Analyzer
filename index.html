@@ -698,9 +698,7 @@ h2 {
   text-align: center;
 }
 
-
-
-    
+   
 /* 테이블 셀 외곽선 정리 (모든 셀 동일 선 색) */
 #tab-compare .compare-result th,
 #tab-compare .compare-result td {
@@ -957,7 +955,10 @@ h2 {
   border-color: #FFA500;
 }
 
-
+#playerFilterBox,
+#statsContainer {
+  display: none;
+}
     
   </style>
 </head>
@@ -1098,15 +1099,16 @@ h2 {
   <div class="team-name" id="teamName"></div>
 
   <!-- ✅ 필터 버튼: 카드 상단 좌측 정렬 -->
-  <div class="filter-box-inline" id="playerFilterBox"
-       style="display: flex; gap: 10px; justify-content: flex-start; margin: 10px 0 0 0; padding-left: 10px;">
+    <div class="filter-box-inline" id="playerFilterBox"
+     style="gap: 10px; justify-content: flex-start; margin: 10px 0 0 0; padding-left: 10px;">
+
     <button class="filter-btn active" data-type="국내">국내 선수</button>
     <button class="filter-btn active" data-type="외국인">외국인 선수</button>
     <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
   </div>
 
   <!-- 결과 카드 -->
-  <div class="stats-container" id="statsContainer" style="margin-top: 15px;"></div>
+  <div class="stats-container" id="statsContainer"></div>
   <div style="height: 80px;"></div>
 </div>
 
@@ -1525,6 +1527,8 @@ const filteredData = data.filter(cols => {
   if (playerData) {
     document.getElementById('playerName').innerText = playerData["Player"];
     document.getElementById('teamName').innerText = '(' + playerData["Team"] + ')';
+    document.getElementById('playerFilterBox').style.display = 'flex';
+    document.getElementById('statsContainer').style.display = 'grid';
     
 
     const statsContainer = document.getElementById('statsContainer');
@@ -1790,31 +1794,34 @@ window.comparePlayers = function () {
   document.querySelector('[data-tab="tab-compare"]').classList.add('active');
   document.getElementById('tab-compare').classList.add('active');
 
-  const season = document.getElementById('seasonSelectorPlayer')?.value || '23-24';
-  const player1 = document.getElementById('comparePlayer1').value.trim();
-  const player2 = document.getElementById('comparePlayer2').value.trim();
-  const player3 = document.getElementById('comparePlayer3').value.trim();
-  const minGamesChecked = document.getElementById('compareMinGames').checked;
+const player1 = document.getElementById('comparePlayer1').value.trim();
+const player2 = document.getElementById('comparePlayer2').value.trim();
+const player3 = document.getElementById('comparePlayer3').value.trim();
+const minGamesChecked = document.getElementById('compareMinGames').checked;
 
-  if (!player1 && !player2 && !player3) {
-    document.getElementById('compareResult').innerHTML = '';
-    return;
-  }
+if (!player1 && !player2 && !player3) {
+  document.getElementById('compareResult').innerHTML = '';
+  return;
+}
 
-  const data = fullSeasonDataMap[season] || originalData;
-  const filteredData = minGamesChecked
-    ? data.filter(cols => parseInt(cols["출전 경기 수"]) >= 14)
-    : data;
+playersData = [player1, player2, player3]
+  .filter(name => name !== '')
+  .map((name, idx) => {
+    const seasonSelector = document.getElementById(`seasonSwitch-${idx}`);
+    const season = seasonSelector ? seasonSelector.value : '23-24'; // ✅ 실제 선택된 시즌 기반
 
-  playersData = [player1, player2, player3]
-    .filter(name => name !== '')
-    .map((name, idx) => {
-      const matched = filteredData.find(cols =>
-        cols["Player"].trim().toLowerCase() === name.toLowerCase()
-      );
-      if (matched) matched.__season = season;
+    const seasonData = fullSeasonDataMap[season] || [];
+    const matched = seasonData.find(cols =>
+      cols["Player"].trim().toLowerCase() === name.toLowerCase()
+    );
+
+    if (matched) {
+      matched.__season = season;
       return matched;
-    });
+    }
+    return undefined;
+  });
+
 
   if (playersData.some(p => p === undefined)) {
     alert('선수 이름을 정확히 입력해주세요.');
@@ -1862,9 +1869,11 @@ const values = players.map((p, idx) => {
   const season = p.__season;
   const seasonData = fullSeasonDataMap[season] || [];
 
-  const filtered = minGamesChecked
-    ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
-    : seasonData;
+  const filtered = seasonData.filter(row => {
+    const isTypeMatched = activeTypes.has(row["구분"]);
+    const isMinGames = !minGamesChecked || parseInt(row["출전 경기 수"]) >= 14;
+    return isTypeMatched && isMinGames;
+  });
 
   const matched = filtered.find(row => row["Player"].trim().toLowerCase() === p["Player"].trim().toLowerCase());
 
@@ -1881,9 +1890,11 @@ const ranks = values.map((val, idx) => {
   const season = players[idx].__season;
   const seasonData = fullSeasonDataMap[season] || [];
 
-  const filtered = minGamesChecked
-    ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
-    : seasonData;
+const filtered = seasonData.filter(row => {
+  const isTypeMatched = activeTypes.has(row["구분"]);
+  const isMinGames = !minGamesChecked || parseInt(row["출전 경기 수"]) >= 14;
+  return isTypeMatched && isMinGames;
+});
 
   return calculateRank(filtered, stat.key, val, stat.higherBetter);
 });
