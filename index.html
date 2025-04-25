@@ -1001,7 +1001,7 @@ h2 {
   <div class="input-box">
   <select id="seasonSelector" onchange="loadPlayersData()">
   <option value="23-24">23-24 시즌</option>
-  <option value="24-25">24-25 시즌</option>
+  <option value="24-25" selected>24-25 시즌</option> <!-- 이 줄만 수정 -->
   </select>
     <input type="text" id="searchPlayerAll" placeholder="Search player...">
     <button onclick="searchPlayer()">Search</button>
@@ -1100,7 +1100,7 @@ h2 {
   <div class="input-box">
     <select id="seasonSelectorPlayer" onchange="loadPlayersData2()">
       <option value="23-24">23-24 시즌</option>
-      <option value="24-25">24-25 시즌</option>
+      <option value="24-25" selected>24-25 시즌</option> <!-- 이 줄도 수정 -->
     </select>
     <input type="text" id="searchPlayer" placeholder="Search player...">
     <button id="searchPlayerButton">Search</button>
@@ -1319,7 +1319,7 @@ tabs.forEach(tab => {
 window.renderTable = renderTable; // ✅ 여기에 이 줄 추가
   
 async function loadPlayersData() {
-  const season = document.getElementById('seasonSelector')?.value || '23-24';
+  const season = document.getElementById('seasonSelector')?.value || '24-25'; // ← 이 부분도 수정
   const fileMap = {
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
@@ -1521,7 +1521,7 @@ function calculateRank(data, statKey, playerValue, isHigherBetter = true) {
 }
 
 function showPlayerStats() {
-const season = document.getElementById('seasonSelectorPlayer')?.value || '23-24';
+const season = seasonSelector ? seasonSelector.value : '24-25'; // ← '23-24' → '24-25'
 const playerNameInput = document.getElementById('searchPlayer').value.trim();
 const minGamesChecked = document.getElementById('minGames').checked;
 
@@ -1819,7 +1819,7 @@ playersData = [player1, player2, player3]
   .filter(name => name !== '')
   .map((name, idx) => {
     const seasonSelector = document.getElementById(`seasonSwitch-${idx}`);
-    const season = seasonSelector ? seasonSelector.value : '23-24'; // ✅ 실제 선택된 시즌 기반
+    const season = seasonSelector ? seasonSelector.value : '24-25'; // ✅ 실제 선택된 시즌 기반
 
     const seasonData = fullSeasonDataMap[season] || [];
     const matched = seasonData.find(cols =>
@@ -1857,7 +1857,7 @@ function comparePlayersFromCache() {
   let tableHTML = `<table><thead><tr><th>지표</th>`;
 
   players.forEach((p, idx) => {
-    const selectedSeason = p.__season || '23-24';
+    const selectedSeason = p.__season || '24-25';
     tableHTML += `<th>
       <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
         <span style="font-weight: bold; color: #FFF;">${p["Player"]} (${p["Team"]})</span>
