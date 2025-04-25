@@ -2316,21 +2316,23 @@ function loadPlayersData2() {
     .then(data => {
       const workbook = XLSX.read(data, { type: "array" });
       const firstSheet = workbook.SheetNames[0];
-      const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-      // ✅ 시간 변환 보장
+// ✅ 시간 변환 보장
 jsonData.forEach(cols => {
   const minutes = parseInt(cols["m"]) || 0;
   const seconds = parseInt(cols["s"]) || 0;
   cols["총 출전 시간(초)"] = minutes * 60 + seconds;
 
-  // ✅ 이름/팀명 공백 제거 (중복/디자인 오류 방지)
   cols["Player"] = (cols["Player"] || "").trim();
   cols["Team"] = (cols["Team"] || "").trim();
 });
 
-      // ✅ 데이터 갱신 필수
-      fullSeasonDataMap[season] = jsonData;
+// ✅ 여기 이 줄만 추가하시면 됩니다
+originalData = jsonData;
+
+// ✅ 데이터 갱신 필수
+fullSeasonDataMap[season] = jsonData;
 
       // ✅ 디버깅 로그 추가
       console.log("24-25 originalData loaded:", originalData);
