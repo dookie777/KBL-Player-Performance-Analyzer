@@ -306,18 +306,21 @@ thead th {
 }
     
 .highlight-first {
-  background-color: rgba(255,140,0,0.95) !important;
-  color: #FFF !important;
+  background-color: #FFD3C4 !important;  /* 1등: 밝은 살구빛 빨강 */
+  color: #000 !important;
+  font-weight: bold;
 }
 
 .highlight-second {
-  background-color: rgba(70,150,200,0.95) !important;
-  color: #FFF !important;
+  background-color: #D7F2FF !important;  /* 2등: 밝은 하늘색 */
+  color: #000 !important;
+  font-weight: bold;
 }
 
 .highlight-third {
-  background-color: rgba(160,160,160,0.95) !important;
-  color: #FFF !important;
+  background-color: #F0F0F0 !important;  /* 3등: 밝은 회색 */
+  color: #000 !important;
+  font-weight: bold;
 }
 
 .footer {
@@ -386,8 +389,8 @@ thead th {
 #tab-player .filter-box-inline .filter-btn {
   padding: 6px 12px;
   border: 1px solid #FFA500;
-  background-color: #000;
-  color: #FFA500;
+  background-color: #333;     /* 어두운 회색 */
+  color: #FFF;
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
@@ -909,8 +912,8 @@ h2 {
 .filter-box-inline .filter-btn {
   padding: 6px 12px;
   border: 1px solid #FFA500;
-  background-color: #000;
-  color: #FFA500;
+  background-color: #333;     /* 어두운 회색 */
+  color: #FFF;
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
@@ -973,7 +976,22 @@ h2 {
   padding-left: 0 !important;
 }
 
-    
+.filter-box-inline .filter-btn {
+  padding: 6px 12px;
+  border: 1px solid #888;
+  background-color: #222;
+  color: #FFF;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.filter-box-inline .filter-btn.active {
+  background-color: #FFA500;
+  color: #000;
+  border-color: #FFA500;
+}    
   </style>
 </head>
 <body>
