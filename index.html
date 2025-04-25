@@ -355,7 +355,7 @@ thead th {
 }
 
 #tab-player .stats-container {
-  margin-top: 10px !important;
+  margin-top: -25px !important;
   padding-bottom: 0px !important; /* ✅ 푸터와 겹침 방지 여백 추가 */
   padding-right: 15px !important; /* ✅ 오른쪽 스크롤바와 간격 확보 */
   max-height: calc(100vh - 240px);
@@ -367,32 +367,38 @@ thead th {
   display: block;
   height: 0px;
 }
-#tab-player .filter-box-inline {
-  margin-top: 0px !important;        /* 팀명 아래 여백 최소화 */
-  margin-bottom: 40px !important;    /* 카드 위 여백 충분히 확보 */
+#tab-player #filterContainer {
+  width: 100%;
+  display: flex;
   justify-content: flex-start;
-  padding-left: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 0 15px 0;
+}
+
+#tab-player .filter-box-inline {
+  display: flex;
+  gap: 10px;
+  padding-left: 0;
+  margin: 0;
 }
 
 #tab-player .filter-box-inline .filter-btn {
-  padding: 0 12px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #222;
-  color: #fff;
-  border: 1px solid #888;
-  border-radius: 5px;
-  font-size: 0.7rem;
-  font-weight: bold;
+  padding: 6px 12px;
+  border: 1px solid #FFA500;
+  background-color: #000;
+  color: #FFA500;
+  border-radius: 4px;
   cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
 }
+
 #tab-player .filter-box-inline .filter-btn.active {
   background-color: #FFA500;
   color: #000;
-  border-color: #FFA500;
 }
+
 
 
 /* ✅ 선수 비교 페이지 입력창 크기 및 영역 최적화 (중요 수정) */
@@ -898,13 +904,7 @@ h2 {
   font-weight: bold;
   border-color: #FFA500;
 }
-    
-.filter-box-inline {
-  position: sticky;
-  top: 174px; /* ← 이 값만 수정 */
-  z-index: 10;
-  background-color: #000;
-}
+
 
 .filter-box-inline .filter-btn {
   padding: 6px 12px;
@@ -959,6 +959,20 @@ h2 {
 #statsContainer {
   display: none;
 }
+#tab-player .player-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 15px 0 10px 0; /* 아래 여백 조절 */
+}
+
+#tab-player .filter-box-inline {
+  position: relative !important;
+  margin-bottom: 25px !important;
+  justify-content: center;
+  padding-left: 0 !important;
+}
+
     
   </style>
 </head>
@@ -1095,17 +1109,15 @@ h2 {
   </div>
 
   <!-- 선수명/팀명 -->
-  <div class="player-name" id="playerName"></div>
-  <div class="team-name" id="teamName"></div>
-
+    <div class="player-title" id="playerTitle"></div>
   <!-- ✅ 필터 버튼: 카드 상단 좌측 정렬 -->
-    <div class="filter-box-inline" id="playerFilterBox"
-     style="gap: 10px; justify-content: flex-start; margin: 10px 0 0 0; padding-left: 10px;">
-
-    <button class="filter-btn active" data-type="국내">국내 선수</button>
-    <button class="filter-btn active" data-type="외국인">외국인 선수</button>
-    <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
-  </div>
+    <div id="filterContainer">
+      <div class="filter-box-inline" id="playerFilterBox" style="display: none;">
+        <button class="filter-btn active" data-type="국내">국내 선수</button>
+        <button class="filter-btn active" data-type="외국인">외국인 선수</button>
+        <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
+      </div>
+    </div>
 
   <!-- 결과 카드 -->
   <div class="stats-container" id="statsContainer"></div>
@@ -1525,8 +1537,7 @@ const filteredData = data.filter(cols => {
   );
 
   if (playerData) {
-    document.getElementById('playerName').innerText = playerData["Player"];
-    document.getElementById('teamName').innerText = '(' + playerData["Team"] + ')';
+    document.getElementById('playerTitle').innerText = `${playerData["Player"]} (${playerData["Team"]})`;
     document.getElementById('playerFilterBox').style.display = 'flex';
     document.getElementById('statsContainer').style.display = 'grid';
     
