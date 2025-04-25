@@ -2333,12 +2333,15 @@ jsonData.forEach(cols => {
       fullSeasonDataMap[season] = jsonData;
 
       // ✅ 디버깅 로그 추가
-      console.log("24-25 originalData loaded:", originalData);
-
-      setTimeout(() => {
-        const currentInput = document.getElementById('searchPlayer').value.trim();
-        if (currentInput !== "") showPlayerStats();
-      }, 200);
+    console.log("24-25 originalData loaded:", originalData);
+    
+    // ✅ 시즌 변경 시, 선수 입력되어 있지 않아도 무조건 리렌더링
+    showPlayerStats();  // ← 이 줄을 반드시 추가하세요
+    
+    setTimeout(() => {
+      const currentInput = document.getElementById('searchPlayer').value.trim();
+      if (currentInput !== "") showPlayerStats(); // 이건 유지
+    }, 200);
     })
     .catch(error => {
       console.error("선수 개인 데이터 로딩 오류:", error);
