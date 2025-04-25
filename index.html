@@ -2058,7 +2058,9 @@ window.changeSeason = function(playerIndex, season) {
 // 엔터키 입력 기능 추가 (유지)
 ['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
   document.getElementById(id).addEventListener('keypress', function(e) {
-if (e.key === 'Enter') comparePlayers();
+    if (e.key === 'Enter') {
+      comparePlayers();  // Enter 키일 때만 실행
+    }
   });
 });
 
@@ -2406,7 +2408,17 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
+// ✅ 3페이지 비교 탭: 엔터 키 입력 시 자동 비교 실행
+['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
+  const input = document.getElementById(id);
+  if (input) {
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        comparePlayers();
+      }
+    });
+  }
+});
   
 </script>
 
