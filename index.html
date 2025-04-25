@@ -2333,15 +2333,2456 @@ jsonData.forEach(cols => {
       fullSeasonDataMap[season] = jsonData;
 
       // ✅ 디버깅 로그 추가
-    console.log("24-25 originalData loaded:", originalData);
+      console.log("24-25 originalData loaded:", originalData);
+
+      setTimeout(() => {
+        const currentInput = document.getElementById('searchPlayer').value.trim();
+        if (currentInput !== "") showPlayerStats();
+      }, 200);
+    })
+    .catch(error => {
+      console.error("선수 개인 데이터 로딩 오류:", error);
+      alert("데이터를 불러오는 중 문제가 발생했습니다.");
+    });
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  loadPlayersData();
+  loadPlayersData2();
+  document.getElementById('compareResult').innerHTML = '';
+
+  // ✅ compareFilterBox 버튼 클릭 이벤트 연결
+(function () {
+  const compareFilterBox = document.querySelectorAll('#compareFilterBox .filter-btn');
+  const savedCompareTypes = localStorage.getItem('activeTypesCompare');
+  if (savedCompareTypes) {
+    activeTypes = new Set(JSON.parse(savedCompareTypes));
+    compareFilterBox.forEach(btn => {
+      if (!activeTypes.has(btn.dataset.type)) {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  compareFilterBox.forEach(btn => {
+    const type = btn.dataset.type;
+    btn.addEventListener('click', () => {
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        btn.classList.remove('active');
+      } else {
+        activeTypes.add(type);
+        btn.classList.add('active');
+      }
+      localStorage.setItem('activeTypesCompare', JSON.stringify([...activeTypes]));
+    });
+  });
+})();
+
+   // ✅ 여기에 필터 버튼 이벤트 연결 코드 삽입
+document.querySelectorAll('.filter-toggle').forEach(btn => {
+  const type = btn.dataset.type;
+
+  // ✅ 저장된 상태 복원
+  const saved = localStorage.getItem('activeTypes');
+  if (saved) {
+    activeTypes = new Set(JSON.parse(saved));
+    if (!activeTypes.has(type)) btn.classList.remove('selected');
+  }
+
+  // ✅ 클릭 이벤트 연결
+    btn.addEventListener('click', () => {
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        btn.classList.remove('selected');
+      } else {
+        activeTypes.add(type);
+        btn.classList.add('selected');
+      }
+
+      localStorage.setItem('activeTypes', JSON.stringify([...activeTypes]));
+      renderTable(originalData);  // ✅ 이건 유지
+    });
+  });
+}); // ✅ 여기까지만 있어야 함
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#playerFilterBox .filter-btn').forEach(btn => {
+    const type = btn.dataset.type;
+
+    btn.addEventListener('click', () => {
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        btn.classList.remove('active');
+      } else {
+        activeTypes.add(type);
+        btn.classList.add('active');
+      }
+
+      localStorage.setItem('activeTypesPlayer', JSON.stringify([...activeTypes]));
+
+      showPlayerStats(); // 🔥 이게 즉시 카드 갱신시키는 핵심
+    });
+  });
+});
+// ✅ 3페이지 비교 탭: 엔터 키 입력 시 자동 비교 실행
+['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
+  const input = document.getElementById(id);
+  if (input) {
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        comparePlayers();
+      }
+    });
+  }
+});
+  
+</script>
+
+ 
+ </body>
+ </html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <meta charset="UTF-8">
+  <title>KBL Player Stats Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+body { 
+background-color: #000000;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center;
+  color: #FFF;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.tab-content.active {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+}
+
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h2 {
+  text-align: center;
+  color: #FFA500;
+}
+
+.tabs {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  background: #282828;
+  color: #FFF;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin: 0 5px;
+  font-weight: bold;
+  width: 160px;
+}
+
+.tabs button.active {
+  background: #E0E0E0;
+  color: #000;
+}
+
+.tab-content {
+  display: none !important;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tab-content.active {
+  display: flex !important;
+}
+
+.input-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px; /* ✅ 모든 간격 균일화 */
+  margin-top: 0 !important;
+  margin-bottom: 20px;
+}
+
+.input-box input[type="text"],
+.input-box button {
+  height: 42px;
+  padding: 0 15px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  border: none;
+  box-sizing: border-box;
+  margin: 0; /* ✅ margin 제거 */
+}
+
+
+.input-box input[type="text"] {
+  width: 250px;
+  font-size: 1rem;
+}
+
+.input-box button {
+  background-color: #88c2dd;
+  color: #121212;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.input-box input[type="checkbox"] {
+  margin: 0 1px;
+}
+
+.input-box label {
+  color: #FFF;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.scroll-container::-webkit-scrollbar,
+.stats-container::-webkit-scrollbar,
+.compare-result::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-track,
+.stats-container::-webkit-scrollbar-track,
+.compare-result::-webkit-scrollbar-track {
+  background: #121212;
+  border-radius: 5px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb,
+.stats-container::-webkit-scrollbar-thumb,
+.compare-result::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+  border: 2px solid #121212;
+}
+
+table {
+  border-collapse: collapse;
+  white-space: nowrap;
+  width: max-content;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+  text-align: center;
+  background: #181818;
+  font-weight: bold;
+}
+
+thead th {
+  background: #282828;
+  position: sticky;
+  top: 0;
+  cursor: pointer;
+  z-index: 500;
+}
+
+#statsTable {
+  min-width: max-content !important;
+  width: max-content !important;
+}    
     
-    // ✅ 시즌 변경 시, 선수 입력되어 있지 않아도 무조건 리렌더링
-    showPlayerStats();  // ← 이 줄을 반드시 추가하세요
+#statsTable td:first-child {
+  z-index: 3;
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  max-height: calc(100vh - 100px); /* 현재 있음 */
+  contain: layout; /* ✅ 이 줄을 추가하면 sticky가 푸터를 넘지 못함 */
+}
+
+.highlight { 
+  color: #FFFF55 !important; 
+  font-weight: bold; 
+}
+
+.player-name {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 15px 0 5px;
+  text-align: center;
+}
+
+.team-name {
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+  padding-bottom: 60px;
+}
+
+.card {
+  background-color: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 0px;
+  text-align: center;
+  min-height: 350px;
+}
+
+.card.primary:nth-child(2) { min-height: 420px; }
+.card.primary h3 { color: #FFA500; }
+.card.secondary h3 { color: #88c2dd; }
+
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.card table {
+  width: 100%;
+}
+
+.card th, .card td {
+  padding: 8px 5px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.card.team-stats {
+  min-height: 350px !important; /* 기존 380px → 줄임 */
+}
+
+.card.team-stats h3 {
+  color: #88c2dd !important;
+}
+
+#tab-compare .compare-result {
+  max-width: none !important;
+  height: calc(100vh - 260px);
+  padding: 5px;
+  margin: 0 auto;
+}
+
+#tab-compare .compare-result table {
+  table-layout: auto !important;
+  transform: none !important;
+}
+
+#tab-compare .compare-result th,
+#tab-compare .compare-result td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 10px 15px !important;
+  font-size: 0.85rem !important;
+  border-left: 1px solid #444 !important;  /* ✅ 세로선 추가 */
+  border-right: 1px solid #444 !important; /* ✅ 세로선 추가 */
+}
+
+#tab-compare .compare-result th:first-child {
+  border-left: 0px solid #444 !important;
+}
+/* 첫 번째 셀 - 왼쪽 경계선 */
+#tab-compare .compare-result th:first-child,
+#tab-compare .compare-result td:first-child {
+  border-left: 1px solid #444 !important;
+}
+
+/* 마지막 셀 - 오른쪽 경계선 */
+#tab-compare .compare-result td:last-child {
+  border-right: 1px solid #444 !important;
+}
+
+/* 상단 테두리 보강 */
+#tab-compare .compare-result thead th {
+  border-top: 1px solid #444 !important;
+}
+
+
+
+#tab-compare .compare-result table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+#tab-compare .compare-result th {
+  background-color: #282828 !important;
+  padding: 15px !important;
+}
+#tab-compare .compare-result::after {
+  content: '';
+  display: block;
+  height: 0px; /* ← 이 숫자가 공백 높이 */
+}
     
-    setTimeout(() => {
-      const currentInput = document.getElementById('searchPlayer').value.trim();
-      if (currentInput !== "") showPlayerStats(); // 이건 유지
-    }, 200);
+.highlight-first {
+  background-color: #FFD3C4 !important;  /* 1등: 밝은 살구빛 빨강 */
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.highlight-second {
+  background-color: #D7F2FF !important;  /* 2등: 밝은 하늘색 */
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.highlight-third {
+  background-color: #F0F0F0 !important;  /* 3등: 밝은 회색 */
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.footer {
+  z-index: 9999 !important;
+  text-align: center;
+  padding: 10px;
+  font-size: 0.8rem;
+  color: #888;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #000;
+  pointer-events: none;
+}
+
+
+/* ✅ 선수 개인 검색 페이지 간격 축소 (중요 수정) */
+#tab-player {
+  overflow-y: auto;
+  max-height: calc(100vh - 160px); /* 헤더 + 탭 버튼 등 여백 제외 */
+  padding-bottom: 50px; /* 푸터와 겹치지 않도록 공간 확보 */
+}
+    
+#tab-player .input-box {
+  margin-bottom: 10px !important; /* 기존 20px → 절반으로 수정 */
+}
+
+#tab-player .player-name {
+  margin-bottom: 3px !important;
+}
+
+#tab-player .team-name {
+  margin-bottom: 2px !important;
+}
+
+#tab-player .stats-container {
+  margin-top: -25px !important;
+  padding-bottom: 0px !important; /* ✅ 푸터와 겹침 방지 여백 추가 */
+  padding-right: 15px !important; /* ✅ 오른쪽 스크롤바와 간격 확보 */
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+}
+    
+#tab-player .stats-container::after {
+  content: '';
+  display: block;
+  height: 0px;
+}
+#tab-player #filterContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 0 15px 0;
+}
+
+#tab-player .filter-box-inline {
+  display: flex;
+  gap: 10px;
+  padding-left: 0;
+  margin: 0;
+}
+
+#tab-player .filter-box-inline .filter-btn {
+  padding: 6px 12px;
+  border: 1px solid #FFA500;
+  background-color: #333;     /* 어두운 회색 */
+  color: #FFF;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+#tab-player .filter-box-inline .filter-btn.active {
+  background-color: #FFA500;
+  color: #000;
+}
+
+
+
+/* ✅ 선수 비교 페이지 입력창 크기 및 영역 최적화 (중요 수정) */
+#tab-compare .input-box input[type="text"] {
+  width: 150px !important; /* 기존 200px → 2/3 크기 */
+}
+
+#tab-compare .input-box {
+  justify-content: space-between; /* 넓은 영역 활용 */
+  max-width: 900px;
+  margin: 0 auto 10px auto !important;
+  padding: 0;
+}
+
+/* 입력창과 버튼 정렬 최적화 */
+#tab-compare .input-box button {
+  flex-grow: 1;
+  max-width: 100px;
+  margin: 5px;
+}
+
+/* 체크박스 및 라벨 우측 정렬 */
+#tab-compare .input-box input[type="checkbox"],
+#tab-compare .input-box label {
+  flex-grow: 1;
+  text-align: right;
+  margin: 0 5px;
+}
+
+/* 비교 결과 테이블 가로 영역 최적화 */
+#tab-compare .compare-result {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: calc(100vh - 220px) !important;
+  overflow: auto !important;
+  margin: 0 auto;
+  padding: 10px !important;
+
+}
+
+#tab-compare .compare-result table {
+  width: max-content !important;
+  min-width: 100% !important;
+}
+
+/* ✅ 선수 비교 검색 데이터 영역 넓이 정확히 조정 (중요!) */
+#tab-compare .compare-result {
+  max-width: 900px !important;
+  width: 100% !important;
+  margin: 0 auto;
+  padding: 10px !important;
+  padding-top: 0px !important;  /* ✅ 이 줄을 추가합니다 */
+  border-top: 1px solid #121212 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  max-height: 560px !important;  /* ← 이 줄이 바로 문제의 핵심입니다 */
+  box-sizing: border-box !important;
+  position: relative;
+  background-color: #121212 !important;
+  scroll-padding-top: 40px;  /* ✅ 추가된 한 줄 */
+
+}
+
+/* 테이블 너비 정확히 조정 */
+#tab-compare .compare-result table {
+  width: 100% !important;
+  min-width: 100% !important;          /* ✅ container 기준 제한 */
+  table-layout: fixed !important;      /* ✅ 각 셀 너비 고정 */
+  word-break: break-word !important;   /* ✅ 긴 텍스트 자동 줄바꿈 */
+}
+
+/* 스크롤 시 데이터가 헤더 뒤로 보이는 현상 수정 */
+#tab-compare .compare-result th {
+  background-color: #282828 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* 제목 헤더 배경으로 데이터가 보이지 않게 설정 */
+#tab-compare .compare-result {
+  position: relative;
+  background-color: #121212 !important;
+}
+
+/* 차이 열 결과값 폰트 작게 조정 */
+#tab-compare .compare-result td.diff-cell span {
+  font-size: 0.9rem !important; /* 폰트 크기 1.2rem으로 지정 */
+}
+
+#tab-compare .compare-result {
+  background-color: transparent !important;
+}
+
+#tab-compare .compare-result table {
+  background-color: transparent !important;
+}
+    
+/* 빨간 정삼각형 아이콘 추가 스타일 */
+.diff-positive::before {
+  content: "▲";
+  color: red;
+  margin-right: 4px;
+  font-size: 0.8rem;
+}
+/* 음수(-)값: 파란 역삼각형 아이콘 추가 */
+.diff-negative::before {
+  content: "▼";
+  color: #007BFF; /* 완전한 파란색 */
+  margin-right: 5px;
+  font-size: 0.8rem;
+}
+
+.category-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 상단 6개 항목을 균등하게 나누기 위해 6칸 설정 */
+  gap: 10px 20px; /* 세로 10px, 가로 20px 간격 */
+  max-width: 900px;
+  margin: 10px auto 20px auto;  justify-content: center;
+  align-items: center;
+}
+
+.category-checkboxes label {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;       /* ✅ 텍스트 크기 줄임 */
+}
+
+.category-checkboxes input[type="checkbox"] {
+  margin-right: 7px;
+}
+
+/* 상단 6개 항목 정확히 균등 배치 (한 행에 하나씩 정확히 들어가도록 설정) */
+.category-checkboxes label:nth-child(-n+6) {
+  grid-column: span 1; /* 6개 항목 정확히 한 칸씩 나눔 */
+}
+
+/* 하단 4개 항목은 더 넓게, 정확히 중앙 정렬 */
+.category-checkboxes label:nth-child(n+7) {
+  grid-column: span 1; /* 넓게 2칸씩 사용하여 여유를 둠 */
+}
+
+/* 하단 4개 항목이 정확히 중앙 정렬되도록 시작 위치 지정 */
+.category-checkboxes label:nth-child(7) {
+  grid-column-start: 2; /* 정확히 중앙 시작점 지정 */
+}
+
+.category-checkboxes label:nth-child(2) {
+  margin-left: -40px; /* 슈팅 지표를 WinShare 지표에 맞춤 */
+}
+
+.category-checkboxes label:nth-child(10) {
+  margin-left: -38px; /* Team내 비중 지표를 어시스트에 맞춤 */
+}
+.side-logo {
+  position: fixed;
+  top: 65%; /* 화면 중앙보다 조금 아래 (제시하신 흰색 선 높이) */
+  transform: translateY(-50%);
+  width: 160px; 
+  height: 160px;
+  background: transparent;
+  z-index: 1000;
+}
+
+.side-logo.left {
+  left: 100px; 
+}
+
+.side-logo.right {
+  position: fixed;
+  top: calc(50% + 180px); /* 중앙에서 아래로 80px 내려감 (나이츠 로고 중심점 맞추기) */
+  right: 100px;
+  width: 160px;
+  height: 160px;
+  background: transparent;
+  z-index: 1000;
+}
+
+.side-logo img {
+  width: 90%;
+  height: auto;
+  display: block;
+  margin: auto;
+}
+/* ✅ 제목 트렌디 스타일링 추가 */
+h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  text-shadow: 
+    0 0 3px #ff8c00, 
+    0 0 6px #ff8c00, 
+    0 0 12px #ff4500; 
+  letter-spacing: 1px;
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from { 
+    text-shadow: 0 0 3px #ff8c00, 0 0 6px #ff4500; 
+  }
+  to { 
+    text-shadow: 0 0 6px #ff8c00, 0 0 12px #ff4500; 
+  }
+}
+
+.logo-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0 5px 0;  /* 상단 여백을 60px으로 늘림 */
+}
+
+.logo-title .logo {
+  height: 50px;
+}
+
+.logo-title .title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}  
+
+/* 헤더 행 고정 */
+#statsTable thead th {
+  position: sticky;
+  top: 0;
+  background-color: #282828;
+  z-index: 10;
+}
+
+#statsTable th:first-child,
+#statsTable td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: #282828;
+  z-index: 9;
+}
+
+#statsTable th,
+#statsTable td {
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  background-color: #181818;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.scroll-container {
+  overflow: auto;
+  height: calc(100vh - 290px);  /* 기존보다 40px 줄임 */
+  padding-bottom: 0;            /* spacerRow 필요 없음 */
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+  border: 2px solid #121212;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+#statsTable thead th:first-child {
+  position: sticky;
+  top: 0;
+  left: 0;
+  background-color: #282828;
+  z-index: 11;
+}
+
+/* 푸터 겹침 방지용 여백 */
+#statsTable::after {
+  content: '';
+  display: block;
+  height: 80px;
+}
+
+#tab-player .player-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 8px 0 3px 0 !important;
+  text-align: center;
+}
+
+#tab-player .team-name {
+  font-size: 1rem;
+  margin-bottom: 10px !important;
+  text-align: center;
+}
+
+   
+/* 테이블 셀 외곽선 정리 (모든 셀 동일 선 색) */
+#tab-compare .compare-result th,
+#tab-compare .compare-result td {
+  border: 1px solid #444 !important;
+}
+
+/* 강조 셀도 border 동일하게 */
+#tab-compare .compare-result .highlight-first,
+#tab-compare .compare-result .highlight-second,
+#tab-compare .compare-result .highlight-third,
+#tab-compare .compare-result .diff-cell {
+  border: 1px solid #444 !important;
+}
+
+/* 헤더 겹침 방지 및 시각적 안정성 */
+#tab-compare .compare-result thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  background-color: #282828 !important;
+  border-bottom: 2px solid #555 !important;
+}
+@media (max-width: 1200px) {
+  /* 1페이지: 로고/파일 버튼 숨김 */
+  .side-logo {
+    display: none !important;
+  }
+
+  .upload-box {
+    display: none !important;
+  }
+
+  /* 2페이지: 카드 3열 → 2열 */
+  #tab-player .stats-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* 3페이지: 비교 테이블 폭 자동 조정 */
+  #tab-compare .compare-result {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+}
+
+@media (max-width: 950px) {
+  /* 2페이지: 카드 2열 → 1열 */
+  #tab-player .stats-container {
+    grid-template-columns: 1fr !important;
+    display: grid !important;
+  }
+
+  /* 3페이지: 테이블 자동 폭 + 폰트 줄이기 */
+  #tab-compare .compare-result table {
+    width: 100% !important;
+    min-width: unset !important;
+    table-layout: auto !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+@media (max-width: 600px) {
+  /* 3페이지: 폰트 더 작게 (모바일 극단적 대응) */
+  #tab-compare .compare-result table {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .upload-box {
+    display: none !important;
+  }
+}
+.input-box select#seasonSelector {
+  width: 90px;
+  height: 42px;
+  background-color: #181818;
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 5px;
+  padding: 0 5px; /* ✅ 오른쪽 공간 줄이기 */
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none !important;
+  text-align: center;
+  text-align-last: center;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* ✅ 텍스트 완전 정중앙 */
+}
+.input-box select#seasonSelector::-ms-expand {
+  display: none; /* IE에서 화살표 제거 */
+}
+
+.input-box select#seasonSelectorPlayer {
+  width: 90px;
+  height: 42px;
+  background-color: #181818;
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 5px;
+  padding: 0 5px;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none !important;
+  text-align: center;
+  text-align-last: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.input-box select#seasonSelectorPlayer::-ms-expand {
+  display: none;
+}  
+
+.input-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* 체크박스와 텍스트 사이 간격 */
+  margin-left: 10px; /* Compare 버튼과의 간격 */
+}
+.checkbox-group input[type="checkbox"] {
+  margin: 0; /* 기본 여백 제거 */
+}
+
+.checkbox-group label {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: #FFF;
+}
+.season-switch {
+  background-color: rgba(255, 255, 255, 0.12); /* 검은 배경보다 확실히 밝고 깨끗한 대비 */
+  color: #fff; /* 텍스트는 흰색으로 유지 */
+  font-weight: bold;
+  font-size: 0.70rem;
+  border: none; /* 테두리 제거 */
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+  appearance: none;
+  cursor: pointer;
+  height: 28px;
+  line-height: 1.1;
+  transition: background-color 0.2s ease;
+}
+
+.season-switch:hover {
+  background-color: rgba(255, 255, 255, 0.18); /* 마우스 오버 시 약간 더 밝아짐 */
+}
+.filter-box-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-left: 5px;
+}
+
+.filter-toggle {
+  padding: 0 12px;
+  height: 28px; /* 주인님이 요청하신 낮은 높이로 조정 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #888;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.filter-toggle.selected {
+  background-color: #FFA500;
+  color: #000;
+  font-weight: bold;
+  border-color: #FFA500;
+}
+
+
+.filter-box-inline .filter-btn {
+  padding: 6px 12px;
+  border: 1px solid #FFA500;
+  background-color: #333;     /* 어두운 회색 */
+  color: #FFF;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.filter-box-inline .filter-btn.active {
+  background-color: #FFA500;
+  color: #000;
+}
+
+
+#tab-compare .filter-box-inline {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin: 12px 0 20px 0;
+  padding-left: 0px;
+  padding-bottom: 10px;
+  width: fit-content;
+  box-sizing: border-box;
+  transform: translateX(133px); /* ✅ Player 열과 정확히 같은 위치로 이동 */
+}
+    
+#tab-compare .filter-box-inline .filter-btn {
+  padding: 0 12px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #888;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#tab-compare .filter-box-inline .filter-btn.active {
+  background-color: #FFA500;
+  color: #000;
+  border-color: #FFA500;
+}
+
+#playerFilterBox,
+#statsContainer {
+  display: none;
+}
+#tab-player .player-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 15px 0 10px 0; /* 아래 여백 조절 */
+}
+
+#tab-player .filter-box-inline {
+  position: relative !important;
+  margin-bottom: 25px !important;
+  justify-content: center;
+  padding-left: 0 !important;
+}
+
+.filter-box-inline .filter-btn {
+  padding: 6px 12px;
+  border: 1px solid #888;
+  background-color: #222;
+  color: #FFF;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.filter-box-inline .filter-btn.active {
+  background-color: #FFA500;
+  color: #000;
+  border-color: #FFA500;
+}    
+  </style>
+</head>
+<body>
+  <div class="side-logo left">
+<img src="https://github.com/dookie777/KBL-Player-Performance-Analyzer/raw/main/Seoul_SK_Knights_logo.svg.png" alt="Seoul SK Knights Logo">
+</div>
+
+<div class="side-logo right">
+<img src="https://github.com/dookie777/KBL-Player-Performance-Analyzer/raw/main/SK%ED%85%94%EB%A0%88%EC%BD%A4_%EB%A1%9C%EA%B3%A0.svg.png" alt="SK Telecom Logo">
+</div>
+<div class="logo-title">
+  <img src="https://github.com/dookie777/KBL-Player-Performance-Analyzer/blob/main/Logo_white.png?raw=true" alt="The Eroom Sports Logo" class="logo">
+  <span class="title">KBL Player Stats Analyzer</span>
+</div>
+  
+  <div class="container">
+  <div class="tabs">
+    <button class="tab-button active" data-tab="tab-all">선수 전체 검색</button>
+    <button class="tab-button" data-tab="tab-player">선수 개인 검색</button>
+    <button class="tab-button" data-tab="tab-compare">선수 비교 검색</button>
+  </div>
+
+<div id="tab-all" class="tab-content active">
+
+  <div class="input-box">
+  <select id="seasonSelector" onchange="loadPlayersData()">
+  <option value="23-24">23-24 시즌</option>
+  <option value="24-25" selected>24-25 시즌</option> <!-- 이 줄만 수정 -->
+  </select>
+    <input type="text" id="searchPlayerAll" placeholder="Search player...">
+    <button onclick="searchPlayer()">Search</button>
+    <input type="checkbox" id="minGamesCheckbox">
+    <label for="minGamesCheckbox">규정 경기 이상(14G)</label>
+  </div>
+
+<div class="upload-box" style="position:fixed; top:10px; right:10px; display:flex; align-items:center; gap:5px;">
+  <input type="file" id="fileUploader" accept=".xlsx, .xls" style="font-size:0.75rem; color:#FFF;">
+  <button onclick="loadLocalFile()" style="background:#555; color:#FFF; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; border:none;">업로드</button>
+</div>
+
+<div class="filter-box-inline" style="margin: 2px 0 8px 0; padding-left: 5px;">
+<div class="filter-toggle selected" data-type="국내">국내 선수</div>
+<div class="filter-toggle selected" data-type="외국인">외국인 선수</div>
+<div class="filter-toggle selected" data-type="아시아쿼터">아시아쿼터</div>
+</div>
+  
+<div class="scroll-container">
+<table id="statsTable" style="border-collapse: collapse;">
+     <thead>
+  <tr>
+    <th>Player</th>
+    <th>Team</th>
+    <th>출전 경기 수</th>
+    <th>출전 시간(초)</th>
+    <th>득점</th>
+    <th>평균 득점</th>
+    <th>FGA</th>
+    <th>FG</th>
+    <th>평균 FG 시도</th>
+    <th>평균 FG 성공</th>
+    <th>FG%</th>
+    <th>2PA</th>
+    <th>2P</th>
+    <th>평균 2p 시도</th>
+    <th>평균 2p 성공</th>
+    <th>2P%</th>
+    <th>3PA</th>
+    <th>3P</th>
+    <th>평균 3p 시도</th>
+    <th>평균 3p 성공</th>
+    <th>3P%</th>
+    <th>FTA</th>
+    <th>FT</th>
+    <th>평균 FT 시도</th>
+    <th>평균 FT 성공</th>
+    <th>FT%</th>
+    <th>리바운드</th>
+    <th>평균 리바운드</th>
+    <th>공격 리바운드</th>
+    <th>평균 공격 리바운드</th>
+    <th>수비 리바운드</th>
+    <th>평균 수비 리바운드</th>
+    <th>어시스트</th>
+    <th>평균 어시스트</th>
+    <th>스틸</th>
+    <th>평균 스틸</th>
+    <th>블록</th>
+    <th>평균 블록</th>
+    <th>턴오버</th>
+    <th>평균 턴오버</th>
+    <th>파울</th>
+    <th>평균 파울</th>
+    <th>WS</th>
+    <th>WS/40</th>
+    <th>Offensive_WS</th>
+    <th>Defensive_WS</th>
+    <th>PER</th>
+    <th>EFF</th>
+    <th>EFF/40</th>
+    <th>Offensive_rating</th>
+    <th>Defensive_rating</th>
+    <th>USG%</th>
+    <th>TS%</th>
+    <th>eFG%</th>
+    <th>3PAr</th>
+    <th>FTr</th>
+    <th>ORB%</th>
+    <th>DRB%</th>
+    <th>TRB%</th>
+    <th>AST%</th>
+    <th>STL%</th>
+    <th>BS%</th>
+    <th>TOV%</th>
+  </tr>
+</thead>
+
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+
+<div id="tab-player" class="tab-content">
+  <div class="input-box">
+    <select id="seasonSelectorPlayer" onchange="loadPlayersData2()">
+      <option value="23-24">23-24 시즌</option>
+      <option value="24-25" selected>24-25 시즌</option> <!-- 이 줄도 수정 -->
+    </select>
+    <input type="text" id="searchPlayer" placeholder="Search player...">
+    <button id="searchPlayerButton">Search</button>
+    <input type="checkbox" id="minGames">
+    <label for="minGames">규정 경기 이상(14G)</label>
+  </div>
+
+  <!-- 선수명/팀명 -->
+    <div class="player-title" id="playerTitle"></div>
+  <!-- ✅ 필터 버튼: 카드 상단 좌측 정렬 -->
+    <div id="filterContainer">
+      <div class="filter-box-inline" id="playerFilterBox" style="display: none;">
+        <button class="filter-btn active" data-type="국내">국내 선수</button>
+        <button class="filter-btn active" data-type="외국인">외국인 선수</button>
+        <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
+      </div>
+    </div>
+
+  <!-- 결과 카드 -->
+  <div class="stats-container" id="statsContainer"></div>
+  <div style="height: 80px;"></div>
+</div>
+
+
+<!-- ✅ 3페이지 복구 시작 -->
+<div id="tab-compare" class="tab-content">
+  <div class="input-box">
+    <input type="text" id="comparePlayer1" placeholder="Player 1">
+    <input type="text" id="comparePlayer2" placeholder="Player 2">
+    <input type="text" id="comparePlayer3" placeholder="Player 3(선택)">
+    <button onclick="comparePlayers()">Compare</button>
+    <input type="checkbox" id="compareMinGames">
+    <label for="compareMinGames">규정 경기 이상(14G)</label>
+  </div>
+  <div id="categoryCheckboxes" class="category-checkboxes">
+    <label><input type="checkbox" value="기본 정보" checked> 기본 정보</label>
+    <label><input type="checkbox" value="슈팅 지표" checked> 슈팅 지표</label>
+    <label><input type="checkbox" value="슈팅 성공률" checked> 슈팅 성공률</label>
+    <label><input type="checkbox" value="리바운드 지표" checked> 리바운드 지표</label>
+    <label><input type="checkbox" value="어시스트/스틸/블록 지표" checked> 어시스트/스틸/블록 지표</label>
+    <label><input type="checkbox" value="기타 지표" checked> 기타 지표</label>
+    <label><input type="checkbox" value="WinShare 지표" checked> WinShare 지표</label>
+    <label><input type="checkbox" value="효율성 지표" checked> 효율성 지표</label>
+    <label><input type="checkbox" value="2차 슈팅 지표" checked> 2차 슈팅 지표</label>
+    <label><input type="checkbox" value="Team내 비중 지표" checked> Team내 비중 지표</label>
+  </div>
+<div class="filter-box-inline" id="compareFilterBox"
+     style="display: flex; gap: 10px; justify-content: flex-start; margin: 10px 0 0 0; padding-left: 10px;">
+  <button class="filter-btn active" data-type="국내">국내 선수</button>
+  <button class="filter-btn active" data-type="외국인">외국인 선수</button>
+  <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
+</div>
+  <div class="compare-result" id="compareResult"></div>
+</div>
+</div>
+  <footer class="footer">
+    © 2025 The Eroom Sports. All rights reserved.
+  </footer>
+</div>
+
+<script>
+const statsFormats = {
+  "출전 경기 수": {unit: '경기', decimals: 0},
+  "총 출전 시간(초)": {unit: '분 초', decimals: 0, convert: true},
+  "득점": {unit: '점', decimals: 0},
+  "평균 득점": {unit: '점', decimals: 2},
+  "FGA": {unit: '개', decimals: 0},
+  "FG": {unit: '개', decimals: 0},
+  "평균 FG 시도": {unit: '개', decimals: 2},
+  "평균 FG 성공": {unit: '개', decimals: 2},
+  "FG%": {unit: '%', decimals: 2},
+  "2PA": {unit: '개', decimals: 0},
+  "2P": {unit: '개', decimals: 0},
+  "평균 2p 시도": {unit: '개', decimals: 2},
+  "평균 2p 성공": {unit: '개', decimals: 2},
+  "2P%": {unit: '%', decimals: 2},
+  "3PA": {unit: '개', decimals: 0},
+  "3P": {unit: '개', decimals: 0},
+  "평균 3p 시도": {unit: '개', decimals: 2},
+  "평균 3p 성공": {unit: '개', decimals: 2},
+  "3P%": {unit: '%', decimals: 2},
+  "FTA": {unit: '개', decimals: 0},
+  "FT": {unit: '개', decimals: 0},
+  "평균 FT 시도": {unit: '개', decimals: 2},
+  "평균 FT 성공": {unit: '개', decimals: 2},
+  "FT%": {unit: '%', decimals: 2},
+  "리바운드": {unit: '개', decimals: 0},
+  "평균 리바운드": {unit: '개', decimals: 2},
+  "공격 리바운드": {unit: '개', decimals: 0},
+  "평균 공격 리바운드": {unit: '개', decimals: 2},
+  "수비 리바운드": {unit: '개', decimals: 0},
+  "평균 수비 리바운드": {unit: '개', decimals: 2},
+  "어시스트": {unit: '개', decimals: 0},
+  "평균 어시스트": {unit: '개', decimals: 2},
+  "스틸": {unit: '개', decimals: 0},
+  "평균 스틸": {unit: '개', decimals: 2},
+  "블록": {unit: '개', decimals: 0},
+  "평균 블록": {unit: '개', decimals: 2},
+  "턴오버": {unit: '개', decimals: 0},
+  "평균 턴오버": {unit: '개', decimals: 2},
+  "파울": {unit: '개', decimals: 0},
+  "평균 파울": {unit: '개', decimals: 2},
+  "WS": {unit: '', decimals: 3},
+  "WS/40": {unit: '', decimals: 3},
+  "Offensive_WS": {unit: '', decimals: 3},
+  "Defensive_WS": {unit: '', decimals: 3},
+  "PER": {unit: '', decimals: 3},
+  "EFF": {unit: '', decimals: 3},
+  "EFF/40": {unit: '', decimals: 3},
+  "Offensive_rating": {unit: '', decimals: 3},
+  "Defensive_rating": {unit: '', decimals: 3},
+  "TS%": {unit: '%', decimals: 3},
+  "eFG%": {unit: '%', decimals: 3},
+  "USG%": {unit: '%', decimals: 3},
+  "3PAr": {unit: '', decimals: 3},
+  "FTr": {unit: '', decimals: 3},
+  "ORB%": {unit: '%', decimals: 3},
+  "DRB%": {unit: '%', decimals: 3},
+  "TRB%": {unit: '%', decimals: 3},
+  "AST%": {unit: '%', decimals: 3},
+  "STL%": {unit: '%', decimals: 3},
+  "BS%": {unit: '%', decimals: 3},
+  "TOV%": {unit: '%', decimals: 3}
+};
+
+  
+ const tabs = document.querySelectorAll('.tab-button');
+ const contents = document.querySelectorAll('.tab-content');
+ 
+tabs.forEach(tab => {
+  tab.onclick = (e) => {
+    // 자동 실행으로 트리거된 클릭은 무시
+    if (e.isTrusted === false || e.detail === 0) return;
+
+    tabs.forEach(t => t.classList.remove('active'));
+    contents.forEach(c => c.classList.remove('active'));
+
+    if (tab.dataset.tab === 'tab-compare') {
+      document.getElementById('compareResult').innerHTML = '';
+    }
+
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    tab.classList.add('active');
+  };
+});
+ let playerDataBySeason = {};  // ✅ 이 줄을 추가
+  let fullSeasonDataMap = {};  // ← ✅ 반드시 여기 위치해도 됨
+  let originalData = [], highlightedPlayer = '', fixedRow = null;
+  let activeTypes = new Set(["국내", "외국인", "아시아쿼터"]);
+  let playersData = [];
+  let playerSeasonData = {}; // 선수별 시즌 데이터 저장용
+
+ const statsLabels = [
+    {label: '출전 경기 수', key: "출전 경기 수", higherBetter: true},
+    {label: '평균 출전 시간', key: "총 출전 시간(초)", higherBetter: true},
+    {label: '득점', key: "득점", higherBetter: true},
+    {label: '평균 득점', key: "평균 득점", higherBetter: true},
+    {label: 'FGA', key: "FGA", higherBetter: true},
+    {label: 'FG', key: "FG", higherBetter: true},
+    {label: '평균 FG 시도', key: "평균 FG 시도", higherBetter: true},
+    {label: '평균 FG 성공', key: "평균 FG 성공", higherBetter: true},
+    {label: 'FG%', key: "FG%", higherBetter: true},
+    {label: '2PA', key: "2PA", higherBetter: true},
+    {label: '2P', key: "2P", higherBetter: true},
+    {label: '평균 2p 시도', key: "평균 2p 시도", higherBetter: true},
+    {label: '평균 2p 성공', key: "평균 2p 성공", higherBetter: true},
+    {label: '2P%', key: "2P%", higherBetter: true},
+    {label: '3PA', key: "3PA", higherBetter: true},
+    {label: '3P', key: "3P", higherBetter: true},
+    {label: '평균 3p 시도', key: "평균 3p 시도", higherBetter: true},
+    {label: '평균 3p 성공', key: "평균 3p 성공", higherBetter: true},
+    {label: '3P%', key: "3P%", higherBetter: true},
+    {label: 'FTA', key: "FTA", higherBetter: true},
+    {label: 'FT', key: "FT", higherBetter: true},
+    {label: '평균 FT 시도', key: "평균 FT 시도", higherBetter: true},
+    {label: '평균 FT 성공', key: "평균 FT 성공", higherBetter: true},
+    {label: 'FT%', key: "FT%", higherBetter: true},
+    {label: '리바운드', key: "리바운드", higherBetter: true},
+    {label: '평균 리바운드', key: "평균 리바운드", higherBetter: true},
+    {label: '공격 리바운드', key: "공격 리바운드", higherBetter: true},
+    {label: '평균 공격 리바운드', key: "평균 공격 리바운드", higherBetter: true},
+    {label: '수비 리바운드', key: "수비 리바운드", higherBetter: true},
+    {label: '평균 수비 리바운드', key: "평균 수비 리바운드", higherBetter: true},
+    {label: '어시스트', key: "어시스트", higherBetter: true},
+    {label: '평균 어시스트', key: "평균 어시스트", higherBetter: true},
+    {label: '스틸', key: "스틸", higherBetter: true},
+    {label: '평균 스틸', key: "평균 스틸", higherBetter: true},
+    {label: '블록', key: "블록", higherBetter: true},
+    {label: '평균 블록', key: "평균 블록", higherBetter: true},
+    {label: '턴오버', key: "턴오버", higherBetter: false},
+    {label: '평균 턴오버', key: "평균 턴오버", higherBetter: false},
+    {label: '파울', key: "파울", higherBetter: false},
+    {label: '평균 파울', key: "평균 파울", higherBetter: false},
+    {label: 'WS', key: "WS", higherBetter: true},
+    {label: 'WS/40', key: "WS/40", higherBetter: true},
+    {label: 'Offensive_WS', key: "Offensive_WS", higherBetter: true},
+    {label: 'Defensive_WS', key: "Defensive_WS", higherBetter: true},
+    {label: 'Offensive_rating', key: "Offensive_rating", higherBetter: true},
+    {label: 'Defensive_rating', key: "Defensive_rating", higherBetter: false},
+    {label: 'PER', key: "PER", higherBetter: true},
+    {label: 'EFF', key: "EFF", higherBetter: true},
+    {label: 'EFF/40', key: "EFF/40", higherBetter: true},
+    {label: 'TS%', key: "TS%", higherBetter: true},
+    {label: 'eFG%', key: "eFG%", higherBetter: true},
+    {label: 'USG%', key: "USG%", higherBetter: true},
+    {label: '3PAr', key: "3PAr", higherBetter: true},
+    {label: 'FTr', key: "FTr", higherBetter: true},
+    {label: 'ORB%', key: "ORB%", higherBetter: true},
+    {label: 'DRB%', key: "DRB%", higherBetter: true},
+    {label: 'TRB%', key: "TRB%", higherBetter: true},
+    {label: 'AST%', key: "AST%", higherBetter: true},
+    {label: 'STL%', key: "STL%", higherBetter: true},
+    {label: 'BS%', key: "BS%", higherBetter: true},
+    {label: 'TOV%', key: "TOV%", higherBetter: false}
+  ];  
+window.renderTable = renderTable; // ✅ 여기에 이 줄 추가
+  
+async function loadPlayersData() {
+  const season = document.getElementById('seasonSelector')?.value || '24-25'; // ← 이 부분도 수정
+  const fileMap = {
+    '23-24': '23-24_KBL_stats.xlsx',
+    '24-25': '24-25_KBL_stats.xlsx'
+  };
+  const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
+
+try {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+  }
+
+  const data = await response.arrayBuffer();
+  const workbook = XLSX.read(data, { type: "array" });
+  const firstSheet = workbook.SheetNames[0];
+  originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+originalData.forEach(cols => {
+  let minutes = parseInt(cols["m"]) || 0;
+  let seconds = parseInt(cols["s"]) || 0;
+  cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+
+  // ✅ 이름, 팀명, 구분 공백 제거
+  cols["Player"] = (cols["Player"] || "").trim();
+  cols["Team"] = (cols["Team"] || "").trim();
+  cols["구분"] = (cols["구분"] || "").trim(); // ← 이거만 해주시면 됩니다
+});
+fullSeasonDataMap[season] = originalData;  // ✅ 꼭 추가하세요
+
+renderTable(originalData);
+
+  
+  
+} catch (error) {
+  console.error("데이터 로딩 오류:", error);
+  alert(`데이터 로딩 실패: ${error.message}`);
+}
+
+
+function renderTable(data) {
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = '';
+
+  const minGamesOnly = document.getElementById('minGamesCheckbox').checked;
+  const filteredData = data.filter(cols =>
+    activeTypes.has(cols["구분"]) &&
+    (!minGamesOnly || parseInt(cols["출전 경기 수"]) >= 14)
+  );
+  filteredData.forEach(cols => {
+    const playerName = cols["Player"];
+    const status = parseInt(cols["출전 경기 수"]) >= 14 ? '✅' : '⚠️';
+    const totalSeconds = cols["총 출전 시간(초)"]; // 이미 계산된 값 정확히 사용
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+const row = document.createElement('tr');
+row.innerHTML = `
+  <td>${playerName} <span class="${cols["출전 경기 수"] >= 20 ? 'valid' : 'warning'}">${status}</span></td>
+  <td>${cols["Team"]}</td>
+  <td>${formatStatValue("출전 경기 수", cols["출전 경기 수"])}</td>
+  <td data-time="${totalSeconds}">${formatStatValue("총 출전 시간(초)", totalSeconds)}</td>
+  <td>${formatStatValue("득점", cols["득점"])}</td>
+  <td>${formatStatValue("평균 득점", cols["평균 득점"])}</td>
+  <td>${formatStatValue("FGA", cols["FGA"])}</td>
+  <td>${formatStatValue("FG", cols["FG"])}</td>
+  <td>${formatStatValue("평균 FG 시도", cols["평균 FG 시도"])}</td>
+  <td>${formatStatValue("평균 FG 성공", cols["평균 FG 성공"])}</td>
+  <td>${formatStatValue("FG%", cols["FG%"])}</td>
+  <td>${formatStatValue("2PA", cols["2PA"])}</td>
+  <td>${formatStatValue("2P", cols["2P"])}</td>
+  <td>${formatStatValue("평균 2p 시도", cols["평균 2p 시도"])}</td>
+  <td>${formatStatValue("평균 2p 성공", cols["평균 2p 성공"])}</td>
+  <td>${formatStatValue("2P%", cols["2P%"])}</td>
+  <td>${formatStatValue("3PA", cols["3PA"])}</td>
+  <td>${formatStatValue("3P", cols["3P"])}</td>
+  <td>${formatStatValue("평균 3p 시도", cols["평균 3p 시도"])}</td>
+  <td>${formatStatValue("평균 3p 성공", cols["평균 3p 성공"])}</td>
+  <td>${formatStatValue("3P%", cols["3P%"])}</td>
+  <td>${formatStatValue("FTA", cols["FTA"])}</td>
+  <td>${formatStatValue("FT", cols["FT"])}</td>
+  <td>${formatStatValue("평균 FT 시도", cols["평균 FT 시도"])}</td>
+  <td>${formatStatValue("평균 FT 성공", cols["평균 FT 성공"])}</td>
+  <td>${formatStatValue("FT%", cols["FT%"])}</td>
+  <td>${formatStatValue("리바운드", cols["리바운드"])}</td>
+  <td>${formatStatValue("평균 리바운드", cols["평균 리바운드"])}</td>
+  <td>${formatStatValue("공격 리바운드", cols["공격 리바운드"])}</td>
+  <td>${formatStatValue("평균 공격 리바운드", cols["평균 공격 리바운드"])}</td>
+  <td>${formatStatValue("수비 리바운드", cols["수비 리바운드"])}</td>
+  <td>${formatStatValue("평균 수비 리바운드", cols["평균 수비 리바운드"])}</td>
+  <td>${formatStatValue("어시스트", cols["어시스트"])}</td>
+  <td>${formatStatValue("평균 어시스트", cols["평균 어시스트"])}</td>
+  <td>${formatStatValue("스틸", cols["스틸"])}</td>
+  <td>${formatStatValue("평균 스틸", cols["평균 스틸"])}</td>
+  <td>${formatStatValue("블록", cols["블록"])}</td>
+  <td>${formatStatValue("평균 블록", cols["평균 블록"])}</td>
+  <td>${formatStatValue("턴오버", cols["턴오버"])}</td>
+  <td>${formatStatValue("평균 턴오버", cols["평균 턴오버"])}</td>
+  <td>${formatStatValue("파울", cols["파울"])}</td>
+  <td>${formatStatValue("평균 파울", cols["평균 파울"])}</td>
+  <td>${formatStatValue("WS", cols["WS"])}</td>
+  <td>${formatStatValue("WS/40", cols["WS/40"])}</td>
+  <td>${formatStatValue("Offensive_WS", cols["Offensive_WS"])}</td>
+  <td>${formatStatValue("Defensive_WS", cols["Defensive_WS"])}</td>
+  <td>${formatStatValue("PER", cols["PER"])}</td>
+  <td>${formatStatValue("EFF", cols["EFF"])}</td>
+  <td>${formatStatValue("EFF/40", cols["EFF/40"])}</td>
+  <td>${formatStatValue("Offensive_rating", cols["Offensive_rating"])}</td>
+  <td>${formatStatValue("Defensive_rating", cols["Defensive_rating"])}</td>
+  <td>${formatStatValue("USG%", cols["USG%"])}</td>
+  <td>${formatStatValue("TS%", cols["TS%"])}</td>
+  <td>${formatStatValue("eFG%", cols["eFG%"])}</td>
+  <td>${formatStatValue("3PAr", cols["3PAr"])}</td>
+  <td>${formatStatValue("FTr", cols["FTr"])}</td>
+  <td>${formatStatValue("ORB%", cols["ORB%"])}</td>
+  <td>${formatStatValue("DRB%", cols["DRB%"])}</td>
+  <td>${formatStatValue("TRB%", cols["TRB%"])}</td>
+  <td>${formatStatValue("AST%", cols["AST%"])}</td>
+  <td>${formatStatValue("STL%", cols["STL%"])}</td>
+  <td>${formatStatValue("BS%", cols["BS%"])}</td>
+  <td>${formatStatValue("TOV%", cols["TOV%"])}</td>
+`;
+tableBody.appendChild(row);
+  });
+// ✅ 푸터 여백 확보용 마지막 빈 행 추가
+const spacerRow = document.createElement('tr');
+spacerRow.id = 'spacerRow';
+spacerRow.innerHTML = `<td style="padding: 0; height: 80px; background: transparent; border: none;" colspan="${document.querySelectorAll('#statsTable thead th').length}"></td>`;
+tableBody.appendChild(spacerRow);
+}
+
+window.renderTable = renderTable; // ✅ 여기 있어야만 작동함
+
+ 
+function searchPlayer(){
+  const query = document.getElementById('searchPlayerAll').value.toLowerCase().trim();
+  clearFixedRow();
+  const rows = document.querySelectorAll('#tableBody tr');
+  let found = false;
+  rows.forEach(row => {
+    const name = row.cells[0].textContent.toLowerCase();
+    row.classList.remove('highlight');
+    if (name.includes(query)){
+      found = true;
+      row.classList.add('highlight');
+      fixRow(row);
+    }
+  });
+  if (!found) alert("Player not found!");
+}
+ 
+ function fixRow(row) {
+  clearFixedRow();
+  fixedRow = row.cloneNode(true);
+  fixedRow.classList.add('fixed-row', 'highlight');
+  fixedRow.style.position = 'sticky';
+  fixedRow.style.top = '34px';
+  fixedRow.style.backgroundColor = '#000';
+  fixedRow.style.zIndex = '500';
+
+  const releaseBtn = document.createElement('button');
+  releaseBtn.textContent = '해제';
+  releaseBtn.style.marginLeft = '10px';
+  releaseBtn.onclick = () => {
+    clearFixedRow();
+    document.getElementById('searchPlayerAll').value = "";
+  };
+
+  fixedRow.cells[0].appendChild(releaseBtn);
+  document.querySelector('#statsTable thead').after(fixedRow);
+}
+
+function clearFixedRow() {
+  if (fixedRow) {
+    const originalRows = document.querySelectorAll('#tableBody tr');
+    originalRows.forEach(row => row.classList.remove('highlight'));
+    fixedRow.remove();
+  }
+  fixedRow = null;
+}
+
+  
+ document.getElementById('minGamesCheckbox').addEventListener('change', function() {
+   renderTable(originalData);
+ });
+
+function calculateRank(data, statKey, playerValue, isHigherBetter = true) {
+  const validValues = data
+    .map(cols => parseFloat(cols[statKey]))
+    .filter(value => !isNaN(value));
+
+  if (validValues.length === 0 || isNaN(parseFloat(playerValue))) {
+    return '-'; // 데이터 없거나 값이 NaN일 경우
+  }
+
+  const sorted = [...validValues].sort((a, b) => isHigherBetter ? b - a : a - b);
+  const rank = sorted.indexOf(parseFloat(playerValue)) + 1;
+  return rank || '-';
+}
+
+function showPlayerStats() {
+const season = seasonSelector ? seasonSelector.value : '24-25'; // ← '23-24' → '24-25'
+const playerNameInput = document.getElementById('searchPlayer').value.trim();
+const minGamesChecked = document.getElementById('minGames').checked;
+
+const data = fullSeasonDataMap[season] || originalData;  // ✅ 시즌별 데이터 기반
+const filteredData = data.filter(cols => {
+  const isTypeMatched = activeTypes.has(cols["구분"]);
+  const isMinGames = !minGamesChecked || parseInt(cols["출전 경기 수"]) >= 14;
+  return isTypeMatched && isMinGames;
+});
+  
+  const playerData = filteredData.find(cols => 
+    cols["Player"].trim().toLowerCase().includes(playerNameInput.toLowerCase())
+  );
+
+  if (playerData) {
+    document.getElementById('playerTitle').innerText = `${playerData["Player"]} (${playerData["Team"]})`;
+    document.getElementById('playerFilterBox').style.display = 'flex';
+    document.getElementById('statsContainer').style.display = 'grid';
+    
+
+    const statsContainer = document.getElementById('statsContainer');
+    statsContainer.innerHTML = '';
+
+    statsContainer.innerHTML += createCard('기본 정보', [
+      {label: '출전 경기 수', value: formatStatValue("출전 경기 수", playerData["출전 경기 수"]), rank: calculateRank(filteredData, "출전 경기 수", playerData["출전 경기 수"], true) + '위'},
+      {label: '평균 출전 시간', value: formatStatValue("총 출전 시간(초)", playerData["총 출전 시간(초)"]), rank: calculateRank(filteredData, "총 출전 시간(초)", playerData["총 출전 시간(초)"], true) + '위'},
+      {label: '총 득점', value: formatStatValue("득점", playerData["득점"]), rank: calculateRank(filteredData, "득점", playerData["득점"], true) + '위'},
+      {label: '평균 득점', value: formatStatValue("평균 득점", playerData["평균 득점"]), rank: calculateRank(filteredData, "평균 득점", playerData["평균 득점"], true) + '위'}
+    ], 'primary');
+
+statsContainer.innerHTML += createCard('슈팅 지표', [
+      {label: '평균 FG 시도', value: formatStatValue("평균 FG 시도", playerData["평균 FG 시도"]), rank: calculateRank(filteredData, "평균 FG 시도", playerData["평균 FG 시도"], true) + '위'},
+      {label: '평균 FG 성공', value: formatStatValue("평균 FG 성공", playerData["평균 FG 성공"]), rank: calculateRank(filteredData, "평균 FG 성공", playerData["평균 FG 성공"], true) + '위'},
+      {label: '평균 2p 시도', value: formatStatValue("평균 2p 시도", playerData["평균 2p 시도"]), rank: calculateRank(filteredData, "평균 2p 시도", playerData["평균 2p 시도"], true) + '위'},
+      {label: '평균 2p 성공', value: formatStatValue("평균 2p 성공", playerData["평균 2p 성공"]), rank: calculateRank(filteredData, "평균 2p 성공", playerData["평균 2p 성공"], true) + '위'},
+      {label: '평균 3p 성공', value: formatStatValue("평균 3p 성공", playerData["평균 3p 성공"]), rank: calculateRank(filteredData, "평균 3p 성공", playerData["평균 3p 성공"], true) + '위'},
+      {label: '평균 FT 시도', value: formatStatValue("평균 FT 시도", playerData["평균 FT 시도"]), rank: calculateRank(filteredData, "평균 FT 시도", playerData["평균 FT 시도"], true) + '위'},
+      {label: '평균 FT 성공', value: formatStatValue("평균 FT 성공", playerData["평균 FT 성공"]), rank: calculateRank(filteredData, "평균 FT 성공", playerData["평균 FT 성공"], true) + '위'}
+], 'primary');
+
+statsContainer.innerHTML += createCard('슈팅 성공률', [
+  {
+    label: 'FG%', 
+    value: formatStatValue("FG%", playerData["FG%"]), 
+    rank: calculateRank(filteredData, "FG%", playerData["FG%"], true) + '위'
+  },
+  {
+    label: '2P%', 
+    value: formatStatValue("2P%", playerData["2P%"]), 
+    rank: calculateRank(filteredData, "2P%", playerData["2P%"], true) + '위'
+  },
+  {
+    label: '3P%', 
+    value: formatStatValue("3P%", playerData["3P%"]), 
+    rank: calculateRank(filteredData, "3P%", playerData["3P%"], true) + '위'
+  },
+  {
+    label: 'FT%', 
+    value: formatStatValue("FT%", playerData["FT%"]), 
+    rank: calculateRank(filteredData, "FT%", playerData["FT%"], true) + '위'
+  }
+], 'primary');
+
+statsContainer.innerHTML += createCard('리바운드 지표', [
+  {
+    label: '총 리바운드', 
+    value: formatStatValue("리바운드", playerData["리바운드"]), 
+    rank: calculateRank(filteredData, "리바운드", playerData["리바운드"], true) + '위',
+    highlight: true
+  },
+  {
+    label: '평균 리바운드', 
+    value: formatStatValue("평균 리바운드", playerData["평균 리바운드"]), 
+    rank: calculateRank(filteredData, "평균 리바운드", playerData["평균 리바운드"], true) + '위',
+    highlight: true
+  },
+  {
+    label: '공격 리바운드', 
+    value: formatStatValue("공격 리바운드", playerData["공격 리바운드"]), 
+    rank: calculateRank(filteredData, "공격 리바운드", playerData["공격 리바운드"], true) + '위'
+  },
+  {
+    label: '평균 공격 리바운드', 
+    value: formatStatValue("평균 공격 리바운드", playerData["평균 공격 리바운드"]), 
+    rank: calculateRank(filteredData, "평균 공격 리바운드", playerData["평균 공격 리바운드"], true) + '위'
+  },
+  {
+    label: '수비 리바운드', 
+    value: formatStatValue("수비 리바운드", playerData["수비 리바운드"]), 
+    rank: calculateRank(filteredData, "수비 리바운드", playerData["수비 리바운드"], true) + '위'
+  },
+  {
+    label: '평균 수비 리바운드', 
+    value: formatStatValue("평균 수비 리바운드", playerData["평균 수비 리바운드"]), 
+    rank: calculateRank(filteredData, "평균 수비 리바운드", playerData["평균 수비 리바운드"], true) + '위'
+  }
+], 'primary');
+
+statsContainer.innerHTML += createCard('어시스트/스틸/블록 지표', [
+  {
+    label: '총 어시스트', 
+    value: formatStatValue("어시스트", playerData["어시스트"]), 
+    rank: calculateRank(filteredData, "어시스트", playerData["어시스트"], true) + '위'
+  },
+  {
+    label: '평균 어시스트', 
+    value: formatStatValue("평균 어시스트", playerData["평균 어시스트"]), 
+    rank: calculateRank(filteredData, "평균 어시스트", playerData["평균 어시스트"], true) + '위'
+  },
+  {
+    label: '총 스틸', 
+    value: formatStatValue("스틸", playerData["스틸"]), 
+    rank: calculateRank(filteredData, "스틸", playerData["스틸"], true) + '위'
+  },
+  {
+    label: '평균 스틸', 
+    value: formatStatValue("평균 스틸", playerData["평균 스틸"]), 
+    rank: calculateRank(filteredData, "평균 스틸", playerData["평균 스틸"], true) + '위'
+  },
+  {
+    label: '총 블록', 
+    value: formatStatValue("블록", playerData["블록"]), 
+    rank: calculateRank(filteredData, "블록", playerData["블록"], true) + '위'
+  },
+  {
+    label: '평균 블록', 
+    value: formatStatValue("평균 블록", playerData["평균 블록"]), 
+    rank: calculateRank(filteredData, "평균 블록", playerData["평균 블록"], true) + '위'
+  }
+], 'primary');
+
+statsContainer.innerHTML += createCard('기타 지표', [
+  {
+    label: '턴오버', 
+    value: formatStatValue("턴오버", playerData["턴오버"]), 
+    rank: calculateRank(filteredData, "턴오버", playerData["턴오버"], false) + '위'
+  },
+  {
+    label: '평균 턴오버', 
+    value: formatStatValue("평균 턴오버", playerData["평균 턴오버"]), 
+    rank: calculateRank(filteredData, "평균 턴오버", playerData["평균 턴오버"], false) + '위'
+  },
+  {
+    label: '파울', 
+    value: formatStatValue("파울", playerData["파울"]), 
+    rank: calculateRank(filteredData, "파울", playerData["파울"], false) + '위'
+  },
+  {
+    label: '평균 파울', 
+    value: formatStatValue("평균 파울", playerData["평균 파울"]), 
+    rank: calculateRank(filteredData, "평균 파울", playerData["평균 파울"], false) + '위'
+  }
+], 'primary');
+
+
+
+statsContainer.innerHTML += createCard('WinShare 지표', [
+  {label: 'WS', value: formatStatValue("WS", playerData["WS"]), rank: calculateRank(filteredData, "WS", playerData["WS"], true) + '위', highlight: true},
+  {label: 'WS/40', value: formatStatValue("WS/40", playerData["WS/40"]), rank: calculateRank(filteredData, "WS/40", playerData["WS/40"], true) + '위'},
+  {label: 'Offensive_WS', value: formatStatValue("Offensive_WS", playerData["Offensive_WS"]), rank: calculateRank(filteredData, "Offensive_WS", playerData["Offensive_WS"], true) + '위'},
+  {label: 'Defensive_WS', value: formatStatValue("Defensive_WS", playerData["Defensive_WS"]), rank: calculateRank(filteredData, "Defensive_WS", playerData["Defensive_WS"], true) + '위'}
+], 'secondary');
+
+statsContainer.innerHTML += createCard('효율성 지표', [
+  {label: 'PER', value: formatStatValue("PER", playerData["PER"]), rank: calculateRank(filteredData, "PER", playerData["PER"], true) + '위'},
+  {label: 'EFF', value: formatStatValue("EFF", playerData["EFF"]), rank: calculateRank(filteredData, "EFF", playerData["EFF"], true) + '위'},
+  {label: 'EFF/40', value: formatStatValue("EFF/40", playerData["EFF/40"]), rank: calculateRank(filteredData, "EFF/40", playerData["EFF/40"], true) + '위'},
+  {label: 'Offensive_rating', value: formatStatValue("Offensive_rating", playerData["Offensive_rating"]), rank: calculateRank(filteredData, "Offensive_rating", playerData["Offensive_rating"], true) + '위'},
+  {label: 'Defensive_rating', value: formatStatValue("Defensive_rating", playerData["Defensive_rating"]), rank: calculateRank(filteredData, "Defensive_rating", playerData["Defensive_rating"], false) + '위'},
+  {label: 'USG%', value: formatStatValue("USG%", playerData["USG%"]), rank: calculateRank(filteredData, "USG%", playerData["USG%"], true) + '위'}
+], 'secondary');
+
+statsContainer.innerHTML += createCard('2차 슈팅 지표', [
+  {label: 'TS%', value: formatStatValue("TS%", playerData["TS%"]), rank: calculateRank(filteredData, "TS%", playerData["TS%"], true) + '위'},
+  {label: 'eFG%', value: formatStatValue("eFG%", playerData["eFG%"]), rank: calculateRank(filteredData, "eFG%", playerData["eFG%"], true) + '위'},
+  {label: '3PAr', value: formatStatValue("3PAr", playerData["3PAr"]), rank: calculateRank(filteredData, "3PAr", playerData["3PAr"], true) + '위'},
+  {label: 'FTr', value: formatStatValue("FTr", playerData["FTr"]), rank: calculateRank(filteredData, "FTr", playerData["FTr"], true) + '위'}
+], 'secondary');
+
+statsContainer.innerHTML += createCard('Team내 비중 지표', [
+  {label: 'ORB%', value: formatStatValue("ORB%", playerData["ORB%"]), rank: calculateRank(filteredData, "ORB%", playerData["ORB%"], true) + '위'},
+  {label: 'DRB%', value: formatStatValue("DRB%", playerData["DRB%"]), rank: calculateRank(filteredData, "DRB%", playerData["DRB%"], true) + '위'},
+  {label: 'TRB%', value: formatStatValue("TRB%", playerData["TRB%"]), rank: calculateRank(filteredData, "TRB%", playerData["TRB%"], true) + '위'},
+  {label: 'AST%', value: formatStatValue("AST%", playerData["AST%"]), rank: calculateRank(filteredData, "AST%", playerData["AST%"], true) + '위'},
+  {label: 'STL%', value: formatStatValue("STL%", playerData["STL%"]), rank: calculateRank(filteredData, "STL%", playerData["STL%"], true) + '위'},
+  {label: 'BS%', value: formatStatValue("BS%", playerData["BS%"]), rank: calculateRank(filteredData, "BS%", playerData["BS%"], true) + '위'},
+  {label: 'TOV%', value: formatStatValue("TOV%", playerData["TOV%"]), rank: calculateRank(filteredData, "TOV%", playerData["TOV%"], false) + '위'}
+], 'team-stats');
+
+const spacer = document.createElement('div');
+spacer.style.height = '0px';
+statsContainer.appendChild(spacer);
+
+
+
+  } else {
+    alert('선수를 찾을 수 없습니다.');
+  }
+   document.getElementById('searchPlayerButton').addEventListener('click', showPlayerStats); // ✅ 이 줄 추가=
+}
+ document.getElementById('searchPlayerAll').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    searchPlayer();
+  }
+});
+
+function createCard(title, stats, type = 'primary') {
+  return `
+    <div class="card ${type}">
+      <h3>${title}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>지표</th>
+            <th>기록</th>
+            <th>순위</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${stats.map(stat => `
+            <tr>
+              <td>${stat.label}</td>
+              <td>${stat.value}</td>
+              <td>${stat.rank}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+
+// 개인 선수 탭 검색창에서 엔터 키 동작
+document.getElementById('searchPlayer').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    showPlayerStats();
+  }
+});
+// ✅ 선수 개인 검색 페이지 체크박스 이벤트 추가 (완벽해결)
+document.getElementById('minGames').addEventListener('change', function() {
+  const playerInput = document.getElementById('searchPlayer').value.trim();
+  if (playerInput !== "") {
+    showPlayerStats();  // Player 입력되어 있으면 바로 다시 검색
+  }
+});
+
+function formatStatValue(key, value) {
+  const format = statsFormats[key];
+  if (!format) return value;
+
+  const percentExcludedKeys = ['ORB%', 'DRB%', 'TRB%', 'AST%', 'STL%', 'BS%', 'TOV%'];
+
+  if (key === "총 출전 시간(초)" || format.unit === '분 초') {
+    const totalSeconds = parseInt(value, 10);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}분 ${seconds}초`;
+  }
+
+  let numericValue = parseFloat(value);
+
+  // ✅ 퍼센트 항목 보정: 값이 1 미만이면 100을 곱해서 % 형태로 전환
+  if (format.unit === '%' && !percentExcludedKeys.includes(key) && numericValue < 1.0) {
+    numericValue *= 100;
+  }
+
+  const formattedValue = numericValue.toFixed(format.decimals);
+
+  if (percentExcludedKeys.includes(key)) {
+    return formattedValue; // 단위 제거 대상
+  }
+
+  return formattedValue + (format.unit !== '분 초' ? format.unit : '');
+}
+
+
+window.comparePlayers = function () {
+  tabs.forEach(t => t.classList.remove('active'));
+  contents.forEach(c => c.classList.remove('active'));
+  document.querySelector('[data-tab="tab-compare"]').classList.add('active');
+  document.getElementById('tab-compare').classList.add('active');
+
+const player1 = document.getElementById('comparePlayer1').value.trim();
+const player2 = document.getElementById('comparePlayer2').value.trim();
+const player3 = document.getElementById('comparePlayer3').value.trim();
+const minGamesChecked = document.getElementById('compareMinGames').checked;
+
+if (!player1 && !player2 && !player3) {
+  document.getElementById('compareResult').innerHTML = '';
+  return;
+}
+
+playersData = [player1, player2, player3]
+  .filter(name => name !== '')
+  .map((name, idx) => {
+    const seasonSelector = document.getElementById(`seasonSwitch-${idx}`);
+    const season = seasonSelector ? seasonSelector.value : '24-25'; // ✅ 실제 선택된 시즌 기반
+
+    const seasonData = fullSeasonDataMap[season] || [];
+    const matched = seasonData.find(cols =>
+      cols["Player"].trim().toLowerCase() === name.toLowerCase()
+    );
+
+    if (matched) {
+      matched.__season = season;
+      return matched;
+    }
+    return undefined;
+  });
+
+
+  if (playersData.some(p => p === undefined)) {
+    alert('선수 이름을 정확히 입력해주세요.');
+    return;
+  }
+
+  playerSeasonData = {};
+  playersData.forEach((p, idx) => {
+    playerSeasonData[idx] = p;
+  });
+
+  comparePlayersFromCache();
+};
+
+
+function comparePlayersFromCache() {
+  const players = Object.values(playerSeasonData);
+  if (players.length < 1) return;
+
+  playersData = players;
+
+  let tableHTML = `<table><thead><tr><th>지표</th>`;
+
+  players.forEach((p, idx) => {
+    const selectedSeason = p.__season || '24-25';
+    tableHTML += `<th>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span style="font-weight: bold; color: #FFF;">${p["Player"]} (${p["Team"]})</span>
+        <select id="seasonSwitch-${idx}" class="season-switch">
+          <option value="23-24" ${selectedSeason === '23-24' ? 'selected' : ''}>23-24</option>
+          <option value="24-25" ${selectedSeason === '24-25' ? 'selected' : ''}>24-25</option>
+        </select>
+      </div>
+    </th>`;
+  });
+
+  if (players.length === 2) tableHTML += `<th>차이</th>`;
+  tableHTML += `</tr></thead><tbody>`;
+
+  statsLabels.forEach(stat => {
+// 강제 재매핑된 playerSeasonData 기준으로 새롭게 pull 해와야 함
+const minGamesChecked = document.getElementById('compareMinGames').checked;
+
+const values = players.map((p, idx) => {
+  const season = p.__season;
+  const seasonData = fullSeasonDataMap[season] || [];
+
+  const filtered = seasonData.filter(row => {
+    const isTypeMatched = activeTypes.has(row["구분"]);
+    const isMinGames = !minGamesChecked || parseInt(row["출전 경기 수"]) >= 14;
+    return isTypeMatched && isMinGames;
+  });
+
+  const matched = filtered.find(row => row["Player"].trim().toLowerCase() === p["Player"].trim().toLowerCase());
+
+  // 이 matched 값을 새로 저장 (이제 완전하게 playerSeasonData 재정의됨)
+  if (matched) {
+    matched.__season = season;
+    playerSeasonData[idx] = matched;
+  }
+
+  return parseFloat(matched?.[stat.key]) || 0;
+});
+
+const ranks = values.map((val, idx) => {
+  const season = players[idx].__season;
+  const seasonData = fullSeasonDataMap[season] || [];
+
+const filtered = seasonData.filter(row => {
+  const isTypeMatched = activeTypes.has(row["구분"]);
+  const isMinGames = !minGamesChecked || parseInt(row["출전 경기 수"]) >= 14;
+  return isTypeMatched && isMinGames;
+});
+
+  return calculateRank(filtered, stat.key, val, stat.higherBetter);
+});
+
+
+    const sortedValues = [...values].sort((a, b) => stat.higherBetter ? b - a : a - b);
+    const highlightClass = values.map(v => {
+      if (v === sortedValues[0]) return 'highlight-first';
+      if (v === sortedValues[1]) return 'highlight-second';
+      return 'highlight-third';
+    });
+
+    tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
+
+    values.forEach((value, idx) => {
+      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
+    });
+
+    if (players.length === 2) {
+      const diff = values[0] - values[1];
+      const diffClass = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : '';
+      const format = statsFormats[stat.key] || { unit: '', decimals: 2 };
+
+      let formattedDiff;
+      if (stat.key === "총 출전 시간(초)" || format.unit === '분 초') {
+        const diffSeconds = Math.abs(diff);
+        const minutes = Math.floor(diffSeconds / 60);
+        const seconds = diffSeconds % 60;
+        formattedDiff = `${minutes}분 ${seconds}초`;
+      } else if (format.decimals === 0) {
+        formattedDiff = `${Math.abs(diff)}${format.unit}`;
+      } else {
+        formattedDiff = `${Math.abs(diff).toFixed(format.decimals)}${format.unit}`;
+      }
+
+      tableHTML += `<td class="diff-cell ${diffClass}"><span>${formattedDiff}</span></td>`;
+    }
+
+    tableHTML += `</tr>`;
+  });
+
+  tableHTML += `</tbody></table>`;
+  document.getElementById('compareResult').innerHTML = tableHTML;
+
+  filterCompareTable();
+
+  setTimeout(() => {
+    players.forEach((_, idx) => {
+      const selector = document.getElementById(`seasonSwitch-${idx}`);
+      if (selector) {
+        selector.onchange = (e) => {
+          changeSeason(idx, e.target.value);
+        };
+      }
+    });
+  }, 0);
+}
+setTimeout(() => {
+  const minGamesCheckbox = document.getElementById('compareMinGames');
+  if (!minGamesCheckbox) return;
+
+  minGamesCheckbox.onchange = () => {
+    const names = playersData.map(p => p["Player"].trim());
+    if (names.length === 0) {
+      alert('선수 이름을 입력해주세요.');
+      return;
+    }
+
+    const updatedData = {};
+    const newPlayers = [];
+
+    names.forEach((name, idx) => {
+      const selector = document.getElementById(`seasonSwitch-${idx}`);
+      const season = selector ? selector.value : '23-24';
+      const seasonData = fullSeasonDataMap[season] || [];
+
+      const filtered = minGamesCheckbox.checked
+        ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
+        : seasonData;
+
+      const matched = filtered.find(row => row["Player"].trim().toLowerCase() === name.toLowerCase());
+      if (matched) {
+        matched.__season = season;
+        updatedData[idx] = matched;
+        newPlayers.push(matched);
+      }
+    });
+
+    if (newPlayers.length === 0) {
+      alert('규정 경기 이상을 만족하는 선수가 없습니다.');
+      return;
+    }
+
+    playerSeasonData = updatedData;
+    playersData = newPlayers;
+    comparePlayersFromCache();
+  };
+}, 10);
+
+  
+  
+// ✅ 여기부터 새로 붙여넣기
+window.changeSeason = function(playerIndex, season) {
+  const fileMap = {
+    '23-24': '23-24_KBL_stats.xlsx',
+    '24-25': '24-25_KBL_stats.xlsx'
+  };
+  const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
+
+  fetch(url)
+    .then(response => response.arrayBuffer())
+    .then(data => {
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const seasonData = XLSX.utils.sheet_to_json(sheet);
+
+      // 시간 계산
+      seasonData.forEach(cols => {
+        const m = parseInt(cols["m"]) || 0;
+        const s = parseInt(cols["s"]) || 0;
+        cols["총 출전 시간(초)"] = m * 60 + s;
+      });
+
+      // 선수 이름 가져오기
+      const input = document.getElementById(`comparePlayer${playerIndex + 1}`);
+      if (!input) return;
+
+      const name = input.value.trim().toLowerCase();
+      const matchedPlayer = seasonData.find(p => p["Player"]?.trim().toLowerCase() === name);
+
+      if (!matchedPlayer) {
+        alert("선수를 찾을 수 없습니다.");
+        return;
+      }
+
+      matchedPlayer.__season = season;
+      fullSeasonDataMap[season] = seasonData;  // ✅ 시즌별 데이터 캐시에 저장만
+      playerSeasonData[playerIndex] = matchedPlayer;
+
+      comparePlayersFromCache();
+      
+    })
+    .catch(err => {
+      console.error("시즌 데이터 로딩 오류:", err);
+      alert("시즌 변경 중 오류 발생");
+    });
+};
+  
+  }
+// 엔터키 입력 기능 추가 (유지)
+['comparePlayer1', 'comparePlayer2', 'comparePlayer3'].forEach(id => {
+  document.getElementById(id).addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      comparePlayers();  // Enter 키일 때만 실행
+    }
+  });
+});
+
+// 체크박스 즉시 반응 추가 (유지)
+// 체크박스 즉시 반응 추가 (유지)
+// comparePlayersFromCache 맨 마지막에 추가하세요 (이벤트 덮어쓰기)
+setTimeout(() => {
+  document.getElementById('compareMinGames').onchange = () => {
+    const p1 = document.getElementById('comparePlayer1').value.trim();
+    const p2 = document.getElementById('comparePlayer2').value.trim();
+    const p3 = document.getElementById('comparePlayer3').value.trim();
+    const names = [p1, p2, p3].filter(n => n !== '');
+
+    if (names.length === 0) {
+      alert('선수 이름을 입력해주세요.');
+      return;
+    }
+
+    const updatedData = {};
+    const newPlayers = [];
+
+    names.forEach((name, idx) => {
+      const selector = document.getElementById(`seasonSwitch-${idx}`);
+      const season = selector ? selector.value : '23-24';
+      const seasonData = fullSeasonDataMap[season] || [];
+
+      const filtered = document.getElementById('compareMinGames').checked
+        ? seasonData.filter(row => parseInt(row["출전 경기 수"]) >= 14)
+        : seasonData;
+
+      const matched = filtered.find(row => row["Player"].trim().toLowerCase() === name.toLowerCase());
+
+      if (matched) {
+        matched.__season = season;
+        updatedData[idx] = matched;
+        newPlayers.push(matched);
+      }
+    });
+
+    if (newPlayers.length === 0) {
+      alert('규정 경기 이상을 만족하는 선수가 없습니다.');
+      return;
+    }
+
+    playerSeasonData = updatedData;
+    playersData = newPlayers;
+    comparePlayersFromCache();
+  };
+}, 0);
+
+
+
+
+// 체크박스 이벤트 핸들러 추가
+document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]').forEach(checkbox => {
+  checkbox.addEventListener('change', filterCompareTable);
+});
+
+// 체크박스 필터링 함수 정의
+function filterCompareTable() {
+  const checkedCategories = Array.from(document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked'))
+                                 .map(cb => cb.value);
+
+  document.querySelectorAll('#compareResult tbody tr').forEach(row => {
+    const category = row.getAttribute('data-category');
+    row.style.display = checkedCategories.includes(category) ? '' : 'none';
+  });
+}
+
+// 지표 → 카테고리 변환 함수 추가 (맨 끝에 추가)
+function getCategoryByStat(statLabel) {
+  const categoryMap = {
+    '출전 경기 수': '기본 정보',
+    '평균 출전 시간': '기본 정보',
+    '득점': '기본 정보',
+    '평균 득점': '기본 정보',
+
+    '평균 FG 시도': '슈팅 지표',
+    '평균 FG 성공': '슈팅 지표',
+    '평균 2p 시도': '슈팅 지표',
+    '평균 2p 성공': '슈팅 지표',
+    '평균 3p 성공': '슈팅 지표',
+    '평균 3p 성공': '슈팅 지표',
+    '평균 FT 시도': '슈팅 지표',
+    '평균 FT 성공': '슈팅 지표',
+
+    'FG%': '슈팅 성공률',
+    '2P%': '슈팅 성공률',
+    '3P%': '슈팅 성공률',
+    'FT%': '슈팅 성공률',
+
+    '리바운드': '리바운드 지표',
+    '평균 리바운드': '리바운드 지표',
+    '공격 리바운드': '리바운드 지표',
+    '평균 공격 리바운드': '리바운드 지표',
+    '수비 리바운드': '리바운드 지표',
+    '평균 수비 리바운드': '리바운드 지표',
+
+    '어시스트': '어시스트/스틸/블록 지표',
+    '평균 어시스트': '어시스트/스틸/블록 지표',
+    '스틸': '어시스트/스틸/블록 지표',
+    '평균 스틸': '어시스트/스틸/블록 지표',
+    '블록': '어시스트/스틸/블록 지표',
+    '평균 블록': '어시스트/스틸/블록 지표',
+
+    '턴오버': '기타 지표',
+    '평균 턴오버': '기타 지표',
+    '파울': '기타 지표',
+    '평균 파울': '기타 지표',
+
+    'WS': 'WinShare 지표',
+    'WS/40': 'WinShare 지표',
+    'Offensive_WS': 'WinShare 지표',
+    'Defensive_WS': 'WinShare 지표',
+
+    'PER': '효율성 지표',
+    'EFF': '효율성 지표',
+    'EFF/40': '효율성 지표',
+    'Offensive_rating': '효율성 지표',
+    'Defensive_rating': '효율성 지표',
+    'USG%': '효율성 지표',
+
+    'TS%': '2차 슈팅 지표',
+    'eFG%': '2차 슈팅 지표',
+    '3PAr': '2차 슈팅 지표',
+    'FTr': '2차 슈팅 지표',
+
+    'ORB%': 'Team내 비중 지표',
+    'DRB%': 'Team내 비중 지표',
+    'TRB%': 'Team내 비중 지표',
+    'AST%': 'Team내 비중 지표',
+    'STL%': 'Team내 비중 지표',
+    'BS%': 'Team내 비중 지표',
+    'TOV%': 'Team내 비중 지표'
+  };
+  return categoryMap[statLabel] || '기타 지표';
+}
+
+// 최초 실행 시 모든 체크박스 선택 상태로 시작
+window.addEventListener('DOMContentLoaded', () => {
+  filterCompareTable();
+});
+
+async function loadLocalFile() {
+  const fileInput = document.getElementById('fileUploader');
+
+  if (fileInput.files.length === 0) {
+    alert('엑셀 파일을 선택해 주세요.');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, {type: 'array'});
+
+    const firstSheet = workbook.SheetNames[0];
+    originalData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+    originalData.forEach(cols => {
+      let minutes = parseInt(cols["m"]) || 0;
+      let seconds = parseInt(cols["s"]) || 0;
+      cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+    });
+
+    renderTable(originalData);
+    alert("엑셀 파일이 성공적으로 로드되었습니다!");
+  };
+
+  reader.onerror = function(e) {
+    console.error("파일 로딩 오류", e);
+    alert("파일 로딩 중 오류가 발생했습니다.");
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+  
+ </script>
+<script>
+const sortDirections = {};
+
+document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
+  sortDirections[index] = 'asc';
+  header.onclick = () => {
+    const tableBody = document.getElementById('tableBody');
+
+    // ✅ 기존 spacerRow 삭제
+    const oldSpacer = document.getElementById('spacerRow');
+    if (oldSpacer) oldSpacer.remove();
+
+    // ✅ 실제 데이터 행만 필터링
+    const rows = Array.from(tableBody.querySelectorAll('tr'))
+      .filter(row => row.id !== 'spacerRow' && row.querySelectorAll('td').length > 0);
+
+    const direction = sortDirections[index] === 'asc' ? 'desc' : 'asc';
+    sortDirections[index] = direction;
+
+    rows.sort((a, b) => {
+      let x = a.cells[index]?.getAttribute('data-time') || a.cells[index]?.innerText || '';
+      let y = b.cells[index]?.getAttribute('data-time') || b.cells[index]?.innerText || '';
+
+      x = x.replace(/</g, '').replace(/>/g, '');
+      y = y.replace(/</g, '').replace(/>/g, '');
+
+      x = parseFloat(x.replace(/[^\d.-]/g, '')) || 0;
+      y = parseFloat(y.replace(/[^\d.-]/g, '')) || 0;
+
+      return direction === 'asc' ? x - y : y - x;
+    });
+
+    // ✅ 정렬된 행 다시 추가
+    rows.forEach(row => tableBody.appendChild(row));
+
+    // ✅ spacerRow 다시 맨 아래에 추가
+    const spacerRow = document.createElement('tr');
+    spacerRow.id = 'spacerRow';
+    spacerRow.innerHTML = '<td colspan="100" style="height: 100px; background: transparent; border: none;"></td>';
+    tableBody.appendChild(spacerRow);
+  };
+});
+
+function loadPlayersData2() {
+  const season = document.getElementById('seasonSelectorPlayer')?.value || '23-24';
+  const fileMap = {
+    '23-24': '23-24_KBL_stats.xlsx',
+    '24-25': '24-25_KBL_stats.xlsx'
+  };
+  const url = `https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`;
+
+  fetch(url)
+    .then(response => response.arrayBuffer())
+    .then(data => {
+      const workbook = XLSX.read(data, { type: "array" });
+      const firstSheet = workbook.SheetNames[0];
+      const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+      // ✅ 시간 변환 보장
+jsonData.forEach(cols => {
+  const minutes = parseInt(cols["m"]) || 0;
+  const seconds = parseInt(cols["s"]) || 0;
+  cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+
+  // ✅ 이름/팀명 공백 제거 (중복/디자인 오류 방지)
+  cols["Player"] = (cols["Player"] || "").trim();
+  cols["Team"] = (cols["Team"] || "").trim();
+});
+
+      // ✅ 데이터 갱신 필수
+      fullSeasonDataMap[season] = jsonData;
+
+      // ✅ 디버깅 로그 추가
+      console.log("24-25 originalData loaded:", originalData);
+
+      setTimeout(() => {
+        const currentInput = document.getElementById('searchPlayer').value.trim();
+        if (currentInput !== "") showPlayerStats();
+      }, 200);
     })
     .catch(error => {
       console.error("선수 개인 데이터 로딩 오류:", error);
