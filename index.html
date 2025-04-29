@@ -248,7 +248,7 @@ thead th {
 
 #tab-compare .compare-result {
   max-width: none !important;
-  height: calc(100vh - 260px);
+  height: calc(100vh - 300px);
   padding: 5px;
   margin: 0 auto;
 }
@@ -457,7 +457,7 @@ thead th {
   border-top: 1px solid #121212 !important;
   overflow-y: auto !important;
   overflow-x: hidden;
-  max-height: 560px !important;  /* ← 이 줄이 바로 문제의 핵심입니다 */
+  max-height: 500px !important;  /* ← 이 줄이 바로 문제의 핵심입니다 */
   box-sizing: border-box !important;
   position: relative;
   background-color: #121212 !important;
@@ -2909,7 +2909,7 @@ thead th {
   border-top: 1px solid #121212 !important;
   overflow-y: auto !important;
   overflow-x: hidden;
-  max-height: 560px !important;  /* ← 이 줄이 바로 문제의 핵심입니다 */
+  max-height: 530px !important;  /* ← 이 줄이 바로 문제의 핵심입니다 */
   box-sizing: border-box !important;
   position: relative;
   background-color: #121212 !important;
@@ -4418,9 +4418,11 @@ const filtered = seasonData.filter(row => {
   });
 
   tableHTML += `</tbody></table>`;
-  document.getElementById('compareResult').innerHTML = tableHTML;
+document.getElementById('compareResult').innerHTML = tableHTML;
 
-  filterCompareTable();
+// ✅ 여기 추가
+document.getElementById('compareResult').innerHTML = tableHTML;
+filterCompareTable(); // ← 이거만 유지
 
   setTimeout(() => {
     players.forEach((_, idx) => {
@@ -4669,9 +4671,13 @@ function getCategoryByStat(statLabel) {
   return categoryMap[statLabel] || '기타 지표';
 }
 
-// 최초 실행 시 모든 체크박스 선택 상태로 시작
+// 최초 실행 시 모든 체크박스 선택 상태로 시작 + 이벤트 연결
 window.addEventListener('DOMContentLoaded', () => {
-  filterCompareTable();
+  filterCompareTable();  // 한 번 실행
+
+  document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', filterCompareTable);  // 체크박스 이벤트 연결
+  });
 });
 
 async function loadLocalFile() {
