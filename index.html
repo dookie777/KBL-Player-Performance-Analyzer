@@ -1018,6 +1018,7 @@ h2 {
 
   <div class="input-box">
   <select id="seasonSelector" onchange="loadPlayersData()">
+  <option value="22-23">22-23 시즌</option> <!-- ✅ 추가 -->
   <option value="23-24">23-24 시즌</option>
   <option value="24-25" selected>24-25 시즌</option> <!-- 이 줄만 수정 -->
   </select>
@@ -1117,6 +1118,7 @@ h2 {
 <div id="tab-player" class="tab-content">
   <div class="input-box">
     <select id="seasonSelectorPlayer" onchange="loadPlayersData2()">
+      <option value="22-23">22-23 시즌</option> <!-- ✅ 추가 -->
       <option value="23-24">23-24 시즌</option>
       <option value="24-25" selected>24-25 시즌</option> <!-- 이 줄도 수정 -->
     </select>
@@ -1339,6 +1341,7 @@ window.renderTable = renderTable; // ✅ 여기에 이 줄 추가
 async function loadPlayersData() {
   const season = document.getElementById('seasonSelector')?.value || '24-25'; // ← 이 부분도 수정
   const fileMap = {
+    '22-23': '22-23_KBL_stats.xlsx',  // ✅ 추가
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
   };
@@ -1880,6 +1883,7 @@ function comparePlayersFromCache() {
       <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
         <span style="font-weight: bold; color: #FFF;">${p["Player"]} (${p["Team"]})</span>
         <select id="seasonSwitch-${idx}" class="season-switch">
+          <option value="22-23" ${selectedSeason === '22-23' ? 'selected' : ''}>22-23</option> <!-- ✅ 추가 -->
           <option value="23-24" ${selectedSeason === '23-24' ? 'selected' : ''}>23-24</option>
           <option value="24-25" ${selectedSeason === '24-25' ? 'selected' : ''}>24-25</option>
         </select>
@@ -2028,6 +2032,7 @@ setTimeout(() => {
 // ✅ 여기부터 새로 붙여넣기
 window.changeSeason = function(playerIndex, season) {
   const fileMap = {
+    '22-23': '22-23_KBL_stats.xlsx',   // ✅ 추가하세요
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
   };
@@ -2306,6 +2311,7 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
 function loadPlayersData2() {
   const season = document.getElementById('seasonSelectorPlayer')?.value || '23-24';
   const fileMap = {
+    '22-23': '22-23_KBL_stats.xlsx',   // ✅ 추가하세요
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
   };
