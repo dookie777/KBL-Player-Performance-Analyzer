@@ -6,7 +6,7 @@
   <title>KBL Player Stats Analyzer</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 
-  <style>
+<style>
 body { 
 background-color: #000000;
   background-image: 
@@ -21,20 +21,11 @@ background-color: #000000;
   overflow: hidden;
 }
 
-.tab-content.active {
-  display: flex !important;
-  flex-direction: column;
-  flex: 1;
-  height: 100%;
-}
-
 .container {
   height: 100vh;
   display: flex;
   flex-direction: column;
 }
-
-
 
 .container {
   max-width: 1200px;
@@ -78,10 +69,6 @@ h2 {
   flex: 1;
 }
 
-.tab-content.active {
-  display: flex !important;
-}
-
 .input-box {
   display: flex;
   justify-content: center;
@@ -102,7 +89,6 @@ h2 {
   box-sizing: border-box;
   margin: 0; /* ✅ margin 제거 */
 }
-
 
 .input-box input[type="text"] {
   width: 250px;
@@ -282,13 +268,10 @@ thead th {
 #tab-compare .compare-result td:last-child {
   border-right: 1px solid #444 !important;
 }
-
 /* 상단 테두리 보강 */
 #tab-compare .compare-result thead th {
   border-top: 1px solid #444 !important;
 }
-
-
 
 #tab-compare .compare-result table {
   border-collapse: separate !important;
@@ -2473,29 +2456,24 @@ background-color: #000000;
   overflow: hidden;
 }
 
-.tab-content.active {
-  display: flex !important;
+.tab-content {
+  display: none !important;
   flex-direction: column;
   flex: 1;
-  height: 100%;
 }
 
+.tab-content.active {
+  display: flex !important;
+}
+    
 .container {
   height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-
-
-.container {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
   box-sizing: border-box;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 h2 {
@@ -2528,10 +2506,6 @@ h2 {
   display: none !important;
   flex-direction: column;
   flex: 1;
-}
-
-.tab-content.active {
-  display: flex !important;
 }
 
 .input-box {
