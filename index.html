@@ -1197,7 +1197,8 @@ canvas {
   <option value="23-24">23-24 시즌</option>
   <option value="24-25" selected>24-25 시즌</option> <!-- 이 줄만 수정 -->
   </select>
-    <input type="text" id="searchPlayerAll" placeholder="Search player...">
+  <input type="text" id="searchPlayerAll" placeholder="Search player..." list="playerSuggestionsAll">
+  <datalist id="playerSuggestionsAll"></datalist>    
     <button onclick="searchPlayer()">Search</button>
     <input type="checkbox" id="minGamesCheckbox">
     <label for="minGamesCheckbox">규정 경기 이상(14G)</label>
@@ -1299,7 +1300,8 @@ canvas {
       <option value="23-24">23-24 시즌</option>
       <option value="24-25" selected>24-25 시즌</option> <!-- 이 줄도 수정 -->
     </select>
-    <input type="text" id="searchPlayer" placeholder="Search player...">
+    <input type="text" id="searchPlayer" placeholder="Search player..." list="playerSuggestionsPlayer">
+    <datalist id="playerSuggestionsPlayer"></datalist>
     <button id="searchPlayerButton">Search</button>
     <input type="checkbox" id="minGames">
     <label for="minGames">규정 경기 이상(14G)</label>
@@ -1685,15 +1687,33 @@ originalData.forEach(cols => {
   let seconds = parseInt(cols["s"]) || 0;
   cols["총 출전 시간(초)"] = minutes * 60 + seconds;
 
-  // ✅ 이름, 팀명, 구분 공백 제거
-  cols["Player"] = (cols["Player"] || "").trim();
-  cols["Team"] = (cols["Team"] || "").trim();
-  cols["구분"] = (cols["구분"] || "").trim(); // ← 이거만 해주시면 됩니다
+  const name = (cols["Player"] || "").trim();
+  const team = (cols["Team"] || "").trim();
+  cols["Player"] = `${name} (${team})`;  // ✅ 완전한 이름(팀명)으로 교체
+  cols["Team"] = team;
+  cols["구분"] = (cols["구분"] || "").trim();
 });
-fullSeasonDataMap[season] = originalData;  // ✅ 꼭 추가하세요
+fullSeasonDataMap[season] = originalData;
+
+// ✅ 자동완성 리스트 채우기
+const suggestionSet = new Set();
+originalData.forEach(cols => {
+  const name = (cols["Player"] || "").trim();  // 이미 "곽정훈 (대구 가스공사)" 형식임
+  if (name) {
+    suggestionSet.add(name);
+  }
+});
+const datalist = document.getElementById("playerSuggestionsAll");
+if (datalist) {
+  datalist.innerHTML = "";
+  [...suggestionSet].sort().forEach(item => {
+    const option = document.createElement("option");
+    option.value = item;
+    datalist.appendChild(option);
+  });
+}
 
 renderTable(originalData);
-
   
   
 } catch (error) {
@@ -1797,23 +1817,29 @@ tableBody.appendChild(spacerRow);
 window.renderTable = renderTable; // ✅ 여기 있어야만 작동함
 
  
-function searchPlayer(){
-  const query = document.getElementById('searchPlayerAll').value.toLowerCase().trim();
+function searchPlayer(inputOverride = null){
+  const rawInput = (inputOverride || document.getElementById('searchPlayerAll').value).trim().toLowerCase();
+
   clearFixedRow();
   const rows = document.querySelectorAll('#tableBody tr');
   let found = false;
   rows.forEach(row => {
-    const name = row.cells[0].textContent.toLowerCase();
+    const nameCell = row.cells[0];
+    const rawText = nameCell?.childNodes[0]?.nodeValue?.trim().toLowerCase(); // ✅ 이름만 추출 (✅/⚠️ 제거)
     row.classList.remove('highlight');
-    if (name.includes(query)){
+
+    if (rawText === rawInput) {
       found = true;
       row.classList.add('highlight');
       fixRow(row);
     }
   });
+
   if (!found) alert("Player not found!");
 }
- 
+
+window.searchPlayer = searchPlayer;
+
  function fixRow(row) {
   clearFixedRow();
   fixedRow = row.cloneNode(true);
@@ -1875,16 +1901,26 @@ const filteredData = data.filter(cols => {
   return isTypeMatched && isMinGames;
 });
   
-  const playerData = filteredData.find(cols => 
-    cols["Player"].trim().toLowerCase().includes(playerNameInput.toLowerCase())
-  );
+const playerData = filteredData.find(cols => {
+  const fullName = cols["Player"].trim().toLowerCase();
+  const input = playerNameInput.toLowerCase();
+  return fullName === input;
+});
 
   if (playerData) {
-    document.getElementById('playerTitle').innerText = `${playerData["Player"]} (${playerData["Team"]})`;
+    const seasonKor = {
+      "20-21": "20-21 시즌",
+      "21-22": "21-22 시즌",
+      "22-23": "22-23 시즌",
+      "23-24": "23-24 시즌",
+      "24-25": "24-25 시즌"
+    };
+    const seasonName = seasonKor[season] || season;
+    const playerTeamName = playerData["Player"];
+    document.getElementById('playerTitle').innerText = `${seasonName} ${playerTeamName}`;
     document.getElementById('playerFilterBox').style.display = 'flex';
     document.getElementById('statsContainer').style.display = 'grid';
-    
-
+  
     const statsContainer = document.getElementById('statsContainer');
     statsContainer.innerHTML = '';
 
@@ -2063,11 +2099,19 @@ statsContainer.appendChild(spacer);
   } else {
     alert('선수를 찾을 수 없습니다.');
   }
-   document.getElementById('searchPlayerButton').addEventListener('click', showPlayerStats); // ✅ 이 줄 추가=
 }
- document.getElementById('searchPlayerAll').addEventListener('keypress', function(e) {
+let lastConfirmedInput = '';
+
+document.getElementById('searchPlayerAll').addEventListener('input', function(e) {
+  lastConfirmedInput = e.target.value.trim().toLowerCase();
+});
+  
+document.getElementById('searchPlayerAll').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') {
-    searchPlayer();
+    setTimeout(() => {
+      const value = document.getElementById('searchPlayerAll').value.trim().toLowerCase();
+      searchPlayer(value);  // ✅ 확정된 입력값을 사용
+    }, 100);  // ← 기존 10 → 30ms로 변경
   }
 });
 
@@ -2612,6 +2656,9 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
     spacerRow.id = 'spacerRow';
     spacerRow.innerHTML = '<td colspan="100" style="height: 100px; background: transparent; border: none;"></td>';
     tableBody.appendChild(spacerRow);
+
+    window.renderTable = renderTable;
+
   };
 });
 
@@ -2639,16 +2686,37 @@ jsonData.forEach(cols => {
   const seconds = parseInt(cols["s"]) || 0;
   cols["총 출전 시간(초)"] = minutes * 60 + seconds;
 
-  // ✅ 이름/팀명 공백 제거 (중복/디자인 오류 방지)
   cols["Player"] = (cols["Player"] || "").trim();
   cols["Team"] = (cols["Team"] || "").trim();
+  if (!cols["Player"].includes('(')) {
+    cols["Player"] = `${cols["Player"]} (${cols["Team"]})`;
+}});
+const suggestionSet2 = new Set();
+jsonData.forEach(cols => {
+  const name = (cols["Player"] || "").trim();
+  const team = (cols["Team"] || "").trim();
+  if (name && team) {
+    suggestionSet2.add(`${name} (${team})`);
+  }
 });
-
+const datalist2 = document.getElementById("playerSuggestionsPlayer");
+if (datalist2) {
+  datalist2.innerHTML = "";
+  [...suggestionSet2].sort().forEach(item => {
+    const option = document.createElement("option");
+    option.value = item;
+    datalist2.appendChild(option);
+  });
+}
 // ✅ 여기 이 줄만 추가하시면 됩니다
 originalData = jsonData;
-
 // ✅ 데이터 갱신 필수
 fullSeasonDataMap[season] = jsonData;
+window.originalData = jsonData;
+
+      
+document.getElementById('searchPlayer').value = '';
+
 
       setTimeout(() => {
         const currentInput = document.getElementById('searchPlayer').value.trim();
@@ -2667,54 +2735,22 @@ document.addEventListener("DOMContentLoaded", function () {
   loadPlayersData2();
   document.getElementById('compareResult').innerHTML = '';
 
-  document.getElementById('compareMinGamesSingle').addEventListener('change', () => {
-  document.getElementById('compareSearchButton').click();
-});
-
-// ✅ 4페이지 필터 버튼 클릭 이벤트 연결
-document.querySelectorAll('#comparePlayerFilterBox .filter-btn').forEach(btn => {
-  const type = btn.dataset.type;
-
-  btn.addEventListener('click', () => {
-    if (activeTypes.has(type)) {
-      activeTypes.delete(type);
-      btn.classList.remove('active');
-    } else {
-      activeTypes.add(type);
-      btn.classList.add('active');
-    }
-
-    localStorage.setItem('activeTypesComparePlayer', JSON.stringify([...activeTypes]));
-
-    document.getElementById('compareSearchButton').click(); // 필터 적용 즉시 검색
-  });
-});
-
-// ✅ 필터 초기 상태 복원
-const savedTypesComparePlayer = localStorage.getItem('activeTypesComparePlayer');
-if (savedTypesComparePlayer) {
-  activeTypes = new Set(JSON.parse(savedTypesComparePlayer));
-  document.querySelectorAll('#comparePlayerFilterBox .filter-btn').forEach(btn => {
-    if (!activeTypes.has(btn.dataset.type)) {
-      btn.classList.remove('active');
-    }
-  });
-}
+    window.showPlayerStats = showPlayerStats;
+  document.getElementById('searchPlayerButton').addEventListener('click', showPlayerStats);
   
-  // ✅ compareFilterBox 버튼 클릭 이벤트 연결
-(function () {
-  const compareFilterBox = document.querySelectorAll('#compareFilterBox .filter-btn');
-  const savedCompareTypes = localStorage.getItem('activeTypesCompare');
-  if (savedCompareTypes) {
-    activeTypes = new Set(JSON.parse(savedCompareTypes));
-    compareFilterBox.forEach(btn => {
-      if (!activeTypes.has(btn.dataset.type)) {
-        btn.classList.remove('active');
-      }
+  const searchBtn = document.getElementById('searchPlayerButton');
+  if (searchBtn) {
+    searchBtn.addEventListener('click', function () {
+      showPlayerStats(); // ✅ 함수가 정의된 뒤 실행되므로 오류 없음
     });
   }
 
-  compareFilterBox.forEach(btn => {
+  document.getElementById('compareMinGamesSingle').addEventListener('change', () => {
+    document.getElementById('compareSearchButton').click();
+  });
+
+  // ✅ 이하 생략 없이 나머지 기존 코드 유지
+  document.querySelectorAll('#comparePlayerFilterBox .filter-btn').forEach(btn => {
     const type = btn.dataset.type;
     btn.addEventListener('click', () => {
       if (activeTypes.has(type)) {
@@ -2724,19 +2760,57 @@ if (savedTypesComparePlayer) {
         activeTypes.add(type);
         btn.classList.add('active');
       }
-      localStorage.setItem('activeTypesCompare', JSON.stringify([...activeTypes]));
+
+      localStorage.setItem('activeTypesComparePlayer', JSON.stringify([...activeTypes]));
+      document.getElementById('compareSearchButton').click();
     });
   });
-})();
-const seasonSelectorPlayer = document.getElementById('seasonSelectorPlayer');
-if (seasonSelectorPlayer) {
-  seasonSelectorPlayer.addEventListener('change', () => {
-    loadPlayersData2();  // 2페이지 선수 데이터 재로딩
-  });
-}
-document.addEventListener('DOMContentLoaded', () => {
-  const checkboxes = document.querySelectorAll('#compareStatCheckboxes input[type="checkbox"]');
 
+  const savedTypesComparePlayer = localStorage.getItem('activeTypesComparePlayer');
+  if (savedTypesComparePlayer) {
+    activeTypes = new Set(JSON.parse(savedTypesComparePlayer));
+    document.querySelectorAll('#comparePlayerFilterBox .filter-btn').forEach(btn => {
+      if (!activeTypes.has(btn.dataset.type)) {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  (function () {
+    const compareFilterBox = document.querySelectorAll('#compareFilterBox .filter-btn');
+    const savedCompareTypes = localStorage.getItem('activeTypesCompare');
+    if (savedCompareTypes) {
+      activeTypes = new Set(JSON.parse(savedCompareTypes));
+      compareFilterBox.forEach(btn => {
+        if (!activeTypes.has(btn.dataset.type)) {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    compareFilterBox.forEach(btn => {
+      const type = btn.dataset.type;
+      btn.addEventListener('click', () => {
+        if (activeTypes.has(type)) {
+          activeTypes.delete(type);
+          btn.classList.remove('active');
+        } else {
+          activeTypes.add(type);
+          btn.classList.add('active');
+        }
+        localStorage.setItem('activeTypesCompare', JSON.stringify([...activeTypes]));
+      });
+    });
+  })();
+
+  const seasonSelectorPlayer = document.getElementById('seasonSelectorPlayer');
+  if (seasonSelectorPlayer) {
+    seasonSelectorPlayer.addEventListener('change', () => {
+      loadPlayersData2();
+    });
+  }
+
+  const checkboxes = document.querySelectorAll('#compareStatCheckboxes input[type="checkbox"]');
   checkboxes.forEach(cb => {
     cb.addEventListener('change', () => {
       const checked = document.querySelectorAll('#compareStatCheckboxes input[type="checkbox"]:checked');
@@ -2746,20 +2820,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-});
 
-   // ✅ 여기에 필터 버튼 이벤트 연결 코드 삽입
-document.querySelectorAll('.filter-toggle').forEach(btn => {
-  const type = btn.dataset.type;
+  document.querySelectorAll('.filter-toggle').forEach(btn => {
+    const type = btn.dataset.type;
+    const saved = localStorage.getItem('activeTypes');
+    if (saved) {
+      activeTypes = new Set(JSON.parse(saved));
+      if (!activeTypes.has(type)) btn.classList.remove('selected');
+    }
 
-  // ✅ 저장된 상태 복원
-  const saved = localStorage.getItem('activeTypes');
-  if (saved) {
-    activeTypes = new Set(JSON.parse(saved));
-    if (!activeTypes.has(type)) btn.classList.remove('selected');
-  }
-
-  // ✅ 클릭 이벤트 연결
     btn.addEventListener('click', () => {
       if (activeTypes.has(type)) {
         activeTypes.delete(type);
@@ -2770,10 +2839,11 @@ document.querySelectorAll('.filter-toggle').forEach(btn => {
       }
 
       localStorage.setItem('activeTypes', JSON.stringify([...activeTypes]));
-      renderTable(originalData);  // ✅ 이건 유지
+      renderTable(originalData);
     });
   });
-}); // ✅ 여기까지만 있어야 함
+});
+
 
 window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('#playerFilterBox .filter-btn').forEach(btn => {
