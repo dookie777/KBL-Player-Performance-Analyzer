@@ -405,6 +405,7 @@ thead th {
 
 /* ✅ 선수 비교 페이지 입력창 크기 및 영역 최적화 (중요 수정) */
 #tab-compare .input-box input[type="text"] {
+  font-size: 0.85rem !important; /* ✅ 기존보다 작게 */
   width: 150px !important; /* 기존 200px → 2/3 크기 */
 }
 
@@ -479,7 +480,10 @@ thead th {
   top: 0 !important;
   z-index: 1000 !important;
 }
-
+#tab-compare .compare-result th span {
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
 /* 제목 헤더 배경으로 데이터가 보이지 않게 설정 */
 #tab-compare .compare-result {
   position: relative;
@@ -1990,7 +1994,7 @@ const playerData = filteredData.find(cols => {
     };
     const seasonName = seasonKor[season] || season;
     const playerTeamName = playerData["Player"];
-    document.getElementById('playerTitle').innerText = `${seasonName} ${playerTeamName}`;
+    document.getElementById('playerTitle').innerHTML = `<span style="font-size: 1.2rem; color: #AAA;">${seasonName}</span> ${playerTeamName}`;
     document.getElementById('playerFilterBox').style.display = 'flex';
     document.getElementById('statsContainer').style.display = 'grid';
   
@@ -2346,7 +2350,9 @@ function comparePlayersFromCache() {
     const selectedSeason = p.__season || '24-25';
     tableHTML += `<th>
       <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <span style="font-weight: bold; color: #FFF;">${p["Player"]}</span>
+        <span style="font-weight: bold; color: #FFF;">
+          ${p["Player"].split(' (')[0]}<br><span style="font-size: 0.75rem;">(${p["Player"].split(' (')[1]}</span>
+        </span>
         <select id="seasonSwitch-${idx}" class="season-switch">
           <option value="20-21" ${selectedSeason === '20-21' ? 'selected' : ''}>20-21</option> <!-- ✅ 추가 -->
           <option value="21-22" ${selectedSeason === '21-22' ? 'selected' : ''}>21-22</option> <!-- ✅ 추가 -->
