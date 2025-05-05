@@ -1166,7 +1166,7 @@ canvas {
   scroll-behavior: smooth;
 }
 #tab-player-compare .input-box input[type="text"] {
-  font-size: 0.85rem !important; /* ✅ 기존보다 약간 작게 */
+  font-size: 1.0rem !important; /* ✅ 기존보다 약간 작게 */
   width: 300px !important;        /* 필요 시 너비도 함께 조절 */
 }
     
@@ -1612,8 +1612,24 @@ tabs.forEach(tab => {
     if (tab.dataset.tab === 'tab-player-compare') {
       document.getElementById('compareSearchPlayer').value = '';
       document.getElementById('compareStatResults').innerHTML = '';
+    
+      // ✅ 필터 버튼 이벤트 재연결
+      document.querySelectorAll('#comparePlayerFilterBox .filter-btn').forEach(btn => {
+        const type = btn.dataset.type;
+        btn.onclick = () => {
+          if (activeTypes.has(type)) {
+            activeTypes.delete(type);
+            btn.classList.remove('active');
+          } else {
+            activeTypes.add(type);
+            btn.classList.add('active');
+          }
+          localStorage.setItem('activeTypesComparePlayer', JSON.stringify([...activeTypes]));
+          document.getElementById('compareSearchButton').click();
+        };
+      });
     }
-
+    
     document.getElementById(tab.dataset.tab).classList.add('active');
     tab.classList.add('active');
   };
@@ -3002,15 +3018,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   });
 
-  const savedTypesComparePlayer = localStorage.getItem('activeTypesComparePlayer');
-  if (savedTypesComparePlayer) {
-    activeTypes = new Set(JSON.parse(savedTypesComparePlayer));
-    document.querySelectorAll('#comparePlayerFilterBox .filter-btn').forEach(btn => {
-      if (!activeTypes.has(btn.dataset.type)) {
-        btn.classList.remove('active');
-      }
-    });
-  }
+const savedTypesComparePlayer = localStorage.getItem('activeTypesComparePlayer');
+if (savedTypesComparePlayer) {
+  activeTypes = new Set(JSON.parse(savedTypesComparePlayer));
+  document.querySelectorAll('#comparePlayerFilterBox .filter-btn').forEach(btn => {
+    if (!activeTypes.has(btn.dataset.type)) {
+      btn.classList.remove('active');
+    }
+  });
+}
 
   (function () {
     const compareFilterBox = document.querySelectorAll('#compareFilterBox .filter-btn');
@@ -3165,11 +3181,11 @@ document.getElementById('compareSearchButton').addEventListener('click', async (
 
     const minGamesChecked = document.getElementById('compareMinGamesSingle')?.checked;
     
-    const filtered = jsonData.filter(row =>
-      activeTypes.has(row["구분"]) &&
-      row["Player"].toLowerCase() === playerName.toLowerCase() &&
-      (!minGamesChecked || parseInt(row["출전 경기 수"]) >= 14)
-    );
+      const filtered = jsonData.filter(row =>
+        activeTypes.has(row["구분"]) &&
+        row["Player"].toLowerCase() === playerName.toLowerCase() &&
+        (!minGamesChecked || parseInt(row["출전 경기 수"]) >= 14)
+      );
 
       if (filtered.length > 0) {
         const preferred = filtered.find(row => row["Player"].includes(" to ")) || filtered[0];
@@ -3187,13 +3203,6 @@ document.getElementById('compareSearchButton').addEventListener('click', async (
       return;
     }
     
-    // ✅ 바로 아래 여기에 추가하면 됩니다
-    const latestSeason = seasons.find(season => playerStats[season]);
-    const latestTeamInfo = playerStats[latestSeason]["Player"]; // ex. 김종규 (DB to KGC)
-    document.getElementById('compareStatResults').insertAdjacentHTML('beforebegin',
-      `<div class="player-title" style="text-align:center; font-size:1.4rem; font-weight:bold; margin-bottom:10px;">${latestTeamInfo}</div>`);
-
-
   selectedMetrics.forEach((metric, idx) => {
     const canvasId = `metricChart${idx}`;
     const statData = [];
