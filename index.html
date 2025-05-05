@@ -1200,8 +1200,7 @@ canvas {
   <input type="text" id="searchPlayerAll" placeholder="Search player..." list="playerSuggestionsAll">
   <datalist id="playerSuggestionsAll"></datalist>    
     <button onclick="searchPlayer()">Search</button>
-    <input type="checkbox" id="minGamesCheckbox">
-    <label for="minGamesCheckbox">규정 경기 이상(14G)</label>
+
   </div>
 
 <div class="upload-box" style="position:fixed; top:10px; right:10px; display:flex; align-items:center; gap:5px;">
@@ -1213,6 +1212,10 @@ canvas {
 <div class="filter-toggle selected" data-type="국내">국내 선수</div>
 <div class="filter-toggle selected" data-type="외국인">외국인 선수</div>
 <div class="filter-toggle selected" data-type="아시아쿼터">아시아쿼터</div>
+  <div style="display: flex; align-items: center; gap: 6px; margin-left: 10px;">
+    <input type="checkbox" id="minGamesCheckbox">
+    <label for="minGamesCheckbox" style="font-size: 0.75rem; color: white;">규정 경기 이상(14G)</label>
+  </div>
 </div>
   
 <div class="scroll-container">
@@ -1303,8 +1306,7 @@ canvas {
     <input type="text" id="searchPlayer" placeholder="Search player..." list="playerSuggestionsPlayer">
     <datalist id="playerSuggestionsPlayer"></datalist>
     <button id="searchPlayerButton">Search</button>
-    <input type="checkbox" id="minGames">
-    <label for="minGames">규정 경기 이상(14G)</label>
+
   </div>
 
   <!-- 선수명/팀명 -->
@@ -1315,6 +1317,10 @@ canvas {
         <button class="filter-btn active" data-type="국내">국내 선수</button>
         <button class="filter-btn active" data-type="외국인">외국인 선수</button>
         <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
+          <div style="display: flex; align-items: center; gap: 6px; margin-left: 10px;">
+          <input type="checkbox" id="minGames">
+          <label for="minGames" style="font-size: 0.75rem; color: white;">규정 경기 이상(14G)</label>
+        </div>
       </div>
     </div>
 
@@ -1326,14 +1332,24 @@ canvas {
 
 <!-- ✅ 3페이지 복구 시작 -->
 <div id="tab-compare" class="tab-content">
-  <div class="input-box">
-    <input type="text" id="comparePlayer1" placeholder="Player 1">
-    <input type="text" id="comparePlayer2" placeholder="Player 2">
-    <input type="text" id="comparePlayer3" placeholder="Player 3(선택)">
-    <button onclick="comparePlayers()">Compare</button>
-    <input type="checkbox" id="compareMinGames">
-    <label for="compareMinGames">규정 경기 이상(14G)</label>
-  </div>
+<div class="input-box">
+  <!-- Player 1 -->
+<!-- Player 1 -->
+<input type="text" id="comparePlayer1" placeholder="Player 1" list="playerSuggestionsCompare1">
+<datalist id="playerSuggestionsCompare1"></datalist>
+
+<!-- Player 2 -->
+<input type="text" id="comparePlayer2" placeholder="Player 2" list="playerSuggestionsCompare2">
+<datalist id="playerSuggestionsCompare2"></datalist>
+
+<!-- Player 3 -->
+<input type="text" id="comparePlayer3" placeholder="Player 3(선택)" list="playerSuggestionsCompare3">
+<datalist id="playerSuggestionsCompare3"></datalist>
+
+
+  <button onclick="comparePlayers()">Compare</button>
+</div>
+
   <div id="categoryCheckboxes" class="category-checkboxes">
     <label><input type="checkbox" value="기본 정보" checked> 기본 정보</label>
     <label><input type="checkbox" value="슈팅 지표" checked> 슈팅 지표</label>
@@ -1351,6 +1367,10 @@ canvas {
   <button class="filter-btn active" data-type="국내">국내 선수</button>
   <button class="filter-btn active" data-type="외국인">외국인 선수</button>
   <button class="filter-btn active" data-type="아시아쿼터">아시아쿼터</button>
+    <div style="display:flex; align-items:center; gap:6px; margin-left:10px;">
+    <input type="checkbox" id="compareMinGames">
+    <label for="compareMinGames" style="font-size:0.75rem; color:white;">규정 경기 이상(14G)</label>
+  </div>
 </div>
   <div class="compare-result" id="compareResult"></div>
 </div>
@@ -1588,8 +1608,33 @@ tabs.forEach(tab => {
   };
 });
 
- let playerDataBySeason = {};  // ✅ 이 줄을 추가
+  let playerDataBySeason = {};  // ✅ 이 줄을 추가
   let fullSeasonDataMap = {};  // ← ✅ 반드시 여기 위치해도 됨
+  function loadAllPlayerSuggestionsCompare() {
+  const datalistIds = ['playerSuggestionsCompare1', 'playerSuggestionsCompare2', 'playerSuggestionsCompare3'];
+  const seasons = ['24-25', '23-24', '22-23', '21-22', '20-21'];
+  const nameSet = new Set();
+
+  seasons.forEach(season => {
+    const data = fullSeasonDataMap[season] || [];
+    data.forEach(row => {
+      const name = (row["Player"] || "").trim();
+      if (name) nameSet.add(name);
+    });
+  });
+
+  datalistIds.forEach(id => {
+    const listEl = document.getElementById(id);
+    if (!listEl) return;
+    listEl.innerHTML = '';
+    [...nameSet].sort().forEach(name => {
+      const option = document.createElement('option');
+      option.value = name;
+      listEl.appendChild(option);
+    });
+  });
+}
+
   let originalData = [], highlightedPlayer = '', fixedRow = null;
   let activeTypes = new Set(["국내", "외국인", "아시아쿼터"]);
   let playersData = [];
@@ -1714,6 +1759,7 @@ if (datalist) {
 }
 
 renderTable(originalData);
+loadAllPlayerSuggestionsCompare(); // 전체 시즌 데이터 다 받은 후 호출해야 자동완성 채워짐
   
   
 } catch (error) {
@@ -1815,7 +1861,26 @@ tableBody.appendChild(spacerRow);
 }
 
 window.renderTable = renderTable; // ✅ 여기 있어야만 작동함
+function updateCompareAutocomplete(playerIdx) {
+  const season = document.getElementById(`compareSeason${playerIdx}`)?.value || '24-25';
+  const datalist = document.getElementById(`playerSuggestionsCompare${playerIdx}`);
+  if (!datalist) return;
 
+  const data = fullSeasonDataMap[season] || [];
+  const nameSet = new Set();
+
+  data.forEach(row => {
+    const name = (row["Player"] || "").trim();
+    if (name) nameSet.add(name);
+  });
+
+  datalist.innerHTML = '';
+  [...nameSet].sort().forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    datalist.appendChild(option);
+  });
+}
  
 function searchPlayer(inputOverride = null){
   const rawInput = (inputOverride || document.getElementById('searchPlayerAll').value).trim().toLowerCase();
@@ -2165,7 +2230,7 @@ document.getElementById('minGames').addEventListener('change', function() {
 });
 
 
-window.comparePlayers = function () {
+window.comparePlayers = async function () {
   tabs.forEach(t => t.classList.remove('active'));
   contents.forEach(c => c.classList.remove('active'));
   document.querySelector('[data-tab="tab-compare"]').classList.add('active');
@@ -2181,23 +2246,78 @@ if (!player1 && !player2 && !player3) {
   return;
 }
 
-playersData = [player1, player2, player3]
-  .filter(name => name !== '')
-  .map((name, idx) => {
+playersData = await Promise.all(
+  [player1, player2, player3].filter(name => name !== '').map(async (name, idx) => {
     const seasonSelector = document.getElementById(`seasonSwitch-${idx}`);
-    const season = seasonSelector ? seasonSelector.value : '24-25'; // ✅ 실제 선택된 시즌 기반
+    const season = seasonSelector ? seasonSelector.value : '24-25';
 
-    const seasonData = fullSeasonDataMap[season] || [];
-    const matched = seasonData.find(cols =>
-      cols["Player"].trim().toLowerCase() === name.toLowerCase()
-    );
+    let seasonData = fullSeasonDataMap[season];
+    if (!seasonData) {
+      const fileMap = {
+        '20-21': '20-21_KBL_stats.xlsx',
+        '21-22': '21-22_KBL_stats.xlsx',
+        '22-23': '22-23_KBL_stats.xlsx',
+        '23-24': '23-24_KBL_stats.xlsx',
+        '24-25': '24-25_KBL_stats.xlsx'
+      };
+      const res = await fetch(`https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`);
+      const data = await res.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      seasonData = XLSX.utils.sheet_to_json(sheet);
+
+      seasonData.forEach(cols => {
+        const m = parseInt(cols["m"]) || 0;
+        const s = parseInt(cols["s"]) || 0;
+        cols["총 출전 시간(초)"] = m * 60 + s;
+        const rawPlayer = (cols["Player"] || "").trim();
+        const team = (cols["Team"] || "").trim();
+        cols["Player"] = `${rawPlayer} (${team})`;
+        cols["Team"] = team;
+        cols["구분"] = (cols["구분"] || "").trim();
+      });
+
+      fullSeasonDataMap[season] = seasonData;
+    }
+
+const seasons = ['24-25', '23-24', '22-23', '21-22', '20-21'];
+let matched;
+for (const s of seasons) {
+  let data = fullSeasonDataMap[s];
+  if (!data) {
+    const res = await fetch(`https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[s]}`);
+    const buffer = await res.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    data = XLSX.utils.sheet_to_json(sheet);
+    data.forEach(cols => {
+      const m = parseInt(cols["m"]) || 0;
+      const sec = parseInt(cols["s"]) || 0;
+      cols["총 출전 시간(초)"] = m * 60 + sec;
+      const raw = (cols["Player"] || "").trim();
+      const team = (cols["Team"] || "").trim();
+      cols["Player"] = `${raw} (${team})`;
+      cols["Team"] = team;
+      cols["구분"] = (cols["구분"] || "").trim();
+    });
+    fullSeasonDataMap[s] = data;
+  }
+  matched = data.find(row => (row["Player"] || "").trim().toLowerCase() === name.toLowerCase());
+  if (matched) {
+    matched.__season = s;
+    break;
+  }
+}
+
 
     if (matched) {
       matched.__season = season;
       return matched;
     }
     return undefined;
-  });
+  })
+);
+
 
 
   if (playersData.some(p => p === undefined)) {
@@ -2226,7 +2346,7 @@ function comparePlayersFromCache() {
     const selectedSeason = p.__season || '24-25';
     tableHTML += `<th>
       <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <span style="font-weight: bold; color: #FFF;">${p["Player"]} (${p["Team"]})</span>
+        <span style="font-weight: bold; color: #FFF;">${p["Player"]}</span>
         <select id="seasonSwitch-${idx}" class="season-switch">
           <option value="20-21" ${selectedSeason === '20-21' ? 'selected' : ''}>20-21</option> <!-- ✅ 추가 -->
           <option value="21-22" ${selectedSeason === '21-22' ? 'selected' : ''}>21-22</option> <!-- ✅ 추가 -->
@@ -2257,14 +2377,16 @@ const values = players.map((p, idx) => {
 
   const matched = filtered.find(row => row["Player"].trim().toLowerCase() === p["Player"].trim().toLowerCase());
 
-  // 이 matched 값을 새로 저장 (이제 완전하게 playerSeasonData 재정의됨)
+  // matched 없으면 그대로 undefined 반환
   if (matched) {
     matched.__season = season;
     playerSeasonData[idx] = matched;
+    return parseFloat(matched[stat.key]);
   }
 
-  return parseFloat(matched?.[stat.key]) || 0;
+  return null; // ❗ 출전하지 않은 경우 null 반환
 });
+
 
 const ranks = values.map((val, idx) => {
   const season = players[idx].__season;
@@ -2289,9 +2411,10 @@ const filtered = seasonData.filter(row => {
 
     tableHTML += `<tr data-category="${getCategoryByStat(stat.label)}"><td>${stat.label}</td>`;
     
-    values.forEach((value, idx) => {
-      tableHTML += `<td class="${highlightClass[idx]}">${formatStatValue(stat.key, value)} (${ranks[idx]}위)</td>`;
-    });
+values.forEach((value, idx) => {
+  const displayValue = value === null ? 'N/A' : `${formatStatValue(stat.key, value)} (${ranks[idx]}위)`;
+  tableHTML += `<td class="${highlightClass[idx]}">${displayValue}</td>`;
+});
     
     if (players.length === 2) {
       const format = statsFormats[stat.key] || { unit: '', decimals: 2 };  // ✅ 이 줄 추가 필수
@@ -2419,7 +2542,9 @@ window.changeSeason = function(playerIndex, season) {
       const matchedPlayer = seasonData.find(p => p["Player"]?.trim().toLowerCase() === name);
 
       if (!matchedPlayer) {
-        alert("선수를 찾을 수 없습니다.");
+        // alert("선수를 찾을 수 없습니다."); ← 이 줄 삭제
+        playerSeasonData[playerIndex] = { Player: name, Team: '', __season: season };
+        comparePlayersFromCache();  // 계속 렌더링
         return;
       }
 
@@ -2492,9 +2617,6 @@ setTimeout(() => {
     comparePlayersFromCache();
   };
 }, 0);
-
-
-
 
 // 체크박스 이벤트 핸들러 추가
 document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]').forEach(checkbox => {
@@ -2745,11 +2867,61 @@ function loadPlayersData2() {
     });
 }
 
+async function loadAllSeasonsData() {
+  const seasons = ['20-21', '21-22', '22-23', '23-24', '24-25'];
+  const fileMap = {
+    '20-21': '20-21_KBL_stats.xlsx',
+    '21-22': '21-22_KBL_stats.xlsx',
+    '22-23': '22-23_KBL_stats.xlsx',
+    '23-24': '23-24_KBL_stats.xlsx',
+    '24-25': '24-25_KBL_stats.xlsx'
+  };
+
+  for (const season of seasons) {
+    if (fullSeasonDataMap[season]) continue;
+
+    try {
+      const res = await fetch(`https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/${fileMap[season]}`);
+      const data = await res.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+      const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+      jsonData.forEach(cols => {
+        const m = parseInt(cols["m"]) || 0;
+        const s = parseInt(cols["s"]) || 0;
+        cols["총 출전 시간(초)"] = m * 60 + s;
+
+        const rawPlayer = (cols["Player"] || "").trim();
+        const team = (cols["Team"] || "").trim();
+        cols["Player"] = `${rawPlayer} (${team})`;
+        cols["Team"] = team;
+        cols["구분"] = (cols["구분"] || "").trim();
+      });
+
+      fullSeasonDataMap[season] = jsonData;
+    } catch (err) {
+      console.error(`❌ ${season} 시즌 데이터 로딩 실패`, err);
+    }
+  }
+
+  loadAllPlayerSuggestionsCompare();  // ✅ 자동완성 리스트 생성
+}
 
 
-document.addEventListener("DOMContentLoaded", function () {
-  loadPlayersData();
-  loadPlayersData2();
+document.addEventListener("DOMContentLoaded", async function () {
+  await loadAllSeasonsData(); // ✅ 비동기 처리 정상 작동
+  loadPlayersData();      // ✅ 1페이지용
+  loadPlayersData2();     // ✅ 2페이지용
+  
+  // compareSeason1~3에 대한 updateCompareAutocomplete도 여기
+  ['1', '2', '3'].forEach(idx => {
+    const selector = document.getElementById(`compareSeason${idx}`);
+    if (selector) {
+      selector.addEventListener('change', () => updateCompareAutocomplete(idx));
+      updateCompareAutocomplete(idx);
+    }
+  });
+  
   document.getElementById('seasonSelectorPlayer')?.addEventListener('change', () => {
     loadPlayersData2();
   });
