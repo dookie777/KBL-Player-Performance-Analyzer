@@ -1891,9 +1891,17 @@ function calculateRank(data, statKey, playerValue, isHigherBetter = true) {
 
 function showPlayerStats() {
 const season = document.getElementById('seasonSelectorPlayer')?.value || '24-25';
-const playerNameInput = document.getElementById('searchPlayer').value.trim();
-const minGamesChecked = document.getElementById('minGames').checked;
+  let playerNameInput = document.getElementById('searchPlayer').value.trim();
 
+  // ✅ 괄호 중복 제거 (예: "홍길동 (KGC) (KGC)" → "홍길동 (KGC)")
+  const matches = playerNameInput.match(/\(([^)]+)\)/g);
+  if (matches && matches.length > 1) {
+    const namePart = playerNameInput.split('(')[0].trim();
+    const teamPart = matches[0].replace(/[()]/g, '').trim();
+    playerNameInput = `${namePart} (${teamPart})`;
+  }
+  
+const minGamesChecked = document.getElementById('minGames').checked;
 const data = fullSeasonDataMap[season] || originalData;  // ✅ 시즌별 데이터 기반
 const filteredData = data.filter(cols => {
   const isTypeMatched = activeTypes.has(cols["구분"]);
@@ -2665,9 +2673,9 @@ document.querySelectorAll('#statsTable thead th').forEach((header, index) => {
 function loadPlayersData2() {
   const season = document.getElementById('seasonSelectorPlayer')?.value || '23-24';
   const fileMap = {
-    '20-21': '20-21_KBL_stats.xlsx', // ✅ 추가
-    '21-22': '21-22_KBL_stats.xlsx', // ✅ 이 줄 추가
-    '22-23': '22-23_KBL_stats.xlsx', // ✅ 추가
+    '20-21': '20-21_KBL_stats.xlsx',
+    '21-22': '21-22_KBL_stats.xlsx',
+    '22-23': '22-23_KBL_stats.xlsx',
     '23-24': '23-24_KBL_stats.xlsx',
     '24-25': '24-25_KBL_stats.xlsx'
   };
@@ -2680,48 +2688,56 @@ function loadPlayersData2() {
       const firstSheet = workbook.SheetNames[0];
       const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-      // ✅ 시간 변환 보장
-jsonData.forEach(cols => {
-  const minutes = parseInt(cols["m"]) || 0;
-  const seconds = parseInt(cols["s"]) || 0;
-  cols["총 출전 시간(초)"] = minutes * 60 + seconds;
+      jsonData.forEach(cols => {
+        const minutes = parseInt(cols["m"]) || 0;
+        const seconds = parseInt(cols["s"]) || 0;
+        cols["총 출전 시간(초)"] = minutes * 60 + seconds;
 
-  cols["Player"] = (cols["Player"] || "").trim();
-  cols["Team"] = (cols["Team"] || "").trim();
-  if (!cols["Player"].includes('(')) {
-    cols["Player"] = `${cols["Player"]} (${cols["Team"]})`;
-}});
-const suggestionSet2 = new Set();
-jsonData.forEach(cols => {
-  const name = (cols["Player"] || "").trim();
-  const team = (cols["Team"] || "").trim();
-  if (name && team) {
-    suggestionSet2.add(`${name} (${team})`);
-  }
-});
-const datalist2 = document.getElementById("playerSuggestionsPlayer");
-if (datalist2) {
-  datalist2.innerHTML = "";
-  [...suggestionSet2].sort().forEach(item => {
-    const option = document.createElement("option");
-    option.value = item;
-    datalist2.appendChild(option);
-  });
-}
-// ✅ 여기 이 줄만 추가하시면 됩니다
-originalData = jsonData;
-// ✅ 데이터 갱신 필수
-fullSeasonDataMap[season] = jsonData;
-window.originalData = jsonData;
+        const rawPlayer = (cols["Player"] || "").trim();
+        const team = (cols["Team"] || "").trim();
+        let name = rawPlayer;
 
-      
-document.getElementById('searchPlayer').value = '';
+        const match = name.match(/^(.*)\s\(([^)]+)\)(?:\s\(\2\))?$/);
+        if (match) {
+          name = `${match[1].trim()} (${match[2].trim()})`;
+        } else if (!name.includes('(')) {
+          name = `${name} (${team})`;
+        }
 
+        cols["Player"] = name;
+        cols["Team"] = team;
+        cols["구분"] = (cols["구분"] || "").trim();
+      });
 
+      // ✅ 순서 중요: 데이터 세팅 먼저
+      originalData = jsonData;
+      fullSeasonDataMap[season] = jsonData;
+      window.originalData = jsonData;
+
+      // ✅ 자동완성 목록 갱신
+      const suggestionSet = new Set();
+      originalData.forEach(cols => {
+        const name = (cols["Player"] || "").trim();
+        if (name) {
+          suggestionSet.add(name);
+        }
+      });
+
+      const datalist2 = document.getElementById("playerSuggestionsPlayer");
+      if (datalist2) {
+        datalist2.innerHTML = "";
+        [...suggestionSet].sort().forEach(item => {
+          const option = document.createElement("option");
+          option.value = item;
+          datalist2.appendChild(option);
+        });
+      }
+
+      // ✅ 검색창 입력값 그대로 유지 + 재검색
       setTimeout(() => {
         const currentInput = document.getElementById('searchPlayer').value.trim();
         if (currentInput !== "") showPlayerStats();
-      }, 200);
+      }, 100);
     })
     .catch(error => {
       console.error("선수 개인 데이터 로딩 오류:", error);
@@ -2730,12 +2746,15 @@ document.getElementById('searchPlayer').value = '';
 }
 
 
+
 document.addEventListener("DOMContentLoaded", function () {
   loadPlayersData();
   loadPlayersData2();
-  document.getElementById('compareResult').innerHTML = '';
-
-    window.showPlayerStats = showPlayerStats;
+  document.getElementById('seasonSelectorPlayer')?.addEventListener('change', () => {
+    loadPlayersData2();
+  });
+ 
+  window.showPlayerStats = showPlayerStats;
   document.getElementById('searchPlayerButton').addEventListener('click', showPlayerStats);
   
   const searchBtn = document.getElementById('searchPlayerButton');
