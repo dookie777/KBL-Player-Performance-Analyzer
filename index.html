@@ -2225,6 +2225,8 @@ document.getElementById('searchPlayer').addEventListener('keypress', function(e)
     showPlayerStats();
   }
 });
+document.getElementById('searchPlayerButton').addEventListener('click', showPlayerStats);
+
 // ✅ 선수 개인 검색 페이지 체크박스 이벤트 추가 (완벽해결)
 document.getElementById('minGames').addEventListener('change', function() {
   const playerInput = document.getElementById('searchPlayer').value.trim();
