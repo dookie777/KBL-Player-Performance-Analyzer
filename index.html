@@ -1817,6 +1817,20 @@ if (datalist) {
 renderTable(originalData);
 loadAllPlayerSuggestionsCompare(); // 전체 시즌 데이터 다 받은 후 호출해야 자동완성 채워짐
   
+document.querySelectorAll('.filter-toggle').forEach(btn => {
+  const type = btn.dataset.type;
+  btn.addEventListener('click', () => {
+    if (activeTypes.has(type)) {
+      activeTypes.delete(type);
+      btn.classList.remove('selected');
+    } else {
+      activeTypes.add(type);
+      btn.classList.add('selected');
+    }
+    localStorage.setItem('activeTypes', JSON.stringify([...activeTypes]));
+    renderTable(originalData);  // ✅ 필터 적용 후 테이블 다시 그림
+  });
+});
   
 } catch (error) {
   console.error("데이터 로딩 오류:", error);
@@ -3028,32 +3042,41 @@ if (savedTypesComparePlayer) {
   });
 }
 
-  (function () {
-    const compareFilterBox = document.querySelectorAll('#compareFilterBox .filter-btn');
-    const savedCompareTypes = localStorage.getItem('activeTypesCompare');
-    if (savedCompareTypes) {
-      activeTypes = new Set(JSON.parse(savedCompareTypes));
-      compareFilterBox.forEach(btn => {
-        if (!activeTypes.has(btn.dataset.type)) {
-          btn.classList.remove('active');
-        }
-      });
-    }
+// 기존 즉시 실행 함수 내 코드 전체 교체
+(function () {
+  const compareFilterBox = document.querySelectorAll('#compareFilterBox .filter-btn');
+  const savedCompareTypes = localStorage.getItem('activeTypesCompare');
 
+  if (savedCompareTypes) {
+    activeTypes = new Set(JSON.parse(savedCompareTypes));
     compareFilterBox.forEach(btn => {
-      const type = btn.dataset.type;
-      btn.addEventListener('click', () => {
-        if (activeTypes.has(type)) {
-          activeTypes.delete(type);
-          btn.classList.remove('active');
-        } else {
-          activeTypes.add(type);
-          btn.classList.add('active');
-        }
-        localStorage.setItem('activeTypesCompare', JSON.stringify([...activeTypes]));
-      });
+      if (!activeTypes.has(btn.dataset.type)) {
+        btn.classList.remove('active');
+      }
     });
-  })();
+  }
+
+  compareFilterBox.forEach(btn => {
+    const type = btn.dataset.type;
+    btn.addEventListener('click', () => {
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        btn.classList.remove('active');
+      } else {
+        activeTypes.add(type);
+        btn.classList.add('active');
+      }
+
+      localStorage.setItem('activeTypesCompare', JSON.stringify([...activeTypes]));
+
+      // ✅ 필터 클릭 시 반드시 comparePlayers 실행 (데이터 없으면 자동 보충됨)
+      comparePlayers();
+    });
+  });
+})();
+
+
+
 
   const seasonSelectorPlayer = document.getElementById('seasonSelectorPlayer');
   if (seasonSelectorPlayer) {
