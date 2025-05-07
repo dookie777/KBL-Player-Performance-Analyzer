@@ -3376,7 +3376,29 @@ document.getElementById('compareSearchButton').addEventListener('click', async (
   document.getElementById('compareSearchPlayer').dispatchEvent(event);
 });  
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#compareFilterBox .filter-btn').forEach(btn => {
+    const type = btn.dataset.type;
 
+    btn.addEventListener('click', () => {
+      // 상태 토글
+      if (activeTypes.has(type)) {
+        activeTypes.delete(type);
+        btn.classList.remove('active');
+      } else {
+        activeTypes.add(type);
+        btn.classList.add('active');
+      }
+
+      localStorage.setItem('activeTypesCompare', JSON.stringify([...activeTypes]));
+
+      // 필터 변경 시마다 비교 다시 실행
+      comparePlayers(); // 🔥 필수
+    });
+  });
+});
+</script>
  
  </body>
  </html>
