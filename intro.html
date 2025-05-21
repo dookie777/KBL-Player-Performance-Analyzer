@@ -1,1 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>인트로 - KBL Player Stats Analyzer</title>
+  <style>
+    body {
+      background-color: #000;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+    }
+
+    #logo {
+      width: 200px;
+      opacity: 1;
+      transition: opacity 1.5s ease;
+    }
+
+    #message {
+      font-size: 1.5rem;
+      margin-top: 30px;
+      opacity: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid #fff;
+      width: 0;
+      animation: typing 2.5s steps(30, end) 2s forwards, blink 0.7s step-end infinite;
+    }
+
+    #buttons {
+      margin-top: 30px;
+      opacity: 0;
+      display: flex;
+      gap: 20px;
+      transition: opacity 1s ease;
+    }
+
+    button {
+      background-color: #FFA500;
+      border: none;
+      color: black;
+      font-weight: bold;
+      font-size: 1rem;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 26ch; opacity: 1; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+  </style>
+</head>
+<body>
+  <!-- SK 나이츠 로고 -->
+  <img id="logo" src="https://github.com/dookie777/KBL-Player-Performance-Analyzer/raw/main/Seoul_SK_Knights_logo.svg.png" alt="SK Knights Logo">
+
+  <!-- 타자 효과 문구 -->
+  <div id="message">분석을 시작하시겠습니까?</div>
+
+  <!-- Yes / No 버튼 -->
+  <div id="buttons">
+    <button onclick="goToMain()">Yes</button>
+    <button disabled>No</button>
+  </div>
+  <script>
+    // 로고 페이드 아웃
+    setTimeout(() => {
+      document.getElementById('logo').style.opacity = '0';
+    }, 1500);
+
+    // 버튼 페이드 인
+    setTimeout(() => {
+      document.getElementById('buttons').style.opacity = '1';
+    }, 4500);
+
+    // Yes 클릭 시 main.html로 이동
+    function goToMain() {
+      window.location.href = "main.html"; // ✅ 실제 메인 파일명으로 수정 가능
+    }
+  </script>
+</body>
+</html>
 
