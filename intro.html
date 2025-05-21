@@ -6,6 +6,11 @@
   <style>
     body {
       background-color: #000;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+      background-position: center;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -19,79 +24,64 @@
     }
 
     #logo {
-      width: 200px;
-      opacity: 1;
-      transition: opacity 1.5s ease;
-    }
-
-    #message {
-      font-size: 1.5rem;
-      margin-top: 30px;
+      width: 200px; /* ✅ 원래 크기로 복원 */
+      margin-bottom: 60px; /* ✅ 상단 위치는 유지 */
       opacity: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      border-right: 2px solid #fff;
-      width: 0;
-      animation: typing 2.5s steps(30, end) 2s forwards, blink 0.7s step-end infinite;
+      animation: fadein 2s ease forwards;
     }
 
-    #buttons {
-      margin-top: 30px;
-      opacity: 0;
-      display: flex;
-      gap: 20px;
-      transition: opacity 1s ease;
-    }
+#message {
+  font-size: 2.2rem;
+  margin-top: 60px;
+  color: #ccc; /* ✅ 회색 계열로 변경 */
+  font-weight: bold;  /* ✅ 볼드체 */
+  opacity: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid #fff;
+  width: 0;
+  animation: typing 1.6s steps(30, end) 1s forwards, blink 0.7s step-end infinite;
+}
 
-    button {
-      background-color: #FFA500;
-      border: none;
-      color: black;
-      font-weight: bold;
-      font-size: 1rem;
-      padding: 10px 20px;
-      cursor: pointer;
-      border-radius: 6px;
-    }
+#yesText {
+  margin-top: 20px;  /* ✅ 여백 줄임 */
+  font-size: 1.6rem;
+  color: white;       /* ✅ 흰색 */
+  font-weight: bold;  /* ✅ 볼드체 */
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
 
     @keyframes typing {
       from { width: 0 }
-      to { width: 26ch; opacity: 1; }
+      to { width: 30ch; opacity: 1; }
     }
 
     @keyframes blink {
       50% { border-color: transparent; }
     }
+
+    @keyframes fadein {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 </head>
 <body>
-  <!-- SK 나이츠 로고 -->
   <img id="logo" src="https://github.com/dookie777/KBL-Player-Performance-Analyzer/raw/main/Seoul_SK_Knights_logo.svg.png" alt="SK Knights Logo">
+  <div id="message">Enter the SK Knights Analytics Lab?</div>
+  <div id="yesText" onclick="goToMain()">[ Yes ]</div>
 
-  <!-- 타자 효과 문구 -->
-  <div id="message">분석을 시작하시겠습니까?</div>
-
-  <!-- Yes / No 버튼 -->
-  <div id="buttons">
-    <button onclick="goToMain()">Yes</button>
-    <button disabled>No</button>
-  </div>
   <script>
-    // 로고 페이드 아웃
-    setTimeout(() => {
-      document.getElementById('logo').style.opacity = '0';
-    }, 1500);
+    // Yes 텍스트 나타나기
+setTimeout(() => {
+  document.getElementById('yesText').style.opacity = '1';
+}, 2600); // ✅ 타이핑 애니메이션(1.6s) 직후 등장
 
-    // 버튼 페이드 인
-    setTimeout(() => {
-      document.getElementById('buttons').style.opacity = '1';
-    }, 4500);
-
-    // Yes 클릭 시 main.html로 이동
     function goToMain() {
-      window.location.href = "main.html"; // ✅ 실제 메인 파일명으로 수정 가능
+      window.location.href = "main.html";
     }
   </script>
 </body>
 </html>
-
