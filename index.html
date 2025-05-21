@@ -5,8 +5,15 @@
   <meta charset="UTF-8">
   <title>KBL Player Stats Analyzer</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+<script>
+  // introSeen 이 없으면 intro.html로 리디렉션
+  if (!localStorage.getItem('introSeen')) {
+    localStorage.setItem('introSeen', 'true');
+    window.location.href = 'intro.html';
+  }
+</script>
 
-  <style>
+<style>
 body { 
 background-color: #000000;
   background-image: 
