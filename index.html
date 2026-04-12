@@ -2109,7 +2109,7 @@
       <div id="reportContainer" style="display:flex;flex-direction:column;gap:0;height:100%;">
         <div id="rpt-tab-summary" class="rpt-main-tab-content" style="height:100%;display:flex;flex-direction:column;min-height:0;"></div>
         <div id="rpt-tab-category" class="rpt-main-tab-content" style="display:none;height:100%;overflow-y:auto;"></div>
-        <div id="rpt-tab-sim" class="rpt-main-tab-content" style="display:none;height:100%;overflow-y:hidden;"></div>
+        <div id="rpt-tab-sim" class="rpt-main-tab-content" style="display:none;height:100%;overflow-y:auto;"></div>
         <div id="rpt-tab-improve" class="rpt-main-tab-content" style="display:none;height:100%;overflow-y:auto;"></div>
       </div>
     </div>
@@ -3859,7 +3859,7 @@ async function generateReport(playerName) {
         return h;
       })(),
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-sonnet-4-6',
         max_tokens: 5000,
         system: `당신은 KBL(한국농구리그) 전문 스카우트 분석가입니다. 선수 데이터를 바탕으로 스카우팅 리포트를 한국어로 작성합니다.
 작성 규칙:
