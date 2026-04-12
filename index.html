@@ -4053,10 +4053,9 @@ function renderEvalSkeleton() {
   }).join('');
 
   var firstCat = cats[0];
-  var catWeight = Math.round(((evalPositionWeights['전체']||{})[firstCat]||0)*100);
   var catTitleHTML = '<span style="display:flex;align-items:baseline;gap:8px;">'
     +'<span style="font-size:1.15rem;font-weight:800;color:rgba(255,255,255,0.25);">'+firstCat+'</span>'
-    +'<span style="font-size:0.72rem;font-weight:600;color:#666;">가중치 '+catWeight+'%</span>'
+    
     +'</span>';
 
   var catScoreItems = SEASONS.map(function(s){
