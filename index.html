@@ -448,6 +448,10 @@
       overflow: hidden;
     }
 
+    #tab-report.eval-tab-root {
+      overflow: visible;
+    }
+
     .eval-tab-root.active {
       display: flex;
     }
@@ -564,7 +568,7 @@
       line-height: 1;
     }
 
-    .eval-total-item .t-rank {
+    .eval-total-item .t-rank { white-space: pre-line; text-align: center;
       font-size: 0.76rem;
       color: #777;
       text-align: center;
@@ -730,7 +734,7 @@
       font-weight: 900;
     }
 
-    .eval-cat-score-item .s-rank {
+    .eval-cat-score-item .s-rank { white-space: pre-line; text-align: center;
       font-size: 0.63rem;
       color: #555;
       text-align: center;
@@ -1790,11 +1794,12 @@
   <div id="tab-all" class="tab-content active">
     <div class="controls-row">
       <select id="seasonSelector" class="ctrl-select" onchange="loadPlayersData()">
-        <option value="20-21">20-21 시즌</option>
-        <option value="21-22">21-22 시즌</option>
-        <option value="22-23">22-23 시즌</option>
+        <option value="25-26" selected>25-26 시즌</option>
+        <option value="24-25">24-25 시즌</option>
         <option value="23-24">23-24 시즌</option>
-        <option value="24-25" selected>24-25 시즌</option>
+        <option value="22-23">22-23 시즌</option>
+        <option value="21-22">21-22 시즌</option>
+        <option value="20-21">20-21 시즌</option>
       </select>
       <div class="custom-dropdown" id="dd-all">
         <input type="text" id="searchPlayerAll" class="ctrl-input" placeholder="선수 검색..." autocomplete="off">
@@ -1817,7 +1822,7 @@
       <table id="statsTable">
         <thead>
           <tr>
-            <th>Player</th><th>Team</th>
+            <th>Player</th><th>POS</th><th>Team</th>
             <th>출전경기</th><th>출전시간</th>
             <th>득점</th><th>평균득점</th>
             <th>FGA</th><th>FG</th><th>평균FG시도</th><th>평균FG성공</th><th>FG%</th>
@@ -1852,11 +1857,12 @@
   <div id="tab-player" class="tab-content">
     <div class="controls-row">
       <select id="seasonSelectorPlayer" class="ctrl-select">
-        <option value="20-21">20-21 시즌</option>
-        <option value="21-22">21-22 시즌</option>
-        <option value="22-23">22-23 시즌</option>
+        <option value="25-26" selected>25-26 시즌</option>
+        <option value="24-25">24-25 시즌</option>
         <option value="23-24">23-24 시즌</option>
-        <option value="24-25" selected>24-25 시즌</option>
+        <option value="22-23">22-23 시즌</option>
+        <option value="21-22">21-22 시즌</option>
+        <option value="20-21">20-21 시즌</option>
       </select>
       <div class="custom-dropdown" id="dd-player">
         <input type="text" id="searchPlayer" class="ctrl-input" placeholder="선수 검색..." autocomplete="off">
@@ -2103,9 +2109,9 @@
       <!-- 결과 컨테이너 -->
       <div id="reportContainer" style="display:flex;flex-direction:column;gap:0;height:100%;">
         <div id="rpt-tab-summary" class="rpt-main-tab-content" style="height:100%;display:flex;flex-direction:column;min-height:0;"></div>
-        <div id="rpt-tab-category" class="rpt-main-tab-content" style="display:none;height:100%;"></div>
-        <div id="rpt-tab-sim" class="rpt-main-tab-content" style="display:none;height:100%;"></div>
-        <div id="rpt-tab-improve" class="rpt-main-tab-content" style="display:none;height:100%;"></div>
+        <div id="rpt-tab-category" class="rpt-main-tab-content" style="display:none;height:100%;overflow-y:auto;"></div>
+        <div id="rpt-tab-sim" class="rpt-main-tab-content" style="display:none;height:100%;overflow-y:auto;"></div>
+        <div id="rpt-tab-improve" class="rpt-main-tab-content" style="display:none;height:100%;overflow-y:auto;"></div>
       </div>
     </div>
 
@@ -2133,7 +2139,8 @@ const fileMap = {
   '21-22': '21-22_KBL_stats.xlsx',
   '22-23': '22-23_KBL_stats.xlsx',
   '23-24': '23-24_KBL_stats.xlsx',
-  '24-25': '24-25_KBL_stats.xlsx'
+  '24-25': '24-25_KBL_stats.xlsx',
+  '25-26': '25-26_KBL_stats.xlsx'
 };
 
 /* 시즌 목록 — 신규 시즌 추가 시 fileMap에만 추가하면 전체 반영 */
@@ -2331,9 +2338,11 @@ async function fetchSeasonData(season) {
     r['총 출전 시간(초)'] = (m*60+s) * gp2;  // 시즌 누적 초
     const raw  = (r.Player||'').trim();
     const team = (r.Team||'').trim();
+    const pos  = (r['포지션']||'').trim();
     r.Player = `${raw} (${team})`;
     r.Team   = team;
     r['구분'] = (r['구분']||'').trim();
+    r['포지션'] = pos;
   });
   fullSeasonDataMap[season] = data;
   return data;
@@ -2508,7 +2517,7 @@ function loadAllPlayerSuggestionsCompare() {
 
 function loadPlayerCompareSingleSuggestions() {
   const map = new Map();
-  ['24-25','23-24','22-23','21-22','20-21'].forEach(s => {
+  ['25-26','24-25','23-24','22-23','21-22','20-21'].forEach(s => {
     (fullSeasonDataMap[s]||[]).forEach(r => {
       const full = (r.Player||'').trim();
       const name = full.split(' (')[0];
@@ -2545,6 +2554,7 @@ function renderTable(data) {
     const gOk = parseInt(r['출전 경기 수'])>=14;
     return `<tr>
       <td>${r.Player} <span style="font-size:0.7rem;opacity:0.5">${gOk?'✓':''}</span></td>
+      <td style="text-align:center;font-size:0.82rem;color:var(--text-secondary);">${r['포지션']||'-'}</td>
       <td>${r.Team}</td>
       <td data-v="${r['출전 경기 수']||0}">${formatStatValue('출전 경기 수',r['출전 경기 수'])}</td>
       <td data-v="${r['_mpg']||0}">${mpgToStr(r['_mpg'])}</td>
@@ -2719,13 +2729,14 @@ function showPlayerStats() {
   lastSearchedPlayer = player.Player.trim();
   lastSearchedPlayerAlt = player.Player.split(' (')[0].trim();
 
-  const seasonNames = {'20-21':'20-21 시즌','21-22':'21-22 시즌','22-23':'22-23 시즌','23-24':'23-24 시즌','24-25':'24-25 시즌'};
+  const seasonNames = {'20-21':'20-21 시즌','21-22':'21-22 시즌','22-23':'22-23 시즌','23-24':'23-24 시즌','24-25':'24-25 시즌','25-26':'25-26 시즌'};
   document.getElementById('playerSeasonBadge').textContent = seasonNames[season]||season;
   document.getElementById('playerSeasonBadge').style.visibility = 'visible';
 
   const titleEl = document.getElementById('playerTitle');
   const nameOnly = player.Player.split(' (')[0].trim();
-  titleEl.textContent = nameOnly;
+  const posOnly = player['포지션'] ? `(${player['포지션']})` : '';
+  titleEl.textContent = posOnly ? `${nameOnly} ${posOnly}` : nameOnly;
   titleEl.style.visibility = 'visible';
   titleEl.style.color = '#ffffff';
   titleEl.style.webkitTextFillColor = '#ffffff';
@@ -3016,10 +3027,10 @@ function renderCompareBarChart() {
             background:${playerColorsBg[i]};border:1px solid ${playerColors[i]}44;border-radius:8px;">
           <div style="width:9px;height:9px;border-radius:50%;background:${playerColors[i]};flex-shrink:0;"></div>
           <div style="font-size:0.95rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            ${namePart} <span style="font-size:0.75rem;font-weight:500;color:var(--text-secondary);">(${teamPart})</span>
+            ${namePart}<span style="font-size:0.75rem;font-weight:500;color:var(--text-secondary);"> (${teamPart}${r.player['포지션'] ? ', ' + r.player['포지션'] : ''})</span>
           </div>
           <select id="seasonSwitch-${i}" class="season-switch" style="margin-left:auto;flex-shrink:0;">
-            ${['20-21','21-22','22-23','23-24','24-25'].map(s =>
+            ${['20-21','21-22','22-23','23-24','24-25','25-26'].map(s =>
               `<option value="${s}"${r.player.__season === s ? ' selected' : ''}>${s}</option>`
             ).join('')}
           </select>
@@ -3730,6 +3741,10 @@ async function generateReport(playerName) {
 
   const latestSeason = SEASONS[SEASONS.length - 1];
 
+  // AI 리포트는 전체 풀 기준으로 계산 (포지션 필터 무관)
+  const _savedPos = evalCurrentPosition;
+  evalCurrentPosition = '전체';
+
   // 팀명 포함 케이스 처리 ("게이지 프림 (울산 모비스)" → "게이지 프림")
   const cleanName = playerName.split(' (')[0].trim();
   const poolData  = fullSeasonDataMap[latestSeason] || [];
@@ -3747,7 +3762,7 @@ async function generateReport(playerName) {
   const catScores   = calcCategoryScores(playerRow, poolData);
   const catRanksAll = {};
   for (const cat of Object.keys(evalCategoryDefs)) {
-    catRanksAll[cat] = calcCatRanks(latestSeason, cleanName, cat);
+    catRanksAll[cat] = calcCatRanks(latestSeason, cleanName, cat, '전체');
   }
 
   const trendData = SEASONS.map(s => {
@@ -3797,6 +3812,7 @@ async function generateReport(playerName) {
   const payload = {
     player: cleanName, season: latestSeason,
     type: playerRow['구분'] || '국내',
+    position: playerRow['포지션'] || '',
     team: (playerRow.Player.includes('(') ? playerRow.Player.split('(')[1].replace(')','').trim() : '-'),
     gamesPlayed: playerRow['출전 경기 수'],
     keyStats: {
@@ -3844,7 +3860,7 @@ async function generateReport(playerName) {
         return h;
       })(),
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 5000,
         system: `당신은 KBL(한국농구리그) 전문 스카우트 분석가입니다. 선수 데이터를 바탕으로 스카우팅 리포트를 한국어로 작성합니다.
 작성 규칙:
@@ -3852,17 +3868,21 @@ async function generateReport(playerName) {
 - 모든 문장은 핵심 명사로 종결. '~함', '~임', '~됨', '~중' 등 동사의 명사형 변환 및 진행형 금지. 올바른 예: '외곽 공격력 부족', '활용도 제한적', '하향세', '개선 필요', '핵심 역할 수행'. 잘못된 예: '외곽 공격력이 부족함', '핵심 역할 수행 중', '하향세를 보임'
 - 표현 금지: '~치고는', '배울 점이 많은' 등 비전문 구어체 및 불필요한 수식어 금지. MVP·올스타 등 수상 여부는 확인 불가하므로 'MVP급', '올스타급' 등 수상 연계 추정 표현 절대 금지. 단, 해당 선수가 실제 수상 이력이 있더라도 AI가 확인할 수 없으므로 사용 금지. 단 수치 기반의 정확하고 객관적인 평가는 반드시 포함 - 리그 내 순위, 구체적 수치, 포지션 내 비교 등을 활용한 전문 스카우팅 리포트 수준의 서술 유지
 - '올라운더' 표현 기준: 내외각 공격(2점·3점·자유투), 수비, 볼핸들링, 리바운드 전 영역에서 균형 잡힌 상위권 수치를 보일 때만 사용. 공격과 수비만 우수한 경우는 '공수겸장', 특정 영역에 강점이 집중된 경우는 해당 강점을 직접 서술. 근거 없는 올라운더 표현 금지
-- 총평·카테고리 평가·개선 과제는 반드시 해당 선수의 리그 내 실제 순위·수치·카테고리 점수 전체를 종합하여 작성. 특정 단일 지표만 언급하며 전체 평가를 왜곡하는 서술 금지. 리그 경쟁력 상위권 선수를 잠재력 보유 수준으로 격하하거나, 하위권 선수를 과대평가하는 서술 금지. 반드시 전체 카테고리 점수와 순위를 근거로 현재 수준을 정확히 서술할 것
+- 총평·카테고리 평가·개선 과제는 반드시 해당 선수의 리그 내 실제 순위·수치·카테고리 점수 전체를 종합하여 작성. 특정 단일 지표만 언급하며 전체 평가를 왜곡하는 서술 금지. 반드시 전체 카테고리 점수와 순위를 근거로 현재 수준을 정확히 서술할 것
+- 종합 경쟁력 순위 기반 선수 수준 판단 기준 (리그 전체 약 190~200명 기준): TOP 10 = 리그 핵심 자원(리그 최상위), TOP 11~30 = 팀 내 핵심 자원, TOP 31~50 = 팀 주전 레벨, TOP 51~100 = 평균~중위권, TOP 101 이하 = 하위권·벤치 자원 수준. 이 기준을 반드시 준수하여 선수 수준을 서술할 것. 하위권 선수를 중위권으로, 중위권 선수를 핵심 자원으로 격상하는 표현 절대 금지
+- 개별 지표 우수 판단 기준: 외국인 선수는 전체 TOP 10 이내만 강점, TOP 11~20은 평균 수준, TOP 20 밖은 약점으로 판단. 국내 선수는 전체 TOP 30 이내만 강점, TOP 31~50은 평균 수준, TOP 50 밖은 약점으로 판단. KBL은 10개 팀 리그이므로 전체 25위는 팀당 2.5순위 수준임을 인지할 것
+- 포지션별 지표 해석: 득점·리바운드·블록은 외국인 선수가 상위권을 독점하는 지표이므로, 국내 선수가 해당 지표에서 20~40위권이면 국내 선수 중 상위권으로 해석 가능. 반면 어시스트·스틸·FT%는 국내 선수도 상위권 진입이 가능한 지표이므로 전체 순위 기준을 엄격히 적용할 것
+- 루키 선수 평가 원칙 (리그 데이터가 1시즌만 존재하는 선수): 현재 순위·수치만으로 선수 수준을 단정짓는 서술 금지. 루키 시즌은 적응기임을 인지하고, 현재 보여준 강점이 무엇이고 어떤 방향으로 성장하면 리그에서 자리잡을 수 있는지 가능성과 방향성 중심으로 서술. 비교 대상은 비슷한 루키 시즌 스탯을 보인 선수로 한정하고, 롤모델 선정에 더 집중하여 구체적 성장 지향점을 제시할 것. 단, 루키라도 명확한 약점이 있으면 개선 과제는 정확히 서술
 - '외곽 슈팅' 표현 사용 시 반드시 '외곽 슈팅(3점슛)' 또는 '3점슛'으로 구체화. '슈팅 개선'처럼 뭉뚱그리는 표현 금지 - 어떤 슈팅인지 구체적으로 명시.
-- 지표명은 반드시 데이터 원본 키값 그대로 사용. 임의 변형·번역·축약 절대 금지. 영문 지표(TOV%, USG%, TS%, FG%, 3P%, FTr, PER, EFF, WS 등)는 영문 그대로, 한글 지표(평균 득점, 평균 리바운드, 평균 어시스트, 평균 스틸, 평균 블록, 평균 턴오버 등)는 한글 원본 그대로 사용. '터노버', '리바', '어시' 등 축약·변형 표현 금지
+- 지표명 절대 규칙: USG%는 반드시 'USG%'로만 표기. '사용률', '사용율', '볼 사용률' 등 어떤 형태의 한글 변환도 절대 금지. TOV%는 반드시 'TOV%'로만 표기. '터노버율', '턴오버율' 등 한글 변환 절대 금지. TS%는 'TS%', FG%는 'FG%', 3P%는 '3P%', FTr은 'FTr', PER은 'PER', EFF는 'EFF', WS는 'WS' 그대로 사용. 영문 지표를 한글로 번역하는 것은 어떤 경우에도 허용되지 않음. 한글 지표(평균 득점, 평균 리바운드, 평균 어시스트, 평균 스틸, 평균 블록, 평균 턴오버 등)는 한글 원본 그대로 사용. '터노버', '리바', '어시' 등 축약·변형 표현 금지
 - summary는 6불릿(전시즌데이터없으면5불릿): 각 불릿은 항목제목없이내용만작성. 순서: ①이번시즌종합평가 ②전시즌대비변화(payload의 prevSeasons 배열에 실제 데이터가 있을 때만 작성. prevSeasons가 빈 배열이면 이 항목 생략하고 5불릿 작성. 데이터가 있으면 '전시즌 대비 평균 득점 3.4점 하락, 리바운드 1.2개 감소, 3점 성공률 8.7%p 상승' 형태로 - 현재 수치와 변화량만 표기. 전시즌 수치(예: 20.4점→17점)는 절대 쓰지 말 것. 상승·하락 지표를 구분하여 한 문장에 콤마로 나열) ③좋은부분 ④나쁜부분 ⑤보완해야할점 ⑥장점강화해야할점
-- 개선 과제(improvement) 작성 원칙: ①슛폼·메커닉·연습량·훈련량 등 외부에서 알 수 없는 내부 정보성 표현 및 코치·전문가 영역의 기술 지도 표현은 절대 사용 금지 ②'~해라', '~를 늘려라' 등 직접 행동 지시 금지 ③수치는 목표가 아닌 근거로 사용할 것 - '현재 ○○% 수준인 [지표]의 개선을 통한 [팀·역할 차원 기대 효과]' 구조로 작성 ④종착점은 반드시 팀 기여 또는 역할 확대 차원의 효과(안정성 증대, 효율성 향상, 공격 옵션 다양화, 클러치 신뢰도 확보 등)로 마무리 ⑤올바른 예시: '현재 3점슛 성공률(○○%) 개선을 통한 외곽 공격 성공률 증대', '확률 높은 공격 패턴(포스트업 등) 다양화를 통한 슈팅 효율성 향상', '볼 핸들링 안정성을 기반으로 한 플레이 메이킹 범위 확대' ⑥잘못된 예시(절대 금지): '3점슛 연습량 증대 등을 통한 성공률 30% 달성', '자유투 성공률 75% 이상 확보' - 수치 달성 자체가 종착점이 되어선 안 됨 ⑦shortTerm·longTerm 각 2-3개 불릿, 각 불릿은 2줄 이내로 작성 - 단기/장기 합산 총 4줄 초과 금지
+- 개선 과제(improvement) 작성 원칙: ①슛폼·메커닉·연습량·훈련량 등 외부에서 알 수 없는 내부 정보성 표현 및 코치·전문가 영역의 기술 지도 표현은 절대 사용 금지 ②'~해라', '~를 늘려라' 등 직접 행동 지시 금지 ③수치는 목표가 아닌 근거로 사용할 것 - '현재 ○○% 수준인 [지표]의 개선을 통한 [팀·역할 차원 기대 효과]' 구조로 작성 ④종착점은 반드시 팀 기여 또는 역할 확대 차원의 효과(안정성 증대, 효율성 향상, 공격 옵션 다양화, 클러치 신뢰도 확보 등)로 마무리 ⑤올바른 예시: '현재 3점슛 성공률(○○%) 개선을 통한 외곽 공격 성공률 증대', '확률 높은 공격 패턴(포스트업 등) 다양화를 통한 슈팅 효율성 향상', '볼 핸들링 안정성을 기반으로 한 플레이 메이킹 범위 확대' ⑥잘못된 예시(절대 금지): '3점슛 연습량 증대 등을 통한 성공률 30% 달성', '자유투 성공률 75% 이상 확보' - 수치 달성 자체가 종착점이 되어선 안 됨 ⑦shortTerm·longTerm 각 2-3개 불릿, 각 불릿은 2줄 이내 - 단기/장기 합산 총 4줄 초과 금지
 - 카테고리 평가(categories)의 강점·약점도 가능한 한 구체적 수치(%, 순위, 경기당 수치)를 포함하여 근거를 제시할 것
-- benchmarkCards 선정 원칙:
-  ①'비교대상': 분석 선수와 포지션·플레이 유형·스탯 볼륨이 유사하고, 출전 시간 확보 시 비슷한 결과를 낼 수 있는 선수. relation값: '비교대상'
-  ②'롤모델': 분석 선수가 성장 방향으로 도달해야 할 완성형 선수. 전반적 스탯 볼륨·역할에서 앞서며 지향점이 되는 선수. reason에는 '완성형 윙', '공격형 빅맨' 등 지향 유형 명시. relation값: '롤모델'
-  ③'벤치마크': 분석 선수의 특정 약점 지표에서 압도적 우위를 보이는, 해당 영역을 배워야 할 선수. relation값: '벤치마크', reason에 해당 지표명 명시 (예: '3점슛 성공률', '수비 리바운드')
-  ④근거 없이 비슷한 수준의 선수를 롤모델·벤치마크로 선정 금지
+- benchmarkCards 선정 원칙 (기준 미달 시 해당 유형 선정 금지, 억지로 채우는 것 절대 금지):
+  ①'비교대상': 같은 시즌 기준 동일 포지션에서 주요 핵심 지표(득점·리바운드·어시스트 중 2개 이상) 실제 수치 차이가 10% 이내인 선수만 선정. 출전 시간·역할이 크게 다른 선수, 종합 경쟁력 순위 차이가 30위 이상 나는 선수 선정 절대 금지. 단순히 같은 포지션·비슷한 팀 내 역할만으로 선정 금지. relation값: '비교대상'
+  ②'롤모델': 플레이 스타일이 분석 선수와 구체적으로 80% 이상 일치하고, 종합 경쟁력 순위가 분석 선수보다 TOP 20 이상 높은 선수만 선정. 단순 포지션 동일·스탯 유사만으로 선정 절대 금지. 분석 선수가 실제로 해당 롤모델의 플레이를 구현할 수 있는 잠재적 근거가 있어야 함. reason에는 구체적 지향 유형 명시. relation값: '롤모델'
+  ③'벤치마크': 분석 선수의 명확한 약점 카테고리에서 리그 TOP 20 이내 수준인 선수만 선정. 전반적으로 잘하는 선수를 벤치마크로 넣는 것 금지. 반드시 특정 약점 지표에서 분석 선수 대비 명확한 격차(수치 기준 20% 이상 우위)가 있어야 함. relation값: '벤치마크', reason에 해당 지표명과 수치 명시
+  ④공통: 이름만 봐도 선정 근거가 납득되어야 함. 기준에 맞는 선수가 없으면 해당 유형은 선정하지 말 것. 3명을 억지로 채우기 위해 기준 미달 선수를 넣는 것 절대 금지
   ⑤benchmarkCards의 desc는 각 선수당 불릿 2개 이내, 각 불릿은 1줄(30자 이내) - 근거 핵심만 간결하게
 반드시 아래 JSON 형식으로만 응답하십시오. 마크다운 코드블록 없이 순수 JSON만 출력하십시오.
 {
@@ -3983,7 +4003,7 @@ function renderEvalSkeleton() {
   // 포지션 버튼 비활성
   var posGroup = document.getElementById('evalPosGroup');
   if (posGroup && !posGroup.children.length) {
-    ['전체','PG','SG','SF','PF','C'].forEach(function(pos){
+    ['전체','G','F','C'].forEach(function(pos){
       var b = document.createElement('button');
       b.className = 'eval-pos-btn' + (pos==='전체'?' active':'');
       b.textContent = pos;
@@ -4038,10 +4058,9 @@ function renderEvalSkeleton() {
   }).join('');
 
   var firstCat = cats[0];
-  var catWeight = Math.round(((evalPositionWeights['전체']||{})[firstCat]||0)*100);
   var catTitleHTML = '<span style="display:flex;align-items:baseline;gap:8px;">'
     +'<span style="font-size:1.15rem;font-weight:800;color:rgba(255,255,255,0.25);">'+firstCat+'</span>'
-    +'<span style="font-size:0.72rem;font-weight:600;color:#666;">가중치 '+catWeight+'%</span>'
+    
     +'</span>';
 
   var catScoreItems = SEASONS.map(function(s){
@@ -4211,6 +4230,7 @@ function buildRoleSimHTML(simBase, row, ai) {
   function buildStatTable(tMpg, tGp, tRole) {
     // 역할명이 같아도 mpg/gp가 다르면 delta 표시
     var same = (Math.abs(tMpg - mpg) < 0.1 && Math.abs(tGp - gp) < 1);
+    var timeReversed = (!same && tMpg < mpg);
     var GOLD = '#e8c96a';
 
     // 현재 기록 (회색)
@@ -4229,8 +4249,7 @@ function buildRoleSimHTML(simBase, row, ai) {
 
     var h = '<div style="margin-bottom:14px;">';
     if (same) h += '<div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);">현재 '+Math.round(gp)+'경기 · 평균 '+curMpgStr+' 출전</div>';
-    if (!same) {
-      var diffColor = diffMin >= 0 ? '#6abf7a' : '#ff7a7a';
+    if (!same && !timeReversed) {
       h += '<div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
         + '<span style="color:#555;font-weight:400;">현재 '+Math.round(gp)+'경기 · 평균 '+curMpgStr+' 출전</span>'
         + '<span style="color:#aaa;margin:0 6px;">→</span>'
@@ -4238,12 +4257,15 @@ function buildRoleSimHTML(simBase, row, ai) {
         + '<span style="font-size:0.75rem;font-weight:500;color:'+diffColor+';margin-left:6px;">('+diffStr+')</span>'
         + '</div>';
     }
+    if (timeReversed) {
+      h += '<div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'        + '<span style="color:#555;font-weight:400;">현재 '+Math.round(gp)+'경기 · 평균 '+curMpgStr+' 출전</span>'        + '<span style="color:#aaa;margin:0 6px;">→</span>'        + tGpG2.label+' · <span style="color:#ff9d4d;">평균 출전 시간 현재 수준 유지</span>'        + '</div>';
+    }
     h += '</div>';
 
     h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:2px;">'
       + '<div style="text-align:center;font-size:0.78rem;color:var(--text-muted);">Per Game</div>'
       + '<div style="text-align:center;font-size:0.82rem;color:var(--text-secondary);">현재 수치</div>'
-      + '<div style="text-align:center;font-size:0.82rem;color:var(--text-secondary);">기대 수치</div>'
+      + '<div style="text-align:center;font-size:0.82rem;color:'+(timeReversed?'#ff9d4d':'var(--text-secondary)')+';">'+(timeReversed?'현재 유지':'기대 수치')+'</div>'
       + '</div>';
 
     function dBlock(d) {
@@ -4255,13 +4277,14 @@ function buildRoleSimHTML(simBase, row, ai) {
 
     SIM_KEYS.forEach(function(item) {
       var curVal = parseFloat(row[item.key]  || 0).toFixed(1);
-      var expVal = calcExpected(item.key, tMpg);
-      var delta  = (parseFloat(expVal) - parseFloat(curVal)).toFixed(1);
+      var expVal = timeReversed ? curVal : calcExpected(item.key, tMpg);
+      var delta  = timeReversed ? '0' : (parseFloat(expVal) - parseFloat(curVal)).toFixed(1);
+      var expColor = (same || timeReversed) ? 'var(--text-primary)' : GOLD;
 
       if (item.pkey) {
         var curP = parseFloat(row[item.pkey] || 0).toFixed(1);
-        var expP = calcExpected(item.pkey, tMpg);
-        var dP   = (parseFloat(expP) - parseFloat(curP)).toFixed(1);
+        var expP = timeReversed ? curP : calcExpected(item.pkey, tMpg);
+        var dP   = timeReversed ? '0' : (parseFloat(expP) - parseFloat(curP)).toFixed(1);
 
         h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding:10px 0;border-bottom:1px solid var(--border);align-items:center;">'
           + '<div style="font-size:0.88rem;color:var(--text-secondary);text-align:center;word-break:keep-all;">' + item.label + ' / 성공</div>'
@@ -4270,10 +4293,10 @@ function buildRoleSimHTML(simBase, row, ai) {
           + '<span style="font-size:0.95rem;font-weight:700;color:var(--text-muted);"> / ' + curP + '</span>'
           + '</div>'
           + '<div style="text-align:center;white-space:nowrap;">'
-          + '<span style="font-size:0.95rem;font-weight:700;color:' + (same ? 'var(--text-primary)' : GOLD) + ';">' + expVal + '</span>'
+          + '<span style="font-size:0.95rem;font-weight:700;color:' + expColor + ';">' + expVal + '</span>'
           + dBlock(delta)
           + '<span style="font-size:0.95rem;font-weight:700;color:var(--text-primary);"> / </span>'
-          + '<span style="font-size:0.95rem;font-weight:700;color:' + (same ? 'var(--text-primary)' : GOLD) + ';">' + expP + '</span>'
+          + '<span style="font-size:0.95rem;font-weight:700;color:' + expColor + ';">' + expP + '</span>'
           + dBlock(dP)
           + '</div>'
           + '</div>';
@@ -4284,7 +4307,7 @@ function buildRoleSimHTML(simBase, row, ai) {
           + '<span style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">' + curVal + '</span>'
           + '</div>'
           + '<div style="text-align:center;white-space:nowrap;">'
-          + '<span style="font-size:0.95rem;font-weight:700;color:' + (same ? 'var(--text-primary)' : GOLD) + ';">' + expVal + '</span>'
+          + '<span style="font-size:0.95rem;font-weight:700;color:' + expColor + ';">' + expVal + '</span>'
           + dBlock(delta)
           + '</div>'
           + '</div>';
@@ -4305,7 +4328,7 @@ function buildRoleSimHTML(simBase, row, ai) {
 
   // ── AI 코멘트 ──
   var insightBlock = (ai && ai.simInsight)
-    ? '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);overflow-y:auto;max-height:160px;padding-right:6px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent;">'
+    ? '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);overflow-y:auto;padding-right:14px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent;">'
       + renderBullets(ai.simInsight,'#aaa')
       + '</div>'
     : '';
@@ -4319,6 +4342,7 @@ function buildRoleSimHTML(simBase, row, ai) {
       + '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;">셀을 클릭하면 해당 역할 수준의 예상 스탯이 반응형으로 업데이트됩니다</div>'
       + buildMatrix()
       + '<div id="simRoleComment">' + buildRoleComment(curRole, curRole) + '</div>'
+    + '<div id="simTimeWarning"></div>'
       + insightBlock
     + '</div>'
     + '<div id="simStatPanel" style="margin-top:0;">' + buildStatTable(mpg, gp, curRole) + '</div>'
@@ -4345,6 +4369,10 @@ function buildRoleSimHTML(simBase, row, ai) {
         selRole = tRole;
         document.getElementById('simRoleComment').innerHTML = buildRoleComment(curRole, selRole);
         document.getElementById('simStatPanel').innerHTML   = buildStatTable(selMpg, selGp, selRole);
+        var tw = document.getElementById('simTimeWarning');
+        if (tw) tw.innerHTML = (selMpg < mpg)
+          ? '<span style="font-size:0.80rem;color:#ff9d4d;"><u>꾸준한 경기 출전을 통한 누적 기여도 증가</u>가 현 단계에서의 핵심 성장 방향</span>'
+          : '';
       });
     });
   }, 120);
@@ -4416,11 +4444,10 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
   const latestSeason = SEASONS[SEASONS.length - 1];
   const poolData     = fullSeasonDataMap[latestSeason] || [];
   const playerType   = row['구분'] || '국내';
-  const playerPos    = row['포지션'] || '전체';
   const groupLabel   = playerType === '외국인' ? '외인' : playerType === '아시아쿼터' ? '아시아' : '국내';
 
-  const totalScore = calcTotalScore(catScores, playerPos);
-  const rankData   = calcRanks(latestSeason, name, playerPos);
+  const totalScore = calcTotalScore(catScores, '전체');
+  const rankData   = calcRanks(latestSeason, name, '전체', '전체');
   const totalRank  = rankData['전체']?.rank || '-';
   const groupRank  = rankData[playerType]?.rank || '-';
 
@@ -4447,6 +4474,7 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
     + '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:14px;">'
     + '<div style="display:flex;gap:20px;flex-wrap:wrap;">'
     + '<span style="font-size:0.82rem;color:var(--text-secondary);">소속 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + team + '</strong></span>'
+    + '<span style="font-size:0.82rem;color:var(--text-secondary);">포지션 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + (row['포지션']||'-') + '</strong></span>'
     + '<span style="font-size:0.82rem;color:var(--text-secondary);">구분 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + type + '</strong></span>'
     + '<span style="font-size:0.82rem;color:var(--text-secondary);">출전 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + gp + '경기</strong></span>'
     + '</div>'
@@ -4942,10 +4970,18 @@ async function showEvalStats() {
   posLabel.textContent = 'POS';
   posGroup.appendChild(posLabel);
 
-  ['전체','PG','SG','SF','PF','C'].forEach(pos => {
+  // 선수 포지션 파악 (G/F/C)
+  const playerRawPos = (foundPlayer['포지션'] || '').trim();
+  const playerPosGroup = (playerRawPos === 'PG' || playerRawPos === 'SG' || playerRawPos === 'G') ? 'G'
+    : (playerRawPos === 'SF' || playerRawPos === 'PF' || playerRawPos === 'F') ? 'F'
+    : playerRawPos === 'C' ? 'C' : '';
+
+  ['전체','G','F','C'].forEach(pos => {
     const btn = document.createElement('button');
+    const isPlayerPos = (pos !== '전체' && pos === playerPosGroup);
     btn.className = 'eval-pos-btn' + (pos === evalCurrentPosition ? ' active' : '');
     btn.textContent = pos;
+    if (isPlayerPos) btn.style.cssText = 'outline: 1px solid #e8c96a; outline-offset: 2px;';
     btn.addEventListener('click', () => {
       evalCurrentPosition = pos;
       posGroup.querySelectorAll('.eval-pos-btn').forEach(b => b.classList.remove('active'));
@@ -5034,11 +5070,6 @@ const evalCategoryDefs = {
 
 const evalPositionWeights = {
   '전체': { '공격 기여도':0.22,'슈팅 퀄리티':0.13,'보드 장악력':0.13,'수비 기여도':0.22,'플레이 메이킹':0.13,'효율성':0.12,'내구성':0.05 },
-  'PG':  { '공격 기여도':0.20,'슈팅 퀄리티':0.15,'보드 장악력':0.10,'수비 기여도':0.10,'플레이 메이킹':0.25,'효율성':0.15,'내구성':0.05 },
-  'SG':  { '공격 기여도':0.25,'슈팅 퀄리티':0.20,'보드 장악력':0.10,'수비 기여도':0.10,'플레이 메이킹':0.15,'효율성':0.15,'내구성':0.05 },
-  'SF':  { '공격 기여도':0.20,'슈팅 퀄리티':0.15,'보드 장악력':0.15,'수비 기여도':0.15,'플레이 메이킹':0.15,'효율성':0.15,'내구성':0.05 },
-  'PF':  { '공격 기여도':0.20,'슈팅 퀄리티':0.10,'보드 장악력':0.25,'수비 기여도':0.20,'플레이 메이킹':0.05,'효율성':0.15,'내구성':0.05 },
-  'C':   { '공격 기여도':0.20,'슈팅 퀄리티':0.05,'보드 장악력':0.30,'수비 기여도':0.25,'플레이 메이킹':0.00,'효율성':0.15,'내구성':0.05 },
 };
 
 const evalSeasonColors = ['#ff6b00','#4a9eff','#f5a623','#00c9a7','#b08de0'];
@@ -5102,19 +5133,28 @@ function calcTotalScore(catScores, position) {
   return Object.entries(catScores).reduce((t,[cat,s]) => t + s*(w[cat]||0), 0);
 }
 
-function calcRanks(season, playerName, position) {
+function getPosFilteredPool(poolData, posFilter) {
+  if (!posFilter || posFilter === '전체') return poolData;
+  if (posFilter === 'G') return poolData.filter(r => r['포지션'] === 'PG' || r['포지션'] === 'SG' || r['포지션'] === 'G');
+  if (posFilter === 'F') return poolData.filter(r => r['포지션'] === 'SF' || r['포지션'] === 'PF' || r['포지션'] === 'F');
+  if (posFilter === 'C') return poolData.filter(r => r['포지션'] === 'C');
+  return poolData;
+}
+
+function calcRanks(season, playerName, position, posFilter) {
   const poolData = fullSeasonDataMap[season] || [];
+  const posPool = getPosFilteredPool(poolData, posFilter !== undefined ? posFilter : evalCurrentPosition);
   const groups = {
-    '전체': poolData,
-    '국내': poolData.filter(r=>r['구분']==='국내'),
-    '외국인': poolData.filter(r=>r['구분']==='외국인'),
-    '아시아쿼터': poolData.filter(r=>r['구분']==='아시아쿼터'),
+    '전체': posPool,
+    '국내': posPool.filter(r=>r['구분']==='국내'),
+    '외국인': posPool.filter(r=>r['구분']==='외국인'),
+    '아시아쿼터': posPool.filter(r=>r['구분']==='아시아쿼터'),
   };
   const result = {};
   for (const [grp, players] of Object.entries(groups)) {
     const scores = players.map(r => ({
       name: r.Player.split(' (')[0].trim(),
-      total: calcTotalScore(calcCategoryScores(r, poolData), position)
+      total: calcTotalScore(calcCategoryScores(r, posPool), '전체')
     })).sort((a,b)=>b.total-a.total);
     const idx = scores.findIndex(s=>s.name.toLowerCase()===playerName.toLowerCase());
     result[grp] = { rank: idx >= 0 ? idx+1 : '-', total: scores.length };
@@ -5122,19 +5162,20 @@ function calcRanks(season, playerName, position) {
   return result;
 }
 
-function calcCatRanks(season, playerName, catName) {
+function calcCatRanks(season, playerName, catName, posFilter) {
   const poolData = fullSeasonDataMap[season] || [];
+  const posPool = getPosFilteredPool(poolData, posFilter !== undefined ? posFilter : evalCurrentPosition);
   const groups = {
-    '전체': poolData,
-    '국내': poolData.filter(r=>r['구분']==='국내'),
-    '외국인': poolData.filter(r=>r['구분']==='외국인'),
-    '아시아쿼터': poolData.filter(r=>r['구분']==='아시아쿼터'),
+    '전체': posPool,
+    '국내': posPool.filter(r=>r['구분']==='국내'),
+    '외국인': posPool.filter(r=>r['구분']==='외국인'),
+    '아시아쿼터': posPool.filter(r=>r['구분']==='아시아쿼터'),
   };
   const result = {};
   for (const [grp, players] of Object.entries(groups)) {
     const scores = players.map(r => ({
       name: r.Player.split(' (')[0].trim(),
-      score: (calcCategoryScores(r, poolData)[catName]||0)
+      score: (calcCategoryScores(r, posPool)[catName]||0)
     })).sort((a,b)=>b.score-a.score);
     const idx = scores.findIndex(s=>s.name.toLowerCase()===playerName.toLowerCase());
     result[grp] = { rank: idx >= 0 ? idx+1 : '-', total: scores.length };
@@ -5291,7 +5332,7 @@ function renderDetailPanel(playerName, selectedSeasons, catName) {
     const playerType = playerRow['구분'] || '국내';
     const typeKey = playerType === '외국인' ? '외국인' : playerType === '아시아쿼터' ? '아시아쿼터' : '국내';
     const typeLabel = playerType === '외국인' ? '외인' : playerType === '아시아쿼터' ? '아시아' : '국내';
-    const rankText = `전체 ${ranks['전체'].rank}위 / ${typeLabel} ${ranks[typeKey].rank}위`;
+    const rankText = `전체 ${ranks['전체'].rank}위 /\n${typeLabel} ${ranks[typeKey].rank}위`;
     const isBest = (sc === maxCatSc);
     return `
       <div class="eval-cat-score-item">
@@ -5395,11 +5436,8 @@ function renderDetailPanel(playerName, selectedSeasons, catName) {
     </svg>`;
   }
 
-  const posWeights = evalPositionWeights[evalCurrentPosition] || evalPositionWeights['전체'];
-  const catWeight = Math.round((posWeights[catName] || 0) * 100);
   const catTitleHTML = `<span style="display:flex;align-items:baseline;gap:8px;">
     <span style="font-size:1.15rem;font-weight:800;">${catName}</span>
-    <span style="font-size:0.72rem;font-weight:600;color:#666;">가중치 ${catWeight}%</span>
   </span>`;
 
   panel.innerHTML = `
@@ -5465,7 +5503,7 @@ function renderGraphPanel(playerName, selectedSeasons, position) {
     const playerType = playerRow['구분'] || '국내';
     const typeKey = playerType === '외국인' ? '외국인' : playerType === '아시아쿼터' ? '아시아쿼터' : '국내';
     const typeLabel = playerType === '외국인' ? '외인' : playerType === '아시아쿼터' ? '아시아' : '국내';
-    const rankText = `전체 ${ranks['전체'].rank}위 / ${typeLabel} ${ranks[typeKey].rank}위`;
+    const rankText = `전체 ${ranks['전체'].rank}위 /\n${typeLabel} ${ranks[typeKey].rank}위`;
     const isBest = (total === maxTotal);
     return `
       <div class="eval-total-item">
