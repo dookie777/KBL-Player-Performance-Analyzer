@@ -1818,7 +1818,7 @@
       <table id="statsTable">
         <thead>
           <tr>
-            <th>Player</th><th>Team</th>
+            <th>Player</th><th>POS</th><th>Team</th>
             <th>출전경기</th><th>출전시간</th>
             <th>득점</th><th>평균득점</th>
             <th>FGA</th><th>FG</th><th>평균FG시도</th><th>평균FG성공</th><th>FG%</th>
@@ -2334,9 +2334,11 @@ async function fetchSeasonData(season) {
     r['총 출전 시간(초)'] = (m*60+s) * gp2;  // 시즌 누적 초
     const raw  = (r.Player||'').trim();
     const team = (r.Team||'').trim();
+    const pos  = (r['포지션']||'').trim();
     r.Player = `${raw} (${team})`;
     r.Team   = team;
     r['구분'] = (r['구분']||'').trim();
+    r['포지션'] = pos;
   });
   fullSeasonDataMap[season] = data;
   return data;
@@ -2548,6 +2550,7 @@ function renderTable(data) {
     const gOk = parseInt(r['출전 경기 수'])>=14;
     return `<tr>
       <td>${r.Player} <span style="font-size:0.7rem;opacity:0.5">${gOk?'✓':''}</span></td>
+      <td style="text-align:center;font-size:0.82rem;color:var(--text-secondary);">${r['포지션']||'-'}</td>
       <td>${r.Team}</td>
       <td data-v="${r['출전 경기 수']||0}">${formatStatValue('출전 경기 수',r['출전 경기 수'])}</td>
       <td data-v="${r['_mpg']||0}">${mpgToStr(r['_mpg'])}</td>
@@ -2728,7 +2731,8 @@ function showPlayerStats() {
 
   const titleEl = document.getElementById('playerTitle');
   const nameOnly = player.Player.split(' (')[0].trim();
-  titleEl.textContent = nameOnly;
+  const posOnly = player['포지션'] ? `(${player['포지션']})` : '';
+  titleEl.textContent = posOnly ? `${nameOnly} ${posOnly}` : nameOnly;
   titleEl.style.visibility = 'visible';
   titleEl.style.color = '#ffffff';
   titleEl.style.webkitTextFillColor = '#ffffff';
@@ -3019,7 +3023,7 @@ function renderCompareBarChart() {
             background:${playerColorsBg[i]};border:1px solid ${playerColors[i]}44;border-radius:8px;">
           <div style="width:9px;height:9px;border-radius:50%;background:${playerColors[i]};flex-shrink:0;"></div>
           <div style="font-size:0.95rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            ${namePart} <span style="font-size:0.75rem;font-weight:500;color:var(--text-secondary);">(${teamPart})</span>
+            ${namePart}<span style="font-size:0.75rem;font-weight:500;color:var(--text-secondary);"> (${teamPart}${r.player['포지션'] ? ', ' + r.player['포지션'] : ''})</span>
           </div>
           <select id="seasonSwitch-${i}" class="season-switch" style="margin-left:auto;flex-shrink:0;">
             ${['20-21','21-22','22-23','23-24','24-25','25-26'].map(s =>
@@ -3800,6 +3804,7 @@ async function generateReport(playerName) {
   const payload = {
     player: cleanName, season: latestSeason,
     type: playerRow['구분'] || '국내',
+    position: playerRow['포지션'] || '',
     team: (playerRow.Player.includes('(') ? playerRow.Player.split('(')[1].replace(')','').trim() : '-'),
     gamesPlayed: playerRow['출전 경기 수'],
     keyStats: {
@@ -3989,7 +3994,7 @@ function renderEvalSkeleton() {
   // 포지션 버튼 비활성
   var posGroup = document.getElementById('evalPosGroup');
   if (posGroup && !posGroup.children.length) {
-    ['전체','PG','SG','SF','PF','C'].forEach(function(pos){
+    ['전체','G','F','C'].forEach(function(pos){
       var b = document.createElement('button');
       b.className = 'eval-pos-btn' + (pos==='전체'?' active':'');
       b.textContent = pos;
@@ -4217,6 +4222,7 @@ function buildRoleSimHTML(simBase, row, ai) {
   function buildStatTable(tMpg, tGp, tRole) {
     // 역할명이 같아도 mpg/gp가 다르면 delta 표시
     var same = (Math.abs(tMpg - mpg) < 0.1 && Math.abs(tGp - gp) < 1);
+    var timeReversed = (!same && tMpg < mpg);
     var GOLD = '#e8c96a';
 
     // 현재 기록 (회색)
@@ -4235,8 +4241,7 @@ function buildRoleSimHTML(simBase, row, ai) {
 
     var h = '<div style="margin-bottom:14px;">';
     if (same) h += '<div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);">현재 '+Math.round(gp)+'경기 · 평균 '+curMpgStr+' 출전</div>';
-    if (!same) {
-      var diffColor = diffMin >= 0 ? '#6abf7a' : '#ff7a7a';
+    if (!same && !timeReversed) {
       h += '<div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
         + '<span style="color:#555;font-weight:400;">현재 '+Math.round(gp)+'경기 · 평균 '+curMpgStr+' 출전</span>'
         + '<span style="color:#aaa;margin:0 6px;">→</span>'
@@ -4244,12 +4249,15 @@ function buildRoleSimHTML(simBase, row, ai) {
         + '<span style="font-size:0.75rem;font-weight:500;color:'+diffColor+';margin-left:6px;">('+diffStr+')</span>'
         + '</div>';
     }
+    if (timeReversed) {
+      h += '<div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'        + '<span style="color:#555;font-weight:400;">현재 '+Math.round(gp)+'경기 · 평균 '+curMpgStr+' 출전</span>'        + '<span style="color:#aaa;margin:0 6px;">→</span>'        + tGpG2.label+' · <span style="color:#ff9d4d;">평균 출전 시간 현재 수준 유지</span>'        + '</div>';
+    }
     h += '</div>';
 
     h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:2px;">'
       + '<div style="text-align:center;font-size:0.78rem;color:var(--text-muted);">Per Game</div>'
       + '<div style="text-align:center;font-size:0.82rem;color:var(--text-secondary);">현재 수치</div>'
-      + '<div style="text-align:center;font-size:0.82rem;color:var(--text-secondary);">기대 수치</div>'
+      + '<div style="text-align:center;font-size:0.82rem;color:'+(timeReversed?'#ff9d4d':'var(--text-secondary)')+';">'+(timeReversed?'현재 유지':'기대 수치')+'</div>'
       + '</div>';
 
     function dBlock(d) {
@@ -4261,13 +4269,14 @@ function buildRoleSimHTML(simBase, row, ai) {
 
     SIM_KEYS.forEach(function(item) {
       var curVal = parseFloat(row[item.key]  || 0).toFixed(1);
-      var expVal = calcExpected(item.key, tMpg);
-      var delta  = (parseFloat(expVal) - parseFloat(curVal)).toFixed(1);
+      var expVal = timeReversed ? curVal : calcExpected(item.key, tMpg);
+      var delta  = timeReversed ? '0' : (parseFloat(expVal) - parseFloat(curVal)).toFixed(1);
+      var expColor = (same || timeReversed) ? 'var(--text-primary)' : GOLD;
 
       if (item.pkey) {
         var curP = parseFloat(row[item.pkey] || 0).toFixed(1);
-        var expP = calcExpected(item.pkey, tMpg);
-        var dP   = (parseFloat(expP) - parseFloat(curP)).toFixed(1);
+        var expP = timeReversed ? curP : calcExpected(item.pkey, tMpg);
+        var dP   = timeReversed ? '0' : (parseFloat(expP) - parseFloat(curP)).toFixed(1);
 
         h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding:10px 0;border-bottom:1px solid var(--border);align-items:center;">'
           + '<div style="font-size:0.88rem;color:var(--text-secondary);text-align:center;word-break:keep-all;">' + item.label + ' / 성공</div>'
@@ -4276,10 +4285,10 @@ function buildRoleSimHTML(simBase, row, ai) {
           + '<span style="font-size:0.95rem;font-weight:700;color:var(--text-muted);"> / ' + curP + '</span>'
           + '</div>'
           + '<div style="text-align:center;white-space:nowrap;">'
-          + '<span style="font-size:0.95rem;font-weight:700;color:' + (same ? 'var(--text-primary)' : GOLD) + ';">' + expVal + '</span>'
+          + '<span style="font-size:0.95rem;font-weight:700;color:' + expColor + ';">' + expVal + '</span>'
           + dBlock(delta)
           + '<span style="font-size:0.95rem;font-weight:700;color:var(--text-primary);"> / </span>'
-          + '<span style="font-size:0.95rem;font-weight:700;color:' + (same ? 'var(--text-primary)' : GOLD) + ';">' + expP + '</span>'
+          + '<span style="font-size:0.95rem;font-weight:700;color:' + expColor + ';">' + expP + '</span>'
           + dBlock(dP)
           + '</div>'
           + '</div>';
@@ -4290,7 +4299,7 @@ function buildRoleSimHTML(simBase, row, ai) {
           + '<span style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">' + curVal + '</span>'
           + '</div>'
           + '<div style="text-align:center;white-space:nowrap;">'
-          + '<span style="font-size:0.95rem;font-weight:700;color:' + (same ? 'var(--text-primary)' : GOLD) + ';">' + expVal + '</span>'
+          + '<span style="font-size:0.95rem;font-weight:700;color:' + expColor + ';">' + expVal + '</span>'
           + dBlock(delta)
           + '</div>'
           + '</div>';
@@ -4323,6 +4332,7 @@ function buildRoleSimHTML(simBase, row, ai) {
       + '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;">셀을 클릭하면 해당 역할 수준의 예상 스탯이 반응형으로 업데이트됩니다</div>'
       + buildMatrix()
       + '<div id="simRoleComment">' + buildRoleComment(curRole, curRole) + '</div>'
+    + (timeReversed ? '<div id="simTimeWarning" style="margin-top:8px;padding:8px 14px;background:rgba(255,157,77,0.08);border-radius:6px;border-left:3px solid #ff9d4d;"><span style="font-size:0.80rem;color:#ff9d4d;"><u>꾸준한 경기 출전을 통한 누적 기여도 증가</u>가 현 단계에서의 핵심 성장 방향</span></div>' : '<div id="simTimeWarning"></div>')
       + insightBlock
     + '</div>'
     + '<div id="simStatPanel" style="margin-top:0;">' + buildStatTable(mpg, gp, curRole) + '</div>'
@@ -4349,6 +4359,10 @@ function buildRoleSimHTML(simBase, row, ai) {
         selRole = tRole;
         document.getElementById('simRoleComment').innerHTML = buildRoleComment(curRole, selRole);
         document.getElementById('simStatPanel').innerHTML   = buildStatTable(selMpg, selGp, selRole);
+        var tw = document.getElementById('simTimeWarning');
+        if (tw) tw.innerHTML = (selMpg < mpg)
+          ? '<span style="font-size:0.80rem;color:#ff9d4d;"><u>꾸준한 경기 출전을 통한 누적 기여도 증가</u>가 현 단계에서의 핵심 성장 방향</span>'
+          : '';
       });
     });
   }, 120);
@@ -4451,6 +4465,7 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
     + '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:14px;">'
     + '<div style="display:flex;gap:20px;flex-wrap:wrap;">'
     + '<span style="font-size:0.82rem;color:var(--text-secondary);">소속 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + team + '</strong></span>'
+    + '<span style="font-size:0.82rem;color:var(--text-secondary);">포지션 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + (playerRow['포지션']||'-') + '</strong></span>'
     + '<span style="font-size:0.82rem;color:var(--text-secondary);">구분 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + type + '</strong></span>'
     + '<span style="font-size:0.82rem;color:var(--text-secondary);">출전 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + gp + '경기</strong></span>'
     + '</div>'
@@ -4944,7 +4959,7 @@ async function showEvalStats() {
   posLabel.textContent = 'POS';
   posGroup.appendChild(posLabel);
 
-  ['전체','PG','SG','SF','PF','C'].forEach(pos => {
+  ['전체','G','F','C'].forEach(pos => {
     const btn = document.createElement('button');
     btn.className = 'eval-pos-btn' + (pos === evalCurrentPosition ? ' active' : '');
     btn.textContent = pos;
@@ -5104,19 +5119,28 @@ function calcTotalScore(catScores, position) {
   return Object.entries(catScores).reduce((t,[cat,s]) => t + s*(w[cat]||0), 0);
 }
 
+function getPosFilteredPool(poolData, posFilter) {
+  if (!posFilter || posFilter === '전체') return poolData;
+  if (posFilter === 'G') return poolData.filter(r => r['포지션'] === 'PG' || r['포지션'] === 'SG' || r['포지션'] === 'G');
+  if (posFilter === 'F') return poolData.filter(r => r['포지션'] === 'SF' || r['포지션'] === 'PF' || r['포지션'] === 'F');
+  if (posFilter === 'C') return poolData.filter(r => r['포지션'] === 'C');
+  return poolData;
+}
+
 function calcRanks(season, playerName, position) {
   const poolData = fullSeasonDataMap[season] || [];
+  const posPool = getPosFilteredPool(poolData, evalCurrentPosition);
   const groups = {
-    '전체': poolData,
-    '국내': poolData.filter(r=>r['구분']==='국내'),
-    '외국인': poolData.filter(r=>r['구분']==='외국인'),
-    '아시아쿼터': poolData.filter(r=>r['구분']==='아시아쿼터'),
+    '전체': posPool,
+    '국내': posPool.filter(r=>r['구분']==='국내'),
+    '외국인': posPool.filter(r=>r['구분']==='외국인'),
+    '아시아쿼터': posPool.filter(r=>r['구분']==='아시아쿼터'),
   };
   const result = {};
   for (const [grp, players] of Object.entries(groups)) {
     const scores = players.map(r => ({
       name: r.Player.split(' (')[0].trim(),
-      total: calcTotalScore(calcCategoryScores(r, poolData), position)
+      total: calcTotalScore(calcCategoryScores(r, posPool), '전체')
     })).sort((a,b)=>b.total-a.total);
     const idx = scores.findIndex(s=>s.name.toLowerCase()===playerName.toLowerCase());
     result[grp] = { rank: idx >= 0 ? idx+1 : '-', total: scores.length };
@@ -5126,17 +5150,18 @@ function calcRanks(season, playerName, position) {
 
 function calcCatRanks(season, playerName, catName) {
   const poolData = fullSeasonDataMap[season] || [];
+  const posPool = getPosFilteredPool(poolData, evalCurrentPosition);
   const groups = {
-    '전체': poolData,
-    '국내': poolData.filter(r=>r['구분']==='국내'),
-    '외국인': poolData.filter(r=>r['구분']==='외국인'),
-    '아시아쿼터': poolData.filter(r=>r['구분']==='아시아쿼터'),
+    '전체': posPool,
+    '국내': posPool.filter(r=>r['구분']==='국내'),
+    '외국인': posPool.filter(r=>r['구분']==='외국인'),
+    '아시아쿼터': posPool.filter(r=>r['구분']==='아시아쿼터'),
   };
   const result = {};
   for (const [grp, players] of Object.entries(groups)) {
     const scores = players.map(r => ({
       name: r.Player.split(' (')[0].trim(),
-      score: (calcCategoryScores(r, poolData)[catName]||0)
+      score: (calcCategoryScores(r, posPool)[catName]||0)
     })).sort((a,b)=>b.score-a.score);
     const idx = scores.findIndex(s=>s.name.toLowerCase()===playerName.toLowerCase());
     result[grp] = { rank: idx >= 0 ? idx+1 : '-', total: scores.length };
