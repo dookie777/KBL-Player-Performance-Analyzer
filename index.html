@@ -3852,7 +3852,7 @@ async function generateReport(playerName) {
         return h;
       })(),
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 5000,
         system: `당신은 KBL(한국농구리그) 전문 스카우트 분석가입니다. 선수 데이터를 바탕으로 스카우팅 리포트를 한국어로 작성합니다.
 작성 규칙:
@@ -4959,10 +4959,18 @@ async function showEvalStats() {
   posLabel.textContent = 'POS';
   posGroup.appendChild(posLabel);
 
+  // 선수 포지션 파악 (G/F/C)
+  const playerRawPos = (foundPlayer['포지션'] || '').trim();
+  const playerPosGroup = (playerRawPos === 'PG' || playerRawPos === 'SG' || playerRawPos === 'G') ? 'G'
+    : (playerRawPos === 'SF' || playerRawPos === 'PF' || playerRawPos === 'F') ? 'F'
+    : playerRawPos === 'C' ? 'C' : '';
+
   ['전체','G','F','C'].forEach(pos => {
     const btn = document.createElement('button');
+    const isPlayerPos = (pos !== '전체' && pos === playerPosGroup);
     btn.className = 'eval-pos-btn' + (pos === evalCurrentPosition ? ' active' : '');
     btn.textContent = pos;
+    if (isPlayerPos) btn.style.cssText = 'outline: 1px solid #e8c96a; outline-offset: 2px;';
     btn.addEventListener('click', () => {
       evalCurrentPosition = pos;
       posGroup.querySelectorAll('.eval-pos-btn').forEach(b => b.classList.remove('active'));
