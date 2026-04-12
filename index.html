@@ -3758,7 +3758,7 @@ async function generateReport(playerName) {
   const catScores   = calcCategoryScores(playerRow, poolData);
   const catRanksAll = {};
   for (const cat of Object.keys(evalCategoryDefs)) {
-    catRanksAll[cat] = calcCatRanks(latestSeason, cleanName, cat);
+    catRanksAll[cat] = calcCatRanks(latestSeason, cleanName, cat, '전체');
   }
 
   const trendData = SEASONS.map(s => {
@@ -4335,7 +4335,7 @@ function buildRoleSimHTML(simBase, row, ai) {
       + '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;">셀을 클릭하면 해당 역할 수준의 예상 스탯이 반응형으로 업데이트됩니다</div>'
       + buildMatrix()
       + '<div id="simRoleComment">' + buildRoleComment(curRole, curRole) + '</div>'
-    + (timeReversed ? '<div id="simTimeWarning" style="margin-top:8px;padding:8px 14px;background:rgba(255,157,77,0.08);border-radius:6px;border-left:3px solid #ff9d4d;"><span style="font-size:0.80rem;color:#ff9d4d;"><u>꾸준한 경기 출전을 통한 누적 기여도 증가</u>가 현 단계에서의 핵심 성장 방향</span></div>' : '<div id="simTimeWarning"></div>')
+    + '<div id="simTimeWarning"></div>'
       + insightBlock
     + '</div>'
     + '<div id="simStatPanel" style="margin-top:0;">' + buildStatTable(mpg, gp, curRole) + '</div>'
@@ -4437,11 +4437,10 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
   const latestSeason = SEASONS[SEASONS.length - 1];
   const poolData     = fullSeasonDataMap[latestSeason] || [];
   const playerType   = row['구분'] || '국내';
-  const playerPos    = row['포지션'] || '전체';
   const groupLabel   = playerType === '외국인' ? '외인' : playerType === '아시아쿼터' ? '아시아' : '국내';
 
-  const totalScore = calcTotalScore(catScores, playerPos);
-  const rankData   = calcRanks(latestSeason, name, playerPos);
+  const totalScore = calcTotalScore(catScores, '전체');
+  const rankData   = calcRanks(latestSeason, name, '전체', '전체');
   const totalRank  = rankData['전체']?.rank || '-';
   const groupRank  = rankData[playerType]?.rank || '-';
 
@@ -5062,11 +5061,6 @@ const evalCategoryDefs = {
 
 const evalPositionWeights = {
   '전체': { '공격 기여도':0.22,'슈팅 퀄리티':0.13,'보드 장악력':0.13,'수비 기여도':0.22,'플레이 메이킹':0.13,'효율성':0.12,'내구성':0.05 },
-  'PG':  { '공격 기여도':0.20,'슈팅 퀄리티':0.15,'보드 장악력':0.10,'수비 기여도':0.10,'플레이 메이킹':0.25,'효율성':0.15,'내구성':0.05 },
-  'SG':  { '공격 기여도':0.25,'슈팅 퀄리티':0.20,'보드 장악력':0.10,'수비 기여도':0.10,'플레이 메이킹':0.15,'효율성':0.15,'내구성':0.05 },
-  'SF':  { '공격 기여도':0.20,'슈팅 퀄리티':0.15,'보드 장악력':0.15,'수비 기여도':0.15,'플레이 메이킹':0.15,'효율성':0.15,'내구성':0.05 },
-  'PF':  { '공격 기여도':0.20,'슈팅 퀄리티':0.10,'보드 장악력':0.25,'수비 기여도':0.20,'플레이 메이킹':0.05,'효율성':0.15,'내구성':0.05 },
-  'C':   { '공격 기여도':0.20,'슈팅 퀄리티':0.05,'보드 장악력':0.30,'수비 기여도':0.25,'플레이 메이킹':0.00,'효율성':0.15,'내구성':0.05 },
 };
 
 const evalSeasonColors = ['#ff6b00','#4a9eff','#f5a623','#00c9a7','#b08de0'];
@@ -5138,9 +5132,9 @@ function getPosFilteredPool(poolData, posFilter) {
   return poolData;
 }
 
-function calcRanks(season, playerName, position) {
+function calcRanks(season, playerName, position, posFilter) {
   const poolData = fullSeasonDataMap[season] || [];
-  const posPool = getPosFilteredPool(poolData, evalCurrentPosition);
+  const posPool = getPosFilteredPool(poolData, posFilter !== undefined ? posFilter : evalCurrentPosition);
   const groups = {
     '전체': posPool,
     '국내': posPool.filter(r=>r['구분']==='국내'),
@@ -5159,9 +5153,9 @@ function calcRanks(season, playerName, position) {
   return result;
 }
 
-function calcCatRanks(season, playerName, catName) {
+function calcCatRanks(season, playerName, catName, posFilter) {
   const poolData = fullSeasonDataMap[season] || [];
-  const posPool = getPosFilteredPool(poolData, evalCurrentPosition);
+  const posPool = getPosFilteredPool(poolData, posFilter !== undefined ? posFilter : evalCurrentPosition);
   const groups = {
     '전체': posPool,
     '국내': posPool.filter(r=>r['구분']==='국내'),
