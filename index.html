@@ -3737,6 +3737,10 @@ async function generateReport(playerName) {
 
   const latestSeason = SEASONS[SEASONS.length - 1];
 
+  // AI 리포트는 전체 풀 기준으로 계산 (포지션 필터 무관)
+  const _savedPos = evalCurrentPosition;
+  evalCurrentPosition = '전체';
+
   // 팀명 포함 케이스 처리 ("게이지 프림 (울산 모비스)" → "게이지 프림")
   const cleanName = playerName.split(' (')[0].trim();
   const poolData  = fullSeasonDataMap[latestSeason] || [];
@@ -5430,11 +5434,8 @@ function renderDetailPanel(playerName, selectedSeasons, catName) {
     </svg>`;
   }
 
-  const posWeights = evalPositionWeights[evalCurrentPosition] || evalPositionWeights['전체'];
-  const catWeight = Math.round((posWeights[catName] || 0) * 100);
   const catTitleHTML = `<span style="display:flex;align-items:baseline;gap:8px;">
     <span style="font-size:1.15rem;font-weight:800;">${catName}</span>
-    <span style="font-size:0.72rem;font-weight:600;color:#666;">가중치 ${catWeight}%</span>
   </span>`;
 
   panel.innerHTML = `
