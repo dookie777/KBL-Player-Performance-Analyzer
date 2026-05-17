@@ -1716,14 +1716,15 @@
     .rpt-improve-box {
       background:var(--bg-tertiary);
       border-radius:var(--radius-sm);
-      padding:16px 16px;
+      padding:22px 20px;
+      min-height:140px;
     }
     .rpt-improve-label {
       font-size:0.65rem; font-weight:700; letter-spacing:0.08em;
       margin-bottom:6px; color:var(--accent-teal);
     }
     .rpt-improve-label.long-term { color:#c084fc; }
-    .rpt-improve-body { font-size:0.78rem; line-height:1.65; color:#ccc; }
+    .rpt-improve-body { font-size:0.82rem; line-height:1.95; color:#ccc; }
     .rpt-sim-table {
       width:100%; border-collapse:collapse; font-size:0.78rem;
     }
@@ -1883,26 +1884,25 @@
     .contrib-svg { width: 100%; height: 100%; display: block; }
 
     /* 차트 요소 - 강화 */
-    .nv-zero-line { stroke: rgba(255,255,255,0.18); stroke-width: 1.2; }
+    .nv-zero-line { stroke: rgba(255,255,255,0.5); stroke-width: 2; }
 
     /* X축 라벨 - 크게 */
-    .nv-axis-x { font-size: 26px; font-weight: 800; letter-spacing: 0.5px; }
-    .nv-axis-x-team { fill: #d8d8d8; font-size: 19px; font-weight: 600; letter-spacing: -0.2px; }
+    .nv-axis-x { font-size: 26px; font-weight: 800; }
+    .nv-axis-x-team { fill: #d8d8d8; font-size: 19px; font-weight: 600; }
 
-    /* 워터폴 막대 - 그린(가점) / 레드(감점) */
+    /* 가점 막대 = 붉은 계열 단색 (테두리 없음) */
     .nv-bar-plus {
-      fill: url(#contribGradPlus);
-      stroke: rgba(125,209,137,0.55);
-      stroke-width: 1;
+      fill: #c95757;
+      stroke: none;
     }
+    /* 감점 막대 = 푸른 계열 단색 (테두리 없음) */
     .nv-bar-minus {
-      fill: url(#contribGradMinus);
-      stroke: rgba(201,69,69,0.55);
-      stroke-width: 1;
+      fill: #5a8ec4;
+      stroke: none;
     }
     /* 기존 캔들 클래스 호환 */
-    .nv-candle-plus { fill: url(#contribGradPlus); stroke: rgba(125,209,137,0.55); stroke-width: 1; }
-    .nv-candle-minus { fill: url(#contribGradMinus); stroke: rgba(201,69,69,0.55); stroke-width: 1; }
+    .nv-candle-plus { fill: #c95757; stroke: none; }
+    .nv-candle-minus { fill: #5a8ec4; stroke: none; }
 
     /* 합산 라인 - 골드 메인 */
     .nv-ma-total {
@@ -1924,29 +1924,25 @@
       stroke-width: 3;
     }
 
-    /* 라벨 - 막대 안쪽 / 옆 */
+    /* 라벨 */
     .nv-val-plus {
-      fill: #ffffff;
-      font-size: 18px;
-      font-weight: 800;
+      fill: #c95757;
+      font-size: 17px;
+      font-weight: 700;
       font-variant-numeric: tabular-nums;
-      letter-spacing: -0.3px;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7));
     }
     .nv-val-minus {
-      fill: #ffd6d6;
-      font-size: 18px;
-      font-weight: 800;
+      fill: #5a8ec4;
+      font-size: 17px;
+      font-weight: 700;
       font-variant-numeric: tabular-nums;
-      letter-spacing: -0.3px;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7));
     }
     .nv-val-total {
-      font-size: 24px;
+      fill: #ffffff;
+      font-size: 22px;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
-      letter-spacing: -0.3px;
-      filter: drop-shadow(0 1px 4px rgba(0,0,0,0.9));
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.95));
     }
 
     .nv-cross-line { stroke: rgba(255,255,255,0.3); stroke-width: 1; stroke-dasharray: 3,3; pointer-events: none; }
@@ -1970,8 +1966,8 @@
     .contrib-tooltip-row { display: flex; justify-content: space-between; gap: 22px; margin: 4px 0; font-variant-numeric: tabular-nums; }
     .contrib-tooltip-label { color: var(--text-secondary); font-weight: 500; }
     .contrib-tooltip-value { font-weight: 700; }
-    .contrib-tooltip-value.pos { color: var(--accent-blue); }
-    .contrib-tooltip-value.neg { color: var(--orange); }
+    .contrib-tooltip-value.pos { color: #c95757; }
+    .contrib-tooltip-value.neg { color: #5a8ec4; }
     .contrib-tooltip-value.accent { color: #fff; }
     .contrib-tooltip-title {
       font-weight: 800;
@@ -2023,7 +2019,7 @@
     <button class="tab-btn" data-tab="tab-compare">선수 간 비교</button>
     <button class="tab-btn" data-tab="tab-player-compare">경기력 추이</button>
     <button class="tab-btn" data-tab="tab-contribution">KBL 공헌도</button>
-    <button class="tab-btn" data-tab="tab-evaluation">경쟁력 추이</button>
+    <button class="tab-btn" data-tab="tab-evaluation">TERS-Rating</button>
     <button class="tab-btn" data-tab="tab-report">AI 선수 리포트</button>
   </nav>
 
@@ -2387,7 +2383,7 @@
       <!-- 탭바 — 검색 바로 아래 -->
       <div id="rptTabBar" style="display:flex;border-bottom:1px solid rgba(255,255,255,0.08);">
         <button class="rpt-main-tab active" data-tab="rpt-tab-summary">종합 평가</button>
-        <button class="rpt-main-tab" data-tab="rpt-tab-category">카테고리 평가</button>
+        <button class="rpt-main-tab" data-tab="rpt-tab-category">TERS-Rating</button>
         <button class="rpt-main-tab" data-tab="rpt-tab-sim">역할 시뮬레이션</button>
         <button class="rpt-main-tab" data-tab="rpt-tab-improve">개선 방향성</button>
       </div>
@@ -3053,6 +3049,20 @@ document.querySelectorAll('#tab-all .filter-tag').forEach(btn => {
     if (activeTypes.has(t)) { activeTypes.delete(t); btn.classList.remove('active'); }
     else                    { activeTypes.add(t);    btn.classList.add('active'); }
     renderTable(originalData);
+  });
+});
+
+/* ─── KBL 공헌도 탭 필터 토글 ─── */
+document.querySelectorAll('#tab-contribution .filter-tag').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const t = btn.dataset.type;
+    if (contribActiveTypes.has(t)) { contribActiveTypes.delete(t); btn.classList.remove('active'); }
+    else                           { contribActiveTypes.add(t);    btn.classList.add('active'); }
+    // 현재 선수 있으면 랭크 재계산 + 차트 재렌더
+    if (currentContribPlayer) {
+      const sd = await loadContribAllSeasons(currentContribPlayer);
+      renderContribAll(sd);
+    }
   });
 });
 
@@ -4206,7 +4216,7 @@ async function generateReport(playerName) {
   // API 호출 함수 (재시도용)
   async function callApi() {
     const controller = new AbortController();
-    const timeout    = setTimeout(() => controller.abort(), 60000);
+    const timeout    = setTimeout(() => controller.abort(), 180000);
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       signal: controller.signal,
@@ -4245,7 +4255,7 @@ async function generateReport(playerName) {
   ②'롤모델': 플레이 스타일이 분석 선수와 구체적으로 80% 이상 일치하고, 종합 경쟁력 순위가 분석 선수보다 TOP 20 이상 높은 선수만 선정. 단순 포지션 동일·스탯 유사만으로 선정 절대 금지. 분석 선수가 실제로 해당 롤모델의 플레이를 구현할 수 있는 잠재적 근거가 있어야 함. reason에는 구체적 지향 유형 명시. relation값: '롤모델'
   ③'벤치마크': 분석 선수의 명확한 약점 카테고리에서 리그 TOP 20 이내 수준인 선수만 선정. 전반적으로 잘하는 선수를 벤치마크로 넣는 것 금지. 반드시 특정 약점 지표에서 분석 선수 대비 명확한 격차(수치 기준 20% 이상 우위)가 있어야 함. relation값: '벤치마크', reason에 해당 지표명과 수치 명시
   ④공통: 이름만 봐도 선정 근거가 납득되어야 함. 기준에 맞는 선수가 없으면 해당 유형은 선정하지 말 것. 3명을 억지로 채우기 위해 기준 미달 선수를 넣는 것 절대 금지
-  ⑤benchmarkCards의 desc는 각 불릿 1줄(30자 이내) - 근거 핵심만 간결하게, 스크롤 발생하지 않도록 최소화
+  ⑤benchmarkCards의 desc 작성 절대 원칙: 정확히 3개 불릿. 각 불릿 1줄(30자 이내). 구체적 수치(평균 X점, X리바, X어시, FG% X%, 3P% X% 등 모든 수치·퍼센트) 사용 절대 금지 - 환각 차단을 위함. 정성적 표현만 사용 - 3개 불릿 구성: (1)플레이 스타일 유형(예: '내외각 균형형 포워드', '림 프로텍터') (2)분석 선수와의 방향성(예: '유사한 점유율 분담', '공격 비중 큰 케이스') (3)참고할 강점 영역(예: '플레이메이킹 모범 사례', '외곽 슈팅 강점'). 숫자·% 표기 일체 금지. 카드별로 반드시 서로 다른 내용 작성 - 다른 카드와 동일하거나 거의 유사한 desc 절대 금지. 각 선수의 고유 특징을 차별화하여 작성
 반드시 아래 JSON 형식으로만 응답하십시오. 마크다운 코드블록 없이 순수 JSON만 출력하십시오.
 {
   "summary": "• 이번시즌종합평가\\n• 전시즌대비변화(해당시에만)\\n• 좋은부분\\n• 나쁜부분\\n• 보완해야할점\\n• 장점강화해야할점",
@@ -4264,7 +4274,7 @@ async function generateReport(playerName) {
   },
   "simInsight": "• 인사이트1\\n• 인사이트2",
   "benchmarkCards": [
-    { "name": "선수이름", "season": "시즌", "relation": "비교대상|롤모델|벤치마크", "reason": "완성형 윙|3점슛 성공률 등", "desc": "• 근거1\\n• 근거2" }
+    { "name": "선수이름", "season": "시즌", "relation": "비교대상|롤모델|벤치마크", "reason": "완성형 윙|3점슛 성공률 등", "desc": "• 근거1\\n• 근거2\\n• 근거3" }
   ]
 }`,
         messages: [{ role: 'user', content: JSON.stringify(payload) }],
@@ -4524,12 +4534,13 @@ function buildRoleSimHTML(simBase, row, ai) {
         var rc      = ROLE_COLORS[role] || '#888';
         var isCur   = (gpg.id === curGpG.id && ming.id === curMinG.id);
         var isRef   = isAbnormal && gpg.id === refGpG.id && ming.id === refMinG.id && !isCur;
-        var isClick = (gpg.id <= curGpG.id && ming.id <= curMinG.id) && !isCur;
-        // 한 단계 위: gpId 또는 minId 중 하나만 정확히 1 작은 인접 셀
-        var isNextStep = isClick && (
+        // 클릭 가능 = 인접 1단계 위 셀 2개만 (GP +1단계 또는 시간 +1단계 한쪽만)
+        var isClick = (
           (gpg.id === curGpG.id - 1 && ming.id === curMinG.id) ||
           (gpg.id === curGpG.id && ming.id === curMinG.id - 1)
         );
+        // 별표 표시 = 클릭 가능 셀과 동일
+        var isNextStep = isClick;
         var border  = isCur && isSC ? '2px solid #FFD700'
                     : isCur         ? '2px solid ' + rc
                     : isRef         ? '2px dashed #888'
@@ -4769,7 +4780,7 @@ function buildBmCards(cardSlots, aiCards) {
       return { bm: bm, aiCard: aiCard };
     })
     .filter(Boolean)
-    .slice(0, 4);
+    .slice(0, 3);
   return validCards.map(function(item) {
     var bm = item.bm, aiCard = item.aiCard;
     var rel    = aiCard.relation || '비교대상';
@@ -4779,17 +4790,16 @@ function buildBmCards(cardSlots, aiCards) {
     else if (rel === '벤치마크') { label = '벤치마크'; ac = COLOR_BENCH; }
     else                         { label = '비교 대상'; ac = COLOR_COMP;  }
     var reasonTag = reason
-      ? '<span style="font-size:0.65rem;color:' + ac + ';opacity:0.85;margin-left:6px;">- ' + reason + '</span>'
+      ? '<span style="font-size:0.85rem;color:' + ac + ';opacity:0.85;margin-left:8px;">' + reason + '</span>'
       : '';
-    return '<div style="background:var(--bg-tertiary);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;border:1px solid ' + ac + '33;">'
+    return '<div style="background:var(--bg-tertiary);border-radius:10px;padding:26px 28px;display:flex;flex-direction:column;gap:16px;border:1px solid ' + ac + '33;min-height:240px;">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">'
       + '<span style="display:flex;align-items:center;gap:0;">'
-      + '<span style="font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:20px;background:' + ac + '22;color:' + ac + ';">' + label + '</span>'
+      + '<span style="font-size:0.95rem;font-weight:800;padding:5px 14px;border-radius:20px;background:' + ac + '22;color:' + ac + ';white-space:nowrap;">' + label + '</span>'
       + reasonTag
       + '</span>'
-      + '<span style="font-size:0.68rem;color:var(--text-secondary);">' + bm.type + '</span>'
       + '</div>'
-      + '<div style="font-size:1rem;font-weight:800;color:var(--text-primary);word-break:keep-all;">' + bm.name + ' <span style="font-size:0.76rem;font-weight:400;color:var(--text-secondary);">' + bm.season + ' 시즌</span></div>'
+      + '<div style="font-size:1.1rem;font-weight:800;color:var(--text-primary);word-break:keep-all;">' + bm.name + (bm.row && bm.row.Team ? ' <span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);">(' + bm.row.Team + ')</span>' : '') + ' <span style="font-size:0.82rem;font-weight:400;color:var(--text-secondary);">' + bm.season + ' 시즌</span></div>'
       + '<div style="flex:1;">' + renderBullets(aiCard.desc || null, ac) + '</div>'
       + '</div>';
   }).join('');
@@ -4808,12 +4818,12 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
   const playerType   = row['구분'] || '국내';
   const groupLabel   = playerType === '외국인' ? '외인' : playerType === '아시아쿼터' ? '아시아' : '국내';
 
-  const totalScore = calcTotalScore(catScores, '전체');
+  const totalScore = calcTotalScore(catScores, row['포지션'] || '전체');
   const rankData   = calcRanks(latestSeason, name, '전체', '전체');
   const totalRank  = rankData['전체']?.rank || '-';
   const groupRank  = rankData[playerType]?.rank || '-';
 
-  const skipKeys = ['Player','팀','구분','포지션','출전 경기 수','총 출전 시간(초)','Season','m','s','FGA','3PAr','__season','_mpg','_mpg_str'];
+  const skipKeys = ['Player','팀','구분','포지션','출전 경기 수','총 출전 시간(초)','Season','m','s','FGA','3PAr','__season','_mpg','_mpg_str','승','패','KBL 공헌도_가점','KBL 공헌도_감점','KBL 공헌도_가점/경기당','KBL 공헌도_감점/경기당','KBL 공헌도_가점/40분','KBL 공헌도_감점/40분'];
   const statKeys = Object.keys(row).filter(k => !skipKeys.includes(k) && !isNaN(parseFloat(row[k])));
 
   const statRanks = statKeys.map(k => {
@@ -4841,7 +4851,7 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
     + '<span style="font-size:0.82rem;color:var(--text-secondary);">출전 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + gp + '경기</strong></span>'
     + '</div>'
     + '<div style="margin-left:auto;">'
-    + '<span style="font-size:0.82rem;color:var(--text-secondary);">종합 경쟁력</span>'
+    + '<span style="font-size:0.82rem;color:var(--text-secondary);">TERS-Rating</span>'
     + '<span style="font-size:1.6rem;font-weight:900;color:#e8c96a;margin:0 8px;">' + totalScore.toFixed(2) + '</span>'
     + '<span style="font-size:0.85rem;color:var(--text-secondary);">전체 ' + totalRank + '위 / ' + groupLabel + ' ' + groupRank + '위</span>'
     + '</div></div>'
@@ -4928,11 +4938,11 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
   const simHTML = buildRoleSimHTML(simBase, row, ai);
 
   const aiCards  = ai?.benchmarkCards || [];
-  const cardSlots = Array.from({length:4}, (_,idx) => simPool[idx] || null);
+  const cardSlots = Array.from({length:3}, (_,idx) => simPool[idx] || null);
 
   const bmHTML = '<div class="rpt-card" style="margin-top:16px;">'
     + '<div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">비교 대상 / 벤치마크 / 롤모델</div>'
-    + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">'
+    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">'
     + buildBmCards(cardSlots, aiCards)
     + '</div></div>';
 
@@ -5141,7 +5151,7 @@ function renderReportSkeleton() {
 
   // ── 종합 평가 스켈레톤 (실제 결과물과 동일 레이아웃) ──
   const summarySkeletonHTML =
-    '<div class="rpt-card" style="opacity:0.45;">'    + '<div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">선수 프로필(— 시즌)</div>'    + '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:14px;">'    + '<div style="display:flex;gap:20px;flex-wrap:wrap;">'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">소속 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—</strong></span>'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">구분 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—</strong></span>'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">출전 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—경기</strong></span>'    + '</div>'    + '<div style="margin-left:auto;">'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">종합 경쟁력</span>'    + '<span style="font-size:1.6rem;font-weight:900;color:rgba(232,201,106,0.25);margin:0 8px;">—</span>'    + '<span style="font-size:0.85rem;color:rgba(255,255,255,0.15);">전체 —위 / — —위</span>'    + '</div></div>'    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">'    + '<div style="padding-right:20px;">'    + '<div style="font-size:0.88rem;font-weight:700;color:rgba(255,138,138,0.4);margin-bottom:8px;">▲ 리그 상위 지표 TOP 6</div>'    + '<table style="width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;">'    + '<colgroup><col style="width:33%"><col style="width:17%"><col style="width:6px"><col style="width:33%"><col style="width:17%"></colgroup>'    + '<tbody>'    + [0,1,2].map(() =>
+    '<div class="rpt-card" style="opacity:0.45;">'    + '<div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">선수 프로필(— 시즌)</div>'    + '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:14px;">'    + '<div style="display:flex;gap:20px;flex-wrap:wrap;">'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">소속 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—</strong></span>'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">구분 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—</strong></span>'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">출전 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—경기</strong></span>'    + '</div>'    + '<div style="margin-left:auto;">'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">TERS-Rating</span>'    + '<span style="font-size:1.6rem;font-weight:900;color:rgba(232,201,106,0.25);margin:0 8px;">—</span>'    + '<span style="font-size:0.85rem;color:rgba(255,255,255,0.15);">전체 —위 / — —위</span>'    + '</div></div>'    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">'    + '<div style="padding-right:20px;">'    + '<div style="font-size:0.88rem;font-weight:700;color:rgba(255,138,138,0.4);margin-bottom:8px;">▲ 리그 상위 지표 TOP 6</div>'    + '<table style="width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;">'    + '<colgroup><col style="width:33%"><col style="width:17%"><col style="width:6px"><col style="width:33%"><col style="width:17%"></colgroup>'    + '<tbody>'    + [0,1,2].map(() =>
         '<tr>'        + '<td style="background:rgba(255,138,138,0.06);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.07);border-radius:2px;"></span></td>'        + '<td style="background:rgba(255,138,138,0.04);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.05);border-radius:2px;"></span></td>'        + '<td style="width:6px;"></td>'        + '<td style="background:rgba(255,138,138,0.06);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.07);border-radius:2px;"></span></td>'        + '<td style="background:rgba(255,138,138,0.04);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.05);border-radius:2px;"></span></td>'        + '</tr>'      ).join('')    + '</tbody></table></div>'    + '<div style="border-left:1px solid rgba(255,255,255,0.08);padding-left:20px;">'    + '<div style="font-size:0.88rem;font-weight:700;color:rgba(122,180,255,0.4);margin-bottom:8px;">▼ 리그 하위 지표 BOT 6</div>'    + '<table style="width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;">'    + '<colgroup><col style="width:33%"><col style="width:17%"><col style="width:6px"><col style="width:33%"><col style="width:17%"></colgroup>'    + '<tbody>'    + [0,1,2].map(() =>
         '<tr>'        + '<td style="background:rgba(122,180,255,0.06);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.07);border-radius:2px;"></span></td>'        + '<td style="background:rgba(122,180,255,0.04);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.05);border-radius:2px;"></span></td>'        + '<td style="width:6px;"></td>'        + '<td style="background:rgba(122,180,255,0.06);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.07);border-radius:2px;"></span></td>'        + '<td style="background:rgba(122,180,255,0.04);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.05);border-radius:2px;"></span></td>'        + '</tr>'      ).join('')    + '</tbody></table></div>'    + '</div></div>'    + '<div class="rpt-card" style="margin-top:0;opacity:0.45;">'    + '<div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">총평</div>'    + [0,1,2,3,4,5].map(() =>
         '<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:12px;">'        + '<span style="color:rgba(255,255,255,0.1);flex-shrink:0;font-size:1rem;">•</span>'        + '<span style="background:rgba(255,255,255,0.06);border-radius:3px;height:16px;width:85%;display:inline-block;"></span>'        + '</div>'      ).join('')    + '</div>';
@@ -5432,7 +5442,10 @@ const evalCategoryDefs = {
 };
 
 const evalPositionWeights = {
-  '전체': { '공격 기여도':0.22,'슈팅 퀄리티':0.13,'보드 장악력':0.13,'수비 기여도':0.22,'플레이 메이킹':0.13,'효율성':0.12,'내구성':0.05 },
+  '전체': { '공격 기여도':0.20,'슈팅 퀄리티':0.14,'보드 장악력':0.14,'수비 기여도':0.19,'플레이 메이킹':0.12,'효율성':0.12,'내구성':0.08 },
+  'G':   { '공격 기여도':0.20,'슈팅 퀄리티':0.15,'보드 장악력':0.07,'수비 기여도':0.18,'플레이 메이킹':0.20,'효율성':0.12,'내구성':0.08 },
+  'F':   { '공격 기여도':0.20,'슈팅 퀄리티':0.14,'보드 장악력':0.16,'수비 기여도':0.20,'플레이 메이킹':0.10,'효율성':0.12,'내구성':0.08 },
+  'C':   { '공격 기여도':0.20,'슈팅 퀄리티':0.15,'보드 장악력':0.20,'수비 기여도':0.20,'플레이 메이킹':0.05,'효율성':0.12,'내구성':0.08 },
 };
 
 const evalSeasonColors = ['#ff6b00','#4a9eff','#f5a623','#00c9a7','#b08de0'];
@@ -5460,11 +5473,24 @@ let evalCurrentSeasonStatus = {};
 let evalCurrentPlayerName = '';
 let evalCurrentSelectedSeasons = [];
 
-function calcPoolStats(poolData, key) {
-  const vals = poolData.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
-  if (!vals.length) return { mean:0, std:1 };
-  const mean = vals.reduce((a,b)=>a+b,0) / vals.length;
-  const std  = Math.sqrt(vals.reduce((a,b)=>a+(b-mean)**2,0) / vals.length) || 1;
+function calcPoolStats(poolData, key, playerType) {
+  // 평균은 전체 풀 기준 유지
+  const allVals = poolData.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+  if (!allVals.length) return { mean:0, std:1 };
+  const mean = allVals.reduce((a,b)=>a+b,0) / allVals.length;
+  // 표준편차 - 국내 선수만 국내 풀 std 적용, 외국인/아시아쿼터는 전체 풀 std 유지
+  let std;
+  if (playerType === '국내') {
+    const domVals = poolData.filter(r => r['구분'] === '국내').map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+    if (domVals.length > 1) {
+      const domMean = domVals.reduce((a,b)=>a+b,0) / domVals.length;
+      std = Math.sqrt(domVals.reduce((a,b)=>a+(b-domMean)**2,0) / domVals.length) || 1;
+    } else {
+      std = Math.sqrt(allVals.reduce((a,b)=>a+(b-mean)**2,0) / allVals.length) || 1;
+    }
+  } else {
+    std = Math.sqrt(allVals.reduce((a,b)=>a+(b-mean)**2,0) / allVals.length) || 1;
+  }
   return { mean, std };
 }
 
@@ -5477,12 +5503,13 @@ function calcTScore(val, mean, std, rev) {
 
 function calcCategoryScores(playerRow, poolData) {
   const scores = {};
+  const playerType = playerRow ? playerRow['구분'] : null;
   for (const [cat, defs] of Object.entries(evalCategoryDefs)) {
     let wSum = 0, sSum = 0;
     for (const { key, w, rev } of defs) {
       const val = parseFloat(playerRow[key]);
       if (isNaN(val)) continue;
-      const { mean, std } = calcPoolStats(poolData, key);
+      const { mean, std } = calcPoolStats(poolData, key, playerType);
       sSum += calcTScore(val, mean, std, rev) * w;
       wSum += w;
     }
@@ -5517,7 +5544,7 @@ function calcRanks(season, playerName, position, posFilter) {
   for (const [grp, players] of Object.entries(groups)) {
     const scores = players.map(r => ({
       name: r.Player.split(' (')[0].trim(),
-      total: calcTotalScore(calcCategoryScores(r, posPool), '전체')
+      total: calcTotalScore(calcCategoryScores(r, posPool), r['포지션'] || '전체')
     })).sort((a,b)=>b.total-a.total);
     const idx = scores.findIndex(s=>s.name.toLowerCase()===playerName.toLowerCase());
     result[grp] = { rank: idx >= 0 ? idx+1 : '-', total: scores.length };
@@ -5844,7 +5871,7 @@ function renderGraphPanel(playerName, selectedSeasons, position) {
     const playerRow = poolData.find(r => r.Player.split(' (')[0].trim().toLowerCase()===playerName.toLowerCase());
     if (!playerRow) return { s, total: null };
     const catScores = calcCategoryScores(playerRow, poolData);
-    return { s, total: calcTotalScore(catScores, position) };
+    return { s, total: calcTotalScore(catScores, playerRow['포지션'] || '전체') };
   });
   const maxTotal = Math.max(...allTotals.map(x => x.total ?? -Infinity));
 
@@ -5860,7 +5887,7 @@ function renderGraphPanel(playerName, selectedSeasons, position) {
       </div>`;
     }
     const catScores = calcCategoryScores(playerRow, poolData);
-    const total = calcTotalScore(catScores, position);
+    const total = calcTotalScore(catScores, playerRow['포지션'] || '전체');
     const ranks = calcRanks(s, playerName, position);
     const scoreColor = getRankColor(ranks['전체'].rank);
     const playerType = playerRow['구분'] || '국내';
@@ -5991,6 +6018,7 @@ const CONTRIB_SEASONS = ['20-21','21-22','22-23','23-24','24-25','25-26'];
 let currentContribMode = 'total';
 let currentContribPlayer = null;
 let currentContribItems = null;
+let contribActiveTypes = new Set(['국내', '외국인', '아시아쿼터']);
 
 function fmtContribNum(v, dec) {
   if (v === null || v === undefined || isNaN(v)) return '-';
@@ -6025,7 +6053,12 @@ async function loadContribAllSeasons(playerNameOnly) {
       const computeRank = (key, higherBetter) => {
         const myVal = parseFloat(row[key]);
         if (isNaN(myVal)) return null;
-        const sorted = data
+        // contribActiveTypes(국적 필터)로 풀 필터링 + 본인 시즌이 필터에 안 들어도 자기 자신은 포함
+        const filteredPool = data.filter(r => {
+          if (r === row) return true; // 본인은 항상 포함
+          return contribActiveTypes.has(r['구분']);
+        });
+        const sorted = filteredPool
           .filter(r => !isNaN(parseFloat(r[key])))
           .map(r => parseFloat(r[key]))
           .sort((a,b) => higherBetter ? b - a : a - b);
@@ -6079,129 +6112,112 @@ function renderContribChart(items, mode) {
   const svg = document.getElementById('contribMainSvg');
   if (!svg) return;
   const W = 1400, H = 720;
-  const padL = 40, padR = 40, padT = 90, padB = 130;
+  const padL = 40, padR = 40, padT = 130, padB = 130;
   const xPlotW = W - padL - padR;
   const mainTop = padT;
   const mainH = H - padT - padB;
 
   const n = items.length;
   const colW = xPlotW / n;
-  const barW = Math.min(colW * 0.4, 70);
+  const barW = Math.min(colW * 0.42, 70);
   const xCenter = (i) => padL + colW * i + colW / 2;
   const dec = 2;
 
-  // 순위 → 색상
-  const rankColor = (r) => {
-    if (r === null || r === undefined) return '#888';
-    if (r <= 10) return '#e8c96a'; // gold
-    if (r <= 20) return '#6abf7a'; // green
-    if (r <= 30) return '#6aaeee'; // blue
-    return '#888';
-  };
-  const isTop = (r) => r !== null && r <= 10;
-
-  // Y축 스케일
+  // Y축 스케일 - 가점 위 / 감점 아래 (0 기준선 기준 양분)
   const allPluses = items.map(i => i.vals.plus).filter(v => v !== null);
   const allMinuses = items.map(i => i.vals.minus !== null ? -i.vals.minus : null).filter(v => v !== null);
   const allTotals = items.map(i => i.vals.total).filter(v => v !== null);
-  const maxV = Math.max(
-    allPluses.length ? Math.max(...allPluses) : 0,
-    allTotals.length ? Math.max(...allTotals) : 0, 1);
+  const maxV = Math.max(allPluses.length ? Math.max(...allPluses) : 0, allTotals.length ? Math.max(...allTotals) : 0, 1);
   const minV = Math.min(allMinuses.length ? Math.min(...allMinuses) : 0, 0);
   const yRange = maxV - minV;
-  const yPad = yRange * 0.20;
+  const yPad = yRange * 0.15;
   const yMax = maxV + yPad;
   const yMin = minV - yPad;
   const yScale = (v) => mainTop + mainH - (v - yMin) / (yMax - yMin) * mainH;
   const zeroY = yScale(0);
 
+  // 합산 최고값 시즌 (별표 1개)
+  let maxTotalIdx = -1;
+  let maxTotalVal = -Infinity;
+  items.forEach((it, i) => {
+    if (it.vals.total !== null && it.vals.total > maxTotalVal) {
+      maxTotalVal = it.vals.total;
+      maxTotalIdx = i;
+    }
+  });
+
   let html = '';
 
-  // 그라데이션 - 그린/레드 보조 + 골드 메인
+  // 그라데이션
   html += `<defs>
     <linearGradient id="contribGradPlus" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3d8a5a" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#2a6e44" stop-opacity="0.78"/>
+      <stop offset="0%" stop-color="#7dd189" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#3d8a4c" stop-opacity="0.7"/>
     </linearGradient>
     <linearGradient id="contribGradMinus" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#8a3838" stop-opacity="0.78"/>
-      <stop offset="100%" stop-color="#a64545" stop-opacity="0.5"/>
+      <stop offset="0%" stop-color="#7a2828" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#c94545" stop-opacity="0.85"/>
     </linearGradient>
     <linearGradient id="contribGradLine" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffd54f" stop-opacity="0.45"/>
+      <stop offset="0%" stop-color="#ffd54f" stop-opacity="0.35"/>
       <stop offset="100%" stop-color="#ffd54f" stop-opacity="0"/>
     </linearGradient>
   </defs>`;
 
-  // 0 기준선
-  html += `<line class="nv-zero-line" x1="${padL}" y1="${zeroY}" x2="${W - padR}" y2="${zeroY}"/>`;
-
-  // 캔들 (보조 톤다운)
+  // 가점/감점 막대 (가점=위, 감점=아래)
   items.forEach((it, i) => {
     const xc = xCenter(i);
     const xL = xc - barW / 2;
     if (it.vals.plus === null && it.vals.minus === null) return;
+
+    // 가점 막대 (0 기준선 위, 그린)
     if (it.vals.plus !== null && it.vals.plus > 0) {
       const yTop = yScale(it.vals.plus);
       const h = zeroY - yTop;
-      html += `<rect class="nv-candle-plus" x="${xL}" y="${yTop}" width="${barW}" height="${h}" rx="3"/>`;
-      // 가점 라벨 - 막대 안 상단 (합산값과 겹치지 않도록)
-      if (h > 28) {
-        html += `<text class="nv-val-plus" x="${xc}" y="${yTop + 22}" text-anchor="middle">+${fmtContribNum(it.vals.plus, dec)}</text>`;
-      } else {
-        // 막대 너무 짧으면 막대 위
-        html += `<text class="nv-val-plus" x="${xc}" y="${yTop - 8}" text-anchor="middle">+${fmtContribNum(it.vals.plus, dec)}</text>`;
-      }
+      html += `<rect class="nv-bar-plus" x="${xL}" y="${yTop}" width="${barW}" height="${h}"/>`;
+      // 가점값 라벨 - 막대 위 바깥
+      html += `<text class="nv-val-plus" x="${xc}" y="${yTop - 12}" text-anchor="middle">+${fmtContribNum(it.vals.plus, dec)}</text>`;
     }
+    // 감점 막대 (0 기준선 아래, 레드)
     if (it.vals.minus !== null && it.vals.minus > 0) {
       const yBot = yScale(-it.vals.minus);
       const h = yBot - zeroY;
-      html += `<rect class="nv-candle-minus" x="${xL}" y="${zeroY}" width="${barW}" height="${h}" rx="3"/>`;
-      // 감점 라벨 - 막대 안 하단
-      if (h > 28) {
-        html += `<text class="nv-val-minus" x="${xc}" y="${yBot - 10}" text-anchor="middle">-${fmtContribNum(it.vals.minus, dec)}</text>`;
-      } else {
-        html += `<text class="nv-val-minus" x="${xc}" y="${yBot + 22}" text-anchor="middle">-${fmtContribNum(it.vals.minus, dec)}</text>`;
-      }
+      html += `<rect class="nv-bar-minus" x="${xL}" y="${zeroY}" width="${barW}" height="${h}"/>`;
+      // 감점값 라벨 - 막대 아래 바깥
+      html += `<text class="nv-val-minus" x="${xc}" y="${yBot + 22}" text-anchor="middle">-${fmtContribNum(it.vals.minus, dec)}</text>`;
     }
   });
 
-  // 합산 라인 (메인 강조)
+  // 0 기준선 - 막대 위에 그림 (강조)
+  html += `<line class="nv-zero-line" x1="${padL}" y1="${zeroY}" x2="${W - padR}" y2="${zeroY}"/>`;
+
+  // 합산 라인 + 점 (골드)
   const totalPoints = items.map((it, i) => {
     if (it.vals.total === null) return null;
     return {x: xCenter(i), y: yScale(it.vals.total), val: it.vals.total, item: it, i};
   }).filter(p => p);
 
   if (totalPoints.length > 1) {
-    const areaPath = 'M' + totalPoints[0].x + ',' + zeroY + ' ' +
-      totalPoints.map(p => `L${p.x},${p.y}`).join(' ') +
-      ` L${totalPoints[totalPoints.length-1].x},${zeroY} Z`;
-    html += `<path class="nv-ma-area" d="${areaPath}"/>`;
     const path = totalPoints.map((p, idx) => `${idx===0?'M':'L'}${p.x},${p.y}`).join(' ');
     html += `<path class="nv-ma-total" d="${path}"/>`;
   }
 
   totalPoints.forEach((p) => {
     const isCur = p.i === n - 1;
-    const rank = p.item.rank;
-    const dotColor = rankColor(rank);
-    // 외곽링 (현재 시즌은 흰색 굵게)
-    html += `<circle class="nv-ma-dot-ring${isCur ? ' is-current' : ''}" cx="${p.x}" cy="${p.y}" r="11"/>`;
-    // 점 - 순위 컬러
-    html += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="${dotColor}" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--bg-secondary').trim() || '#111'}" stroke-width="2.5" style="filter:drop-shadow(0 0 6px ${dotColor}aa);"/>`;
-    // 합산값 라벨 + ★ (TOP10인 경우)
-    const star = isTop(rank) ? ' ★' : '';
-    html += `<text class="nv-val-total" x="${p.x}" y="${p.y - 20}" text-anchor="middle" fill="${dotColor}">${fmtContribNum(p.val, dec)}${star}</text>`;
+    html += `<circle class="nv-ma-dot-ring${isCur ? ' is-current' : ''}" cx="${p.x}" cy="${p.y}" r="10"/>`;
+    html += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#ffd54f" stroke="#111" stroke-width="2.5" style="filter:drop-shadow(0 0 7px rgba(255,213,79,0.8));"/>`;
+    // 합산값 라벨 - 점에서 더 아래 + 경쟁력 추이 순위 색상 기준
+    const star = p.i === maxTotalIdx ? ' ★' : '';
+    html += `<text class="nv-val-total" x="${p.x}" y="${p.y + 42}" text-anchor="middle">${fmtContribNum(p.val, dec)}${star}</text>`;
   });
 
-  // X축 시즌 + 팀 (크게)
+  // X축 시즌 + 팀
   items.forEach((it, i) => {
     const x = xCenter(i);
-    const isCur = i === n - 1 && it.vals.total !== null;
-    const seasonColor = it.vals.total !== null ? rankColor(it.rank) : '#666';
-    html += `<text class="nv-axis-x" x="${x}" y="${H - padB + 44}" text-anchor="middle" fill="${seasonColor}">${it.season}</text>`;
+    const seasonColor = it.vals.total !== null ? '#f0f0f0' : '#666';
+    html += `<text class="nv-axis-x" x="${x}" y="${H - padB + 30}" text-anchor="middle" fill="${seasonColor}">${it.season}</text>`;
     const teamShort = (it.team || '-').length > 14 ? it.team.substring(0,13) + '…' : (it.team || '-');
-    html += `<text class="nv-axis-x-team" x="${x}" y="${H - padB + 78}" text-anchor="middle">${teamShort}</text>`;
+    html += `<text class="nv-axis-x-team" x="${x}" y="${H - padB + 60}" text-anchor="middle">${teamShort}</text>`;
   });
 
   // 호버 영역 + 크로스헤어
@@ -6363,115 +6379,7 @@ document.getElementById('searchPlayerContribution').addEventListener('keypress',
 
 </script>
 </body>
-</html>    /* 차트 요소 - 강화 */
-    .nv-zero-line { stroke: rgba(255,255,255,0.18); stroke-width: 1.2; }
-
-    /* X축 라벨 - 크게 */
-    .nv-axis-x { fill: #f0f0f0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
-    .nv-axis-x-team { fill: #c0c0c0; font-size: 17px; font-weight: 600; }
-    .nv-axis-x.is-current { fill: var(--accent-blue); }
-
-    /* 캔들 - 그라데이션 + 외곽선 */
-    .nv-candle-plus {
-      fill: url(#contribGradPlus);
-      stroke: var(--accent-blue);
-      stroke-width: 1;
-      stroke-opacity: 0.6;
-    }
-    .nv-candle-minus {
-      fill: url(#contribGradMinus);
-      stroke: var(--orange);
-      stroke-width: 1;
-      stroke-opacity: 0.5;
-    }
-
-    /* 합산 라인 - 메인 강조 */
-    .nv-ma-total {
-      fill: none;
-      stroke: #fff;
-      stroke-width: 3.5;
-      stroke-linejoin: round;
-      stroke-linecap: round;
-      filter: drop-shadow(0 0 8px rgba(255,255,255,0.55));
-    }
-    .nv-ma-area {
-      fill: url(#contribGradLine);
-      opacity: 0.18;
-    }
-    .nv-ma-dot {
-      fill: #fff;
-      stroke: var(--bg-secondary);
-      stroke-width: 2.5;
-      filter: drop-shadow(0 0 6px rgba(255,255,255,0.6));
-    }
-    .nv-ma-dot-ring {
-      fill: none;
-      stroke: rgba(255,255,255,0.4);
-      stroke-width: 1.5;
-    }
-    .nv-ma-dot-ring.is-current {
-      stroke: var(--orange);
-      stroke-width: 2;
-    }
-
-    /* 라벨 - 크게 */
-    .nv-val-plus {
-      fill: var(--accent-blue);
-      font-size: 18px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: -0.3px;
-    }
-    .nv-val-minus {
-      fill: var(--orange);
-      font-size: 18px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: -0.3px;
-    }
-    .nv-val-total {
-      fill: #fff;
-      font-size: 18px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: -0.3px;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
-    }
-
-    .nv-cross-line { stroke: rgba(255,255,255,0.3); stroke-width: 1; stroke-dasharray: 3,3; pointer-events: none; }
-
-    /* 툴팁 */
-    .contrib-tooltip {
-      position: absolute;
-      background: rgba(20,20,22,0.97);
-      border: 1px solid var(--border-accent);
-      border-radius: 6px;
-      padding: 12px 16px;
-      font-size: 0.88rem;
-      color: #fff;
-      pointer-events: none;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 28px rgba(0,0,0,0.6);
-      z-index: 100;
-      white-space: nowrap;
-      min-width: 240px;
-    }
-    .contrib-tooltip-row { display: flex; justify-content: space-between; gap: 22px; margin: 4px 0; font-variant-numeric: tabular-nums; }
-    .contrib-tooltip-label { color: var(--text-secondary); font-weight: 500; }
-    .contrib-tooltip-value { font-weight: 700; }
-    .contrib-tooltip-value.pos { color: var(--accent-blue); }
-    .contrib-tooltip-value.neg { color: var(--orange); }
-    .contrib-tooltip-value.accent { color: #fff; }
-    .contrib-tooltip-title {
-      font-weight: 800;
-      font-size: 1rem;
-      color: #fff;
-      padding-bottom: 8px;
-      margin-bottom: 6px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      letter-spacing: -0.2px;
-    }
-
+</html>    
     .contrib-empty {
       flex: 1;
       display: flex;
@@ -6512,7 +6420,7 @@ document.getElementById('searchPlayerContribution').addEventListener('keypress',
     <button class="tab-btn" data-tab="tab-compare">선수 간 비교</button>
     <button class="tab-btn" data-tab="tab-player-compare">경기력 추이</button>
     <button class="tab-btn" data-tab="tab-contribution">KBL 공헌도</button>
-    <button class="tab-btn" data-tab="tab-evaluation">경쟁력 추이</button>
+    <button class="tab-btn" data-tab="tab-evaluation">TERS-Rating</button>
     <button class="tab-btn" data-tab="tab-report">AI 선수 리포트</button>
   </nav>
 
@@ -6876,7 +6784,7 @@ document.getElementById('searchPlayerContribution').addEventListener('keypress',
       <!-- 탭바 — 검색 바로 아래 -->
       <div id="rptTabBar" style="display:flex;border-bottom:1px solid rgba(255,255,255,0.08);">
         <button class="rpt-main-tab active" data-tab="rpt-tab-summary">종합 평가</button>
-        <button class="rpt-main-tab" data-tab="rpt-tab-category">카테고리 평가</button>
+        <button class="rpt-main-tab" data-tab="rpt-tab-category">TERS-Rating</button>
         <button class="rpt-main-tab" data-tab="rpt-tab-sim">역할 시뮬레이션</button>
         <button class="rpt-main-tab" data-tab="rpt-tab-improve">개선 방향성</button>
       </div>
@@ -7542,6 +7450,20 @@ document.querySelectorAll('#tab-all .filter-tag').forEach(btn => {
     if (activeTypes.has(t)) { activeTypes.delete(t); btn.classList.remove('active'); }
     else                    { activeTypes.add(t);    btn.classList.add('active'); }
     renderTable(originalData);
+  });
+});
+
+/* ─── KBL 공헌도 탭 필터 토글 ─── */
+document.querySelectorAll('#tab-contribution .filter-tag').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const t = btn.dataset.type;
+    if (contribActiveTypes.has(t)) { contribActiveTypes.delete(t); btn.classList.remove('active'); }
+    else                           { contribActiveTypes.add(t);    btn.classList.add('active'); }
+    // 현재 선수 있으면 랭크 재계산 + 차트 재렌더
+    if (currentContribPlayer) {
+      const sd = await loadContribAllSeasons(currentContribPlayer);
+      renderContribAll(sd);
+    }
   });
 });
 
@@ -8695,7 +8617,7 @@ async function generateReport(playerName) {
   // API 호출 함수 (재시도용)
   async function callApi() {
     const controller = new AbortController();
-    const timeout    = setTimeout(() => controller.abort(), 60000);
+    const timeout    = setTimeout(() => controller.abort(), 180000);
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       signal: controller.signal,
@@ -8734,7 +8656,7 @@ async function generateReport(playerName) {
   ②'롤모델': 플레이 스타일이 분석 선수와 구체적으로 80% 이상 일치하고, 종합 경쟁력 순위가 분석 선수보다 TOP 20 이상 높은 선수만 선정. 단순 포지션 동일·스탯 유사만으로 선정 절대 금지. 분석 선수가 실제로 해당 롤모델의 플레이를 구현할 수 있는 잠재적 근거가 있어야 함. reason에는 구체적 지향 유형 명시. relation값: '롤모델'
   ③'벤치마크': 분석 선수의 명확한 약점 카테고리에서 리그 TOP 20 이내 수준인 선수만 선정. 전반적으로 잘하는 선수를 벤치마크로 넣는 것 금지. 반드시 특정 약점 지표에서 분석 선수 대비 명확한 격차(수치 기준 20% 이상 우위)가 있어야 함. relation값: '벤치마크', reason에 해당 지표명과 수치 명시
   ④공통: 이름만 봐도 선정 근거가 납득되어야 함. 기준에 맞는 선수가 없으면 해당 유형은 선정하지 말 것. 3명을 억지로 채우기 위해 기준 미달 선수를 넣는 것 절대 금지
-  ⑤benchmarkCards의 desc는 각 불릿 1줄(30자 이내) - 근거 핵심만 간결하게, 스크롤 발생하지 않도록 최소화
+  ⑤benchmarkCards의 desc 작성 절대 원칙: 정확히 3개 불릿. 각 불릿 1줄(30자 이내). 구체적 수치(평균 X점, X리바, X어시, FG% X%, 3P% X% 등 모든 수치·퍼센트) 사용 절대 금지 - 환각 차단을 위함. 정성적 표현만 사용 - 3개 불릿 구성: (1)플레이 스타일 유형(예: '내외각 균형형 포워드', '림 프로텍터') (2)분석 선수와의 방향성(예: '유사한 점유율 분담', '공격 비중 큰 케이스') (3)참고할 강점 영역(예: '플레이메이킹 모범 사례', '외곽 슈팅 강점'). 숫자·% 표기 일체 금지. 카드별로 반드시 서로 다른 내용 작성 - 다른 카드와 동일하거나 거의 유사한 desc 절대 금지. 각 선수의 고유 특징을 차별화하여 작성
 반드시 아래 JSON 형식으로만 응답하십시오. 마크다운 코드블록 없이 순수 JSON만 출력하십시오.
 {
   "summary": "• 이번시즌종합평가\\n• 전시즌대비변화(해당시에만)\\n• 좋은부분\\n• 나쁜부분\\n• 보완해야할점\\n• 장점강화해야할점",
@@ -8753,7 +8675,7 @@ async function generateReport(playerName) {
   },
   "simInsight": "• 인사이트1\\n• 인사이트2",
   "benchmarkCards": [
-    { "name": "선수이름", "season": "시즌", "relation": "비교대상|롤모델|벤치마크", "reason": "완성형 윙|3점슛 성공률 등", "desc": "• 근거1\\n• 근거2" }
+    { "name": "선수이름", "season": "시즌", "relation": "비교대상|롤모델|벤치마크", "reason": "완성형 윙|3점슛 성공률 등", "desc": "• 근거1\\n• 근거2\\n• 근거3" }
   ]
 }`,
         messages: [{ role: 'user', content: JSON.stringify(payload) }],
@@ -9013,12 +8935,13 @@ function buildRoleSimHTML(simBase, row, ai) {
         var rc      = ROLE_COLORS[role] || '#888';
         var isCur   = (gpg.id === curGpG.id && ming.id === curMinG.id);
         var isRef   = isAbnormal && gpg.id === refGpG.id && ming.id === refMinG.id && !isCur;
-        var isClick = (gpg.id <= curGpG.id && ming.id <= curMinG.id) && !isCur;
-        // 한 단계 위: gpId 또는 minId 중 하나만 정확히 1 작은 인접 셀
-        var isNextStep = isClick && (
+        // 클릭 가능 = 인접 1단계 위 셀 2개만 (GP +1단계 또는 시간 +1단계 한쪽만)
+        var isClick = (
           (gpg.id === curGpG.id - 1 && ming.id === curMinG.id) ||
           (gpg.id === curGpG.id && ming.id === curMinG.id - 1)
         );
+        // 별표 표시 = 클릭 가능 셀과 동일
+        var isNextStep = isClick;
         var border  = isCur && isSC ? '2px solid #FFD700'
                     : isCur         ? '2px solid ' + rc
                     : isRef         ? '2px dashed #888'
@@ -9258,7 +9181,7 @@ function buildBmCards(cardSlots, aiCards) {
       return { bm: bm, aiCard: aiCard };
     })
     .filter(Boolean)
-    .slice(0, 4);
+    .slice(0, 3);
   return validCards.map(function(item) {
     var bm = item.bm, aiCard = item.aiCard;
     var rel    = aiCard.relation || '비교대상';
@@ -9268,17 +9191,16 @@ function buildBmCards(cardSlots, aiCards) {
     else if (rel === '벤치마크') { label = '벤치마크'; ac = COLOR_BENCH; }
     else                         { label = '비교 대상'; ac = COLOR_COMP;  }
     var reasonTag = reason
-      ? '<span style="font-size:0.65rem;color:' + ac + ';opacity:0.85;margin-left:6px;">- ' + reason + '</span>'
+      ? '<span style="font-size:0.85rem;color:' + ac + ';opacity:0.85;margin-left:8px;">' + reason + '</span>'
       : '';
-    return '<div style="background:var(--bg-tertiary);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;border:1px solid ' + ac + '33;">'
+    return '<div style="background:var(--bg-tertiary);border-radius:10px;padding:26px 28px;display:flex;flex-direction:column;gap:16px;border:1px solid ' + ac + '33;min-height:240px;">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">'
       + '<span style="display:flex;align-items:center;gap:0;">'
-      + '<span style="font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:20px;background:' + ac + '22;color:' + ac + ';">' + label + '</span>'
+      + '<span style="font-size:0.95rem;font-weight:800;padding:5px 14px;border-radius:20px;background:' + ac + '22;color:' + ac + ';white-space:nowrap;">' + label + '</span>'
       + reasonTag
       + '</span>'
-      + '<span style="font-size:0.68rem;color:var(--text-secondary);">' + bm.type + '</span>'
       + '</div>'
-      + '<div style="font-size:1rem;font-weight:800;color:var(--text-primary);word-break:keep-all;">' + bm.name + ' <span style="font-size:0.76rem;font-weight:400;color:var(--text-secondary);">' + bm.season + ' 시즌</span></div>'
+      + '<div style="font-size:1.1rem;font-weight:800;color:var(--text-primary);word-break:keep-all;">' + bm.name + (bm.row && bm.row.Team ? ' <span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);">(' + bm.row.Team + ')</span>' : '') + ' <span style="font-size:0.82rem;font-weight:400;color:var(--text-secondary);">' + bm.season + ' 시즌</span></div>'
       + '<div style="flex:1;">' + renderBullets(aiCard.desc || null, ac) + '</div>'
       + '</div>';
   }).join('');
@@ -9297,12 +9219,12 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
   const playerType   = row['구분'] || '국내';
   const groupLabel   = playerType === '외국인' ? '외인' : playerType === '아시아쿼터' ? '아시아' : '국내';
 
-  const totalScore = calcTotalScore(catScores, '전체');
+  const totalScore = calcTotalScore(catScores, row['포지션'] || '전체');
   const rankData   = calcRanks(latestSeason, name, '전체', '전체');
   const totalRank  = rankData['전체']?.rank || '-';
   const groupRank  = rankData[playerType]?.rank || '-';
 
-  const skipKeys = ['Player','팀','구분','포지션','출전 경기 수','총 출전 시간(초)','Season','m','s','FGA','3PAr','__season','_mpg','_mpg_str'];
+  const skipKeys = ['Player','팀','구분','포지션','출전 경기 수','총 출전 시간(초)','Season','m','s','FGA','3PAr','__season','_mpg','_mpg_str','승','패','KBL 공헌도_가점','KBL 공헌도_감점','KBL 공헌도_가점/경기당','KBL 공헌도_감점/경기당','KBL 공헌도_가점/40분','KBL 공헌도_감점/40분'];
   const statKeys = Object.keys(row).filter(k => !skipKeys.includes(k) && !isNaN(parseFloat(row[k])));
 
   const statRanks = statKeys.map(k => {
@@ -9330,7 +9252,7 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
     + '<span style="font-size:0.82rem;color:var(--text-secondary);">출전 <strong style="color:var(--text-primary);font-size:0.95rem;margin-left:4px;">' + gp + '경기</strong></span>'
     + '</div>'
     + '<div style="margin-left:auto;">'
-    + '<span style="font-size:0.82rem;color:var(--text-secondary);">종합 경쟁력</span>'
+    + '<span style="font-size:0.82rem;color:var(--text-secondary);">TERS-Rating</span>'
     + '<span style="font-size:1.6rem;font-weight:900;color:#e8c96a;margin:0 8px;">' + totalScore.toFixed(2) + '</span>'
     + '<span style="font-size:0.85rem;color:var(--text-secondary);">전체 ' + totalRank + '위 / ' + groupLabel + ' ' + groupRank + '위</span>'
     + '</div></div>'
@@ -9417,11 +9339,11 @@ function renderReport(row, season, catScores, catRanksAll, simBase, simPool, ai,
   const simHTML = buildRoleSimHTML(simBase, row, ai);
 
   const aiCards  = ai?.benchmarkCards || [];
-  const cardSlots = Array.from({length:4}, (_,idx) => simPool[idx] || null);
+  const cardSlots = Array.from({length:3}, (_,idx) => simPool[idx] || null);
 
   const bmHTML = '<div class="rpt-card" style="margin-top:16px;">'
     + '<div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">비교 대상 / 벤치마크 / 롤모델</div>'
-    + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">'
+    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">'
     + buildBmCards(cardSlots, aiCards)
     + '</div></div>';
 
@@ -9630,7 +9552,7 @@ function renderReportSkeleton() {
 
   // ── 종합 평가 스켈레톤 (실제 결과물과 동일 레이아웃) ──
   const summarySkeletonHTML =
-    '<div class="rpt-card" style="opacity:0.45;">'    + '<div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">선수 프로필(— 시즌)</div>'    + '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:14px;">'    + '<div style="display:flex;gap:20px;flex-wrap:wrap;">'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">소속 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—</strong></span>'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">구분 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—</strong></span>'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">출전 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—경기</strong></span>'    + '</div>'    + '<div style="margin-left:auto;">'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">종합 경쟁력</span>'    + '<span style="font-size:1.6rem;font-weight:900;color:rgba(232,201,106,0.25);margin:0 8px;">—</span>'    + '<span style="font-size:0.85rem;color:rgba(255,255,255,0.15);">전체 —위 / — —위</span>'    + '</div></div>'    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">'    + '<div style="padding-right:20px;">'    + '<div style="font-size:0.88rem;font-weight:700;color:rgba(255,138,138,0.4);margin-bottom:8px;">▲ 리그 상위 지표 TOP 6</div>'    + '<table style="width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;">'    + '<colgroup><col style="width:33%"><col style="width:17%"><col style="width:6px"><col style="width:33%"><col style="width:17%"></colgroup>'    + '<tbody>'    + [0,1,2].map(() =>
+    '<div class="rpt-card" style="opacity:0.45;">'    + '<div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">선수 프로필(— 시즌)</div>'    + '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:14px;">'    + '<div style="display:flex;gap:20px;flex-wrap:wrap;">'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">소속 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—</strong></span>'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">구분 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—</strong></span>'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">출전 <strong style="color:rgba(255,255,255,0.2);font-size:0.95rem;margin-left:4px;">—경기</strong></span>'    + '</div>'    + '<div style="margin-left:auto;">'    + '<span style="font-size:0.82rem;color:var(--text-secondary);">TERS-Rating</span>'    + '<span style="font-size:1.6rem;font-weight:900;color:rgba(232,201,106,0.25);margin:0 8px;">—</span>'    + '<span style="font-size:0.85rem;color:rgba(255,255,255,0.15);">전체 —위 / — —위</span>'    + '</div></div>'    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">'    + '<div style="padding-right:20px;">'    + '<div style="font-size:0.88rem;font-weight:700;color:rgba(255,138,138,0.4);margin-bottom:8px;">▲ 리그 상위 지표 TOP 6</div>'    + '<table style="width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;">'    + '<colgroup><col style="width:33%"><col style="width:17%"><col style="width:6px"><col style="width:33%"><col style="width:17%"></colgroup>'    + '<tbody>'    + [0,1,2].map(() =>
         '<tr>'        + '<td style="background:rgba(255,138,138,0.06);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.07);border-radius:2px;"></span></td>'        + '<td style="background:rgba(255,138,138,0.04);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.05);border-radius:2px;"></span></td>'        + '<td style="width:6px;"></td>'        + '<td style="background:rgba(255,138,138,0.06);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.07);border-radius:2px;"></span></td>'        + '<td style="background:rgba(255,138,138,0.04);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.05);border-radius:2px;"></span></td>'        + '</tr>'      ).join('')    + '</tbody></table></div>'    + '<div style="border-left:1px solid rgba(255,255,255,0.08);padding-left:20px;">'    + '<div style="font-size:0.88rem;font-weight:700;color:rgba(122,180,255,0.4);margin-bottom:8px;">▼ 리그 하위 지표 BOT 6</div>'    + '<table style="width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;">'    + '<colgroup><col style="width:33%"><col style="width:17%"><col style="width:6px"><col style="width:33%"><col style="width:17%"></colgroup>'    + '<tbody>'    + [0,1,2].map(() =>
         '<tr>'        + '<td style="background:rgba(122,180,255,0.06);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.07);border-radius:2px;"></span></td>'        + '<td style="background:rgba(122,180,255,0.04);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.05);border-radius:2px;"></span></td>'        + '<td style="width:6px;"></td>'        + '<td style="background:rgba(122,180,255,0.06);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.07);border-radius:2px;"></span></td>'        + '<td style="background:rgba(122,180,255,0.04);border-radius:4px;padding:8px 6px;"><span style="display:block;height:14px;background:rgba(255,255,255,0.05);border-radius:2px;"></span></td>'        + '</tr>'      ).join('')    + '</tbody></table></div>'    + '</div></div>'    + '<div class="rpt-card" style="margin-top:0;opacity:0.45;">'    + '<div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">총평</div>'    + [0,1,2,3,4,5].map(() =>
         '<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:12px;">'        + '<span style="color:rgba(255,255,255,0.1);flex-shrink:0;font-size:1rem;">•</span>'        + '<span style="background:rgba(255,255,255,0.06);border-radius:3px;height:16px;width:85%;display:inline-block;"></span>'        + '</div>'      ).join('')    + '</div>';
@@ -9921,7 +9843,10 @@ const evalCategoryDefs = {
 };
 
 const evalPositionWeights = {
-  '전체': { '공격 기여도':0.22,'슈팅 퀄리티':0.13,'보드 장악력':0.13,'수비 기여도':0.22,'플레이 메이킹':0.13,'효율성':0.12,'내구성':0.05 },
+  '전체': { '공격 기여도':0.20,'슈팅 퀄리티':0.14,'보드 장악력':0.14,'수비 기여도':0.19,'플레이 메이킹':0.12,'효율성':0.12,'내구성':0.08 },
+  'G':   { '공격 기여도':0.20,'슈팅 퀄리티':0.15,'보드 장악력':0.07,'수비 기여도':0.18,'플레이 메이킹':0.20,'효율성':0.12,'내구성':0.08 },
+  'F':   { '공격 기여도':0.20,'슈팅 퀄리티':0.14,'보드 장악력':0.16,'수비 기여도':0.20,'플레이 메이킹':0.10,'효율성':0.12,'내구성':0.08 },
+  'C':   { '공격 기여도':0.20,'슈팅 퀄리티':0.15,'보드 장악력':0.20,'수비 기여도':0.20,'플레이 메이킹':0.05,'효율성':0.12,'내구성':0.08 },
 };
 
 const evalSeasonColors = ['#ff6b00','#4a9eff','#f5a623','#00c9a7','#b08de0'];
@@ -9949,11 +9874,24 @@ let evalCurrentSeasonStatus = {};
 let evalCurrentPlayerName = '';
 let evalCurrentSelectedSeasons = [];
 
-function calcPoolStats(poolData, key) {
-  const vals = poolData.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
-  if (!vals.length) return { mean:0, std:1 };
-  const mean = vals.reduce((a,b)=>a+b,0) / vals.length;
-  const std  = Math.sqrt(vals.reduce((a,b)=>a+(b-mean)**2,0) / vals.length) || 1;
+function calcPoolStats(poolData, key, playerType) {
+  // 평균은 전체 풀 기준 유지
+  const allVals = poolData.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+  if (!allVals.length) return { mean:0, std:1 };
+  const mean = allVals.reduce((a,b)=>a+b,0) / allVals.length;
+  // 표준편차 - 국내 선수만 국내 풀 std 적용, 외국인/아시아쿼터는 전체 풀 std 유지
+  let std;
+  if (playerType === '국내') {
+    const domVals = poolData.filter(r => r['구분'] === '국내').map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+    if (domVals.length > 1) {
+      const domMean = domVals.reduce((a,b)=>a+b,0) / domVals.length;
+      std = Math.sqrt(domVals.reduce((a,b)=>a+(b-domMean)**2,0) / domVals.length) || 1;
+    } else {
+      std = Math.sqrt(allVals.reduce((a,b)=>a+(b-mean)**2,0) / allVals.length) || 1;
+    }
+  } else {
+    std = Math.sqrt(allVals.reduce((a,b)=>a+(b-mean)**2,0) / allVals.length) || 1;
+  }
   return { mean, std };
 }
 
@@ -9966,12 +9904,13 @@ function calcTScore(val, mean, std, rev) {
 
 function calcCategoryScores(playerRow, poolData) {
   const scores = {};
+  const playerType = playerRow ? playerRow['구분'] : null;
   for (const [cat, defs] of Object.entries(evalCategoryDefs)) {
     let wSum = 0, sSum = 0;
     for (const { key, w, rev } of defs) {
       const val = parseFloat(playerRow[key]);
       if (isNaN(val)) continue;
-      const { mean, std } = calcPoolStats(poolData, key);
+      const { mean, std } = calcPoolStats(poolData, key, playerType);
       sSum += calcTScore(val, mean, std, rev) * w;
       wSum += w;
     }
@@ -10006,7 +9945,7 @@ function calcRanks(season, playerName, position, posFilter) {
   for (const [grp, players] of Object.entries(groups)) {
     const scores = players.map(r => ({
       name: r.Player.split(' (')[0].trim(),
-      total: calcTotalScore(calcCategoryScores(r, posPool), '전체')
+      total: calcTotalScore(calcCategoryScores(r, posPool), r['포지션'] || '전체')
     })).sort((a,b)=>b.total-a.total);
     const idx = scores.findIndex(s=>s.name.toLowerCase()===playerName.toLowerCase());
     result[grp] = { rank: idx >= 0 ? idx+1 : '-', total: scores.length };
@@ -10333,7 +10272,7 @@ function renderGraphPanel(playerName, selectedSeasons, position) {
     const playerRow = poolData.find(r => r.Player.split(' (')[0].trim().toLowerCase()===playerName.toLowerCase());
     if (!playerRow) return { s, total: null };
     const catScores = calcCategoryScores(playerRow, poolData);
-    return { s, total: calcTotalScore(catScores, position) };
+    return { s, total: calcTotalScore(catScores, playerRow['포지션'] || '전체') };
   });
   const maxTotal = Math.max(...allTotals.map(x => x.total ?? -Infinity));
 
@@ -10349,7 +10288,7 @@ function renderGraphPanel(playerName, selectedSeasons, position) {
       </div>`;
     }
     const catScores = calcCategoryScores(playerRow, poolData);
-    const total = calcTotalScore(catScores, position);
+    const total = calcTotalScore(catScores, playerRow['포지션'] || '전체');
     const ranks = calcRanks(s, playerName, position);
     const scoreColor = getRankColor(ranks['전체'].rank);
     const playerType = playerRow['구분'] || '국내';
@@ -10480,6 +10419,7 @@ const CONTRIB_SEASONS = ['20-21','21-22','22-23','23-24','24-25','25-26'];
 let currentContribMode = 'total';
 let currentContribPlayer = null;
 let currentContribItems = null;
+let contribActiveTypes = new Set(['국내', '외국인', '아시아쿼터']);
 
 function fmtContribNum(v, dec) {
   if (v === null || v === undefined || isNaN(v)) return '-';
@@ -10514,7 +10454,12 @@ async function loadContribAllSeasons(playerNameOnly) {
       const computeRank = (key, higherBetter) => {
         const myVal = parseFloat(row[key]);
         if (isNaN(myVal)) return null;
-        const sorted = data
+        // contribActiveTypes(국적 필터)로 풀 필터링 + 본인 시즌이 필터에 안 들어도 자기 자신은 포함
+        const filteredPool = data.filter(r => {
+          if (r === row) return true; // 본인은 항상 포함
+          return contribActiveTypes.has(r['구분']);
+        });
+        const sorted = filteredPool
           .filter(r => !isNaN(parseFloat(r[key])))
           .map(r => parseFloat(r[key]))
           .sort((a,b) => higherBetter ? b - a : a - b);
@@ -10568,50 +10513,51 @@ function renderContribChart(items, mode) {
   const svg = document.getElementById('contribMainSvg');
   if (!svg) return;
   const W = 1400, H = 720;
-  const padL = 40, padR = 40, padT = 100, padB = 130;
+  const padL = 40, padR = 40, padT = 130, padB = 130;
   const xPlotW = W - padL - padR;
   const mainTop = padT;
   const mainH = H - padT - padB;
 
   const n = items.length;
   const colW = xPlotW / n;
-  const barW = Math.min(colW * 0.42, 75);
+  const barW = Math.min(colW * 0.42, 70);
   const xCenter = (i) => padL + colW * i + colW / 2;
   const dec = 2;
 
-  // 순위 색상
-  const rankColor = (r) => {
-    if (r === null || r === undefined) return '#888';
-    if (r <= 10) return '#e8c96a';
-    if (r <= 20) return '#6abf7a';
-    if (r <= 30) return '#6aaeee';
-    return '#888';
-  };
-  const isTop = (r) => r !== null && r <= 10;
-
-  // Y축 스케일 - 워터폴 (가점 꼭대기 = plus, 합산 = total, 감점 바닥은 total인데, 단 plus 시작이 0이므로 max=plus, min은 total이 0보다 낮으면 total)
+  // Y축 스케일 - 가점 위 / 감점 아래 (0 기준선 기준 양분)
   const allPluses = items.map(i => i.vals.plus).filter(v => v !== null);
+  const allMinuses = items.map(i => i.vals.minus !== null ? -i.vals.minus : null).filter(v => v !== null);
   const allTotals = items.map(i => i.vals.total).filter(v => v !== null);
   const maxV = Math.max(allPluses.length ? Math.max(...allPluses) : 0, allTotals.length ? Math.max(...allTotals) : 0, 1);
-  const minV = Math.min(0, allTotals.length ? Math.min(...allTotals) : 0);
+  const minV = Math.min(allMinuses.length ? Math.min(...allMinuses) : 0, 0);
   const yRange = maxV - minV;
-  const yPad = yRange * 0.18;
+  const yPad = yRange * 0.15;
   const yMax = maxV + yPad;
-  const yMin = minV - yPad * 0.4;
+  const yMin = minV - yPad;
   const yScale = (v) => mainTop + mainH - (v - yMin) / (yMax - yMin) * mainH;
   const zeroY = yScale(0);
+
+  // 합산 최고값 시즌 (별표 1개)
+  let maxTotalIdx = -1;
+  let maxTotalVal = -Infinity;
+  items.forEach((it, i) => {
+    if (it.vals.total !== null && it.vals.total > maxTotalVal) {
+      maxTotalVal = it.vals.total;
+      maxTotalIdx = i;
+    }
+  });
 
   let html = '';
 
   // 그라데이션
   html += `<defs>
     <linearGradient id="contribGradPlus" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#7dd189" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#3d8a4c" stop-opacity="0.85"/>
+      <stop offset="0%" stop-color="#7dd189" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#3d8a4c" stop-opacity="0.7"/>
     </linearGradient>
     <linearGradient id="contribGradMinus" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#c94545" stop-opacity="0.85"/>
-      <stop offset="100%" stop-color="#7a2828" stop-opacity="0.7"/>
+      <stop offset="0%" stop-color="#7a2828" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#c94545" stop-opacity="0.85"/>
     </linearGradient>
     <linearGradient id="contribGradLine" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#ffd54f" stop-opacity="0.35"/>
@@ -10619,43 +10565,34 @@ function renderContribChart(items, mode) {
     </linearGradient>
   </defs>`;
 
-  // 0 기준선
-  html += `<line class="nv-zero-line" x1="${padL}" y1="${zeroY}" x2="${W - padR}" y2="${zeroY}"/>`;
-
-  // 워터폴 막대: 시즌별로 가점(0→plus) 그린, 감점(plus→total) 레드 - 가점 막대 위에 감점 막대가 겹쳐서 내려옴
+  // 가점/감점 막대 (가점=위, 감점=아래)
   items.forEach((it, i) => {
     const xc = xCenter(i);
     const xL = xc - barW / 2;
-    if (it.vals.total === null) return;
+    if (it.vals.plus === null && it.vals.minus === null) return;
 
-    const plus = it.vals.plus || 0;
-    const minus = it.vals.minus || 0;
-    const total = it.vals.total;
-
-    const yPlusTop = yScale(plus);  // 가점 꼭대기
-    const yTotal = yScale(total);   // 합산 도착 = 가점 - 감점
-
-    // 그린 막대: 0 → plus (전체 높이)
-    if (plus > 0) {
-      const h = zeroY - yPlusTop;
-      html += `<rect class="nv-bar-plus" x="${xL}" y="${yPlusTop}" width="${barW}" height="${h}" rx="3"/>`;
-      // 가점 라벨 - 그린이 보이는 영역(yTotal~zeroY) 중앙
-      const yPlusLabel = (yTotal + zeroY) / 2 + 6;
-      html += `<text class="nv-val-plus" x="${xc}" y="${yPlusLabel}" text-anchor="middle">+${fmtContribNum(plus, dec)}</text>`;
+    // 가점 막대 (0 기준선 위, 그린)
+    if (it.vals.plus !== null && it.vals.plus > 0) {
+      const yTop = yScale(it.vals.plus);
+      const h = zeroY - yTop;
+      html += `<rect class="nv-bar-plus" x="${xL}" y="${yTop}" width="${barW}" height="${h}"/>`;
+      // 가점값 라벨 - 막대 위 바깥
+      html += `<text class="nv-val-plus" x="${xc}" y="${yTop - 12}" text-anchor="middle">+${fmtContribNum(it.vals.plus, dec)}</text>`;
     }
-    // 레드 막대: plus → total (감점 영역, 가점 위쪽 덮음)
-    if (minus > 0) {
-      const h = yTotal - yPlusTop;
-      html += `<rect class="nv-bar-minus" x="${xL}" y="${yPlusTop}" width="${barW}" height="${h}" rx="3"/>`;
-      // 감점 라벨 - 막대 오른쪽 옆 (위치 분리)
-      html += `<text class="nv-val-minus" x="${xL + barW + 6}" y="${(yPlusTop + yTotal) / 2 + 6}" text-anchor="start">-${fmtContribNum(minus, dec)}</text>`;
+    // 감점 막대 (0 기준선 아래, 레드)
+    if (it.vals.minus !== null && it.vals.minus > 0) {
+      const yBot = yScale(-it.vals.minus);
+      const h = yBot - zeroY;
+      html += `<rect class="nv-bar-minus" x="${xL}" y="${zeroY}" width="${barW}" height="${h}"/>`;
+      // 감점값 라벨 - 막대 아래 바깥
+      html += `<text class="nv-val-minus" x="${xc}" y="${yBot + 22}" text-anchor="middle">-${fmtContribNum(it.vals.minus, dec)}</text>`;
     }
   });
 
-  // 가점 라벨 재배치 - 막대 위쪽 (감점과 겹침 회피)
-  // 위 forEach에서 가점 라벨을 막대 안 중앙에 둔게 감점이랑 겹칠 수 있어 분리 처리
+  // 0 기준선 - 막대 위에 그림 (강조)
+  html += `<line class="nv-zero-line" x1="${padL}" y1="${zeroY}" x2="${W - padR}" y2="${zeroY}"/>`;
 
-  // 합산 연결선 (도착지점 골드 라인)
+  // 합산 라인 + 점 (골드)
   const totalPoints = items.map((it, i) => {
     if (it.vals.total === null) return null;
     return {x: xCenter(i), y: yScale(it.vals.total), val: it.vals.total, item: it, i};
@@ -10666,25 +10603,22 @@ function renderContribChart(items, mode) {
     html += `<path class="nv-ma-total" d="${path}"/>`;
   }
 
-  // 합산 점 + 라벨 (골드)
   totalPoints.forEach((p) => {
     const isCur = p.i === n - 1;
-    const rank = p.item.rank;
-    const dotColor = rankColor(rank);
-    html += `<circle class="nv-ma-dot-ring${isCur ? ' is-current' : ''}" cx="${p.x}" cy="${p.y}" r="11"/>`;
-    html += `<circle cx="${p.x}" cy="${p.y}" r="6.5" fill="${dotColor}" stroke="#111" stroke-width="2.5" style="filter:drop-shadow(0 0 8px ${dotColor}cc);"/>`;
-    // 합산값은 점 오른쪽 또는 위쪽 - 막대와 떨어지게 막대 위쪽 멀리
-    const star = isTop(rank) ? ' ★' : '';
-    html += `<text class="nv-val-total" x="${p.x}" y="${p.y - 22}" text-anchor="middle" fill="${dotColor}">${fmtContribNum(p.val, dec)}${star}</text>`;
+    html += `<circle class="nv-ma-dot-ring${isCur ? ' is-current' : ''}" cx="${p.x}" cy="${p.y}" r="10"/>`;
+    html += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="#ffd54f" stroke="#111" stroke-width="2.5" style="filter:drop-shadow(0 0 7px rgba(255,213,79,0.8));"/>`;
+    // 합산값 라벨 - 점에서 더 아래 + 경쟁력 추이 순위 색상 기준
+    const star = p.i === maxTotalIdx ? ' ★' : '';
+    html += `<text class="nv-val-total" x="${p.x}" y="${p.y + 42}" text-anchor="middle">${fmtContribNum(p.val, dec)}${star}</text>`;
   });
 
   // X축 시즌 + 팀
   items.forEach((it, i) => {
     const x = xCenter(i);
-    const seasonColor = it.vals.total !== null ? rankColor(it.rank) : '#666';
-    html += `<text class="nv-axis-x" x="${x}" y="${H - padB + 44}" text-anchor="middle" fill="${seasonColor}">${it.season}</text>`;
+    const seasonColor = it.vals.total !== null ? '#f0f0f0' : '#666';
+    html += `<text class="nv-axis-x" x="${x}" y="${H - padB + 30}" text-anchor="middle" fill="${seasonColor}">${it.season}</text>`;
     const teamShort = (it.team || '-').length > 14 ? it.team.substring(0,13) + '…' : (it.team || '-');
-    html += `<text class="nv-axis-x-team" x="${x}" y="${H - padB + 78}" text-anchor="middle">${teamShort}</text>`;
+    html += `<text class="nv-axis-x-team" x="${x}" y="${H - padB + 60}" text-anchor="middle">${teamShort}</text>`;
   });
 
   // 호버 영역 + 크로스헤어
