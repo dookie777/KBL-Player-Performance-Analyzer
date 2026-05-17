@@ -2,102 +2,244 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>인트로 - KBL Player Stats Analyzer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK Knights Analytics Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background-color: #000;
-      background-image: 
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 30px 30px;
-      background-position: center;
-      margin: 0;
-      padding: 0;
+      background: #000;
       overflow: hidden;
+      height: 100vh;
+      width: 100vw;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      font-family: 'Poppins', sans-serif;
-      color: white;
-      text-align: center;
-    }
-
-    #logo {
-      width: 200px;
-      margin-bottom: 60px;
-      opacity: 0;
-      animation: fadein 2s ease forwards;
-    }
-
-    #message {
-      font-size: 2.2rem;
-      margin-top: 60px;
-      color: #ccc;
-      font-weight: bold;
-      opacity: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      border-right: 2px solid #fff;
-      width: 0;
-      animation: typing 1.6s steps(30, end) 1s forwards, blink 0.7s step-end infinite;
-    }
-
-    #yesText {
-      margin-top: 20px;
-      font-size: 1.6rem;
-      color: white;
-      font-weight: bold;
+      padding-bottom: 80px;
+      font-family: 'Noto Sans KR', sans-serif;
       cursor: pointer;
+      position: relative;
+    }
+
+    /* 배경 파티클 캔버스 */
+    #bg-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* 중앙 컨테이너 */
+    .center {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* SK 나이츠 로고 */
+    .logo-wrap {
       opacity: 0;
-      transition: opacity 1s ease;
+      transform: scale(0.8);
+      animation: logoIn 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.3s forwards;
+    }
+    .logo-wrap img {
+      width: 120px;
+      height: auto;
+      filter: drop-shadow(0 0 24px rgba(255,107,0,0.5));
     }
 
-    @keyframes typing {
-      from { width: 0 }
-      to { width: 30ch; opacity: 1; }
+    /* 슬로건 SVG */
+    .slogan-wrap {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: sloganIn 0.9s cubic-bezier(0.34,1.56,0.64,1) 0.9s forwards;
+      margin-top: 32px;
+    }
+    .slogan-wrap img {
+      width: 380px;
+      max-width: 80vw;
+      height: auto;
+      filter: drop-shadow(0 0 32px rgba(255,255,255,0.15));
     }
 
-    @keyframes blink {
-      50% { border-color: transparent; }
+    /* 구분선 */
+    .divider {
+      width: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,107,0,0.8), transparent);
+      margin-top: 32px;
+      animation: lineGrow 0.6s ease 1.6s forwards;
     }
 
-    @keyframes fadein {
-      from { opacity: 0; }
+    /* 진입 버튼 */
+    .enter-btn {
+      margin-top: 28px;
+      opacity: 0;
+      animation: btnIn 0.6s ease 2s forwards;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .enter-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 4px;
+      color: rgba(255,255,255,0.4);
+    }
+    .enter-bracket {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 8px;
+      color: #fff;
+      border: 1px solid rgba(255,107,0,0.6);
+      padding: 8px 32px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .enter-bracket::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,107,0,0.0);
+      transition: background 0.2s;
+    }
+    body:hover .enter-bracket {
+      border-color: rgba(255,107,0,1);
+      color: #fff;
+      letter-spacing: 10px;
+    }
+    body:hover .enter-bracket::before {
+      background: rgba(255,107,0,0.12);
+    }
+
+    /* 하단 텍스트 */
+    .footer-text {
+      position: absolute;
+      bottom: 28px;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 2px;
+      z-index: 2;
+      opacity: 0;
+      animation: btnIn 0.6s ease 2.4s forwards;
+    }
+
+    /* 플래시 오버레이 */
+    #flash {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      z-index: 99;
+      pointer-events: none;
+      transition: opacity 0.05s;
+    }
+
+    @keyframes logoIn {
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes sloganIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes lineGrow {
+      to { width: 320px; }
+    }
+    @keyframes btnIn {
       to { opacity: 1; }
-    }
-
-    @media (max-width: 480px) {
-      #message {
-        font-size: 1.3rem;
-        width: 26ch;
-      }
-
-      #yesText {
-        font-size: 1.2rem;
-      }
-
-      #logo {
-        width: 150px;
-        margin-bottom: 40px;
-      }
     }
   </style>
 </head>
 <body>
-  <img id="logo" src="https://github.com/dookie777/KBL-Player-Performance-Analyzer/raw/main/Seoul_SK_Knights_logo.svg.png" alt="SK Knights Logo">
-  <div id="message">Enter the SK Knights Analytics Lab?</div>
-  <div id="yesText" onclick="goToMain()">[ Yes ]</div>
+
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="center">
+    <div class="slogan-wrap">
+      <img src="sk나이츠슬로건_25-26.svg" alt="SK! Win Together 'Til It's Over">
+    </div>
+    <div class="divider"></div>
+    <div class="enter-btn">
+      <span class="enter-text">CLICK TO ENTER</span>
+      <span class="enter-bracket" onclick="enterLab()" style="cursor:pointer;">ANALYTICS LAB</span>
+    </div>
+  </div>
+
+  <div class="footer-text">© 2026 THE EROOM SPORTS · SK KNIGHTS ANALYTICS</div>
+  <div id="flash"></div>
 
   <script>
-    setTimeout(() => {
-      document.getElementById('yesText').style.opacity = '1';
-    }, 2600);
+    // ── 파티클 배경 ──
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
 
-    function goToMain() {
-      window.location.href = "/index.html";
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function randBetween(a, b) { return a + Math.random() * (b - a); }
+
+    // 파티클 생성 — 오렌지/레드 계열 + 흰색 소수
+    for (let i = 0; i < 80; i++) {
+      const isOrange = Math.random() > 0.3;
+      particles.push({
+        x: randBetween(0, window.innerWidth),
+        y: randBetween(0, window.innerHeight),
+        r: randBetween(0.5, 2.5),
+        vx: randBetween(-0.3, 0.3),
+        vy: randBetween(-0.5, -0.1),
+        alpha: randBetween(0.1, 0.6),
+        color: isOrange
+          ? `rgba(${Math.floor(randBetween(200,255))}, ${Math.floor(randBetween(50,130))}, 0, `
+          : `rgba(255, 255, 255, `,
+      });
+    }
+
+    function drawBg() {
+      ctx.clearRect(0, 0, W, H);
+
+      // 미묘한 그라디언트 vignette
+      const grad = ctx.createRadialGradient(W/2, H/2, H*0.1, W/2, H/2, H*0.9);
+      grad.addColorStop(0, 'rgba(20,5,0,0.0)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.85)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.y < -5) { p.y = H + 5; p.x = randBetween(0, W); }
+        if (p.x < -5) p.x = W + 5;
+        if (p.x > W + 5) p.x = -5;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + p.alpha + ')';
+        ctx.fill();
+      });
+
+      requestAnimationFrame(drawBg);
+    }
+    drawBg();
+
+    // ── 진입 ──
+    let entered = false;
+    function enterLab() {
+      if (entered) return;
+      entered = true;
+      const flash = document.getElementById('flash');
+      flash.style.opacity = '1';
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 120);
     }
   </script>
 </body>
