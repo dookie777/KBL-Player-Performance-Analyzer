@@ -1993,6 +1993,8 @@
     .contrib-empty-text { font-size: 1rem; }
 
   </style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -2020,6 +2022,7 @@
     <button class="tab-btn" data-tab="tab-player-compare">경기력 추이</button>
     <button class="tab-btn" data-tab="tab-contribution">KBL 공헌도</button>
     <button class="tab-btn" data-tab="tab-evaluation">TERS-Rating</button>
+    <button class="tab-btn" data-tab="tab-galaxy">TERS-Galaxy</button>
     <button class="tab-btn" data-tab="tab-report">AI 선수 리포트</button>
   </nav>
 
@@ -2359,7 +2362,82 @@
   </div>
 
   <!-- ══════════════════════════════════════
-       TAB 7 — 선수 리포트
+       TAB 7 — TERS-Galaxy (3D 별자리)
+  ══════════════════════════════════════ -->
+  <div id="tab-galaxy" class="tab-content eval-tab-root">
+    <div class="eval-fixed-area" style="padding-bottom:0;margin-bottom:0;border-bottom:none;">
+      <div class="controls-row">
+        <div class="custom-dropdown" id="dd-galaxy">
+          <input type="text" id="galaxyPlayerSearch" class="ctrl-input" placeholder="선수 검색..." autocomplete="off">
+          <span class="dd-arrow" data-dd="dd-galaxy">▼</span>
+          <div class="dd-list" id="dd-list-galaxy"></div>
+        </div>
+        <button class="btn-primary" id="galaxyRenderBtn">조회</button>
+        <div class="filter-group" style="margin-left: 8px;">
+          <button class="filter-tag active" data-galaxy-type="국내">국내</button>
+          <button class="filter-tag active" data-galaxy-type="외국인">외국인</button>
+          <button class="filter-tag active" data-galaxy-type="아시아쿼터">아시아쿼터</button>
+        </div>
+      </div>
+    </div>
+    <div id="galaxy-wrapper" style="position:relative;height:calc(100vh - 240px);min-height:520px;border-radius:10px;overflow:hidden;border:1px solid #222;background:#000;margin-top:14px;">
+      <div id="galaxy-canvas-container" style="position:absolute;inset:0;"></div>
+      
+      <!-- 좌상단: 배경 시즌 선택 패널 -->
+      <div id="galaxy-season-panel" style="position:absolute;top:20px;left:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;color:#fff;z-index:11;">
+        <label style="font-size:0.72rem;font-weight:700;color:#a0a0b0;display:block;margin-bottom:6px;letter-spacing:0.04em;">배경 시즌</label>
+        <select id="galaxySeasonSelect" style="padding:7px 10px;background:#111;color:#fff;border:1px solid #333;border-radius:6px;font-family:inherit;font-size:0.85rem;min-width:130px;">
+          <option value="25-26">25-26 시즌</option>
+          <option value="24-25">24-25 시즌</option>
+          <option value="23-24">23-24 시즌</option>
+          <option value="22-23">22-23 시즌</option>
+          <option value="21-22">21-22 시즌</option>
+          <option value="20-21">20-21 시즌</option>
+        </select>
+      </div>
+      
+      <!-- 우상단: 전체화면 토글 버튼 -->
+      <button id="galaxy-fullscreen-btn" title="전체화면 (ESC로 종료)" style="position:absolute;top:20px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;z-index:11;display:flex;align-items:center;gap:6px;">
+        <span id="galaxy-fs-icon">⛶</span><span id="galaxy-fs-text">전체화면</span>
+      </button>
+      
+      <div id="galaxy-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:100;flex-direction:column;gap:10px;">
+        <div style="width:50px;height:50px;border:3px solid #333;border-top-color:#e8c96a;border-radius:50%;animation:galaxySpin 1s linear infinite;"></div>
+        <div style="font-size:0.85rem;color:var(--text-secondary);">우주 생성 중...</div>
+      </div>
+      <div id="galaxy-tooltip" style="position:absolute;pointer-events:none;background:rgba(0,0,0,0.9);border:1px solid #e8c96a;padding:6px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;z-index:50;display:none;color:#fff;"></div>
+      <div id="galaxy-info-panel" style="position:absolute;top:80px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;color:#fff;z-index:10;min-width:280px;max-width:340px;display:none;">
+        <div id="galaxy-info-name" style="font-size:1.15rem;font-weight:900;margin-bottom:4px;">—</div>
+        <div id="galaxy-info-meta" style="font-size:0.75rem;color:#a0a0b0;margin-bottom:10px;">—</div>
+        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:6px;">3축 점수</div>
+        <div id="galaxy-info-axes"></div>
+        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:6px;margin-top:10px;">TERS-Rating 카테고리</div>
+        <div id="galaxy-info-categories"></div>
+      </div>
+      <div id="galaxy-legend-panel" style="position:absolute;bottom:20px;left:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;color:#fff;z-index:10;font-size:0.78rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:8px;">범례</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#ffd84a;display:inline-block;"></span>분석 선수 별자리</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#3a90ff;display:inline-block;"></span>국내</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#ff3a3a;display:inline-block;"></span>외국인</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#2ad864;display:inline-block;"></span>아시아쿼터</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);font-size:0.7rem;color:#888;">
+          ✦ 최신 시즌 = 가장 큰 별<br>
+          ◯ 최고 시즌 = 펄스 글로우<br>
+          마우스 드래그 · 휠 줌 · 별 클릭
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    @keyframes galaxySpin { to { transform:rotate(360deg); } }
+    #tab-galaxy .filter-tag[data-galaxy-type="국내"].active { background:rgba(58,144,255,0.13); color:#3a90ff; border-color:rgba(58,144,255,0.4); }
+    #tab-galaxy .filter-tag[data-galaxy-type="외국인"].active { background:rgba(255,58,58,0.13); color:#ff3a3a; border-color:rgba(255,58,58,0.4); }
+    #tab-galaxy .filter-tag[data-galaxy-type="아시아쿼터"].active { background:rgba(42,216,100,0.13); color:#2ad864; border-color:rgba(42,216,100,0.4); }
+  </style>
+
+
+  <!-- ══════════════════════════════════════
+       TAB 8 — 선수 리포트
   ══════════════════════════════════════ -->
   <div id="tab-report" class="tab-content eval-tab-root">
 
@@ -2719,6 +2797,7 @@ const ddConfigs = [
   { ddId: 'dd-eval',        inputId: 'searchPlayerEval',     listId: 'dd-list-eval' },
   { ddId: 'dd-contribution', inputId: 'searchPlayerContribution', listId: 'dd-list-contribution' },
   { ddId: 'dd-report',     inputId: 'searchPlayerReport',   listId: 'dd-list-report' },
+  { ddId: 'dd-galaxy',     inputId: 'galaxyPlayerSearch',   listId: 'dd-list-galaxy' },
 ];
 
 let ddNames = {}; // listId → string[]
@@ -6376,6 +6455,541 @@ document.getElementById('searchPlayerContribButton').addEventListener('click', s
 document.getElementById('searchPlayerContribution').addEventListener('keypress', e => {
   if (e.key === 'Enter') searchContribPlayer();
 });
+
+if (!window.__galaxyLoaded) {
+  window.__galaxyLoaded = true;
+
+/* ═══════════════════════════════════════════════════════
+   TERS-Galaxy 통합 모듈 (IIFE)
+═══════════════════════════════════════════════════════ */
+(function(){
+  const G_BASE_URL = 'https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/';
+  const G_FILEMAP = {
+    '20-21':'20-21_KBL_stats.xlsx','21-22':'21-22_KBL_stats.xlsx',
+    '22-23':'22-23_KBL_stats.xlsx','23-24':'23-24_KBL_stats.xlsx',
+    '24-25':'24-25_KBL_stats.xlsx','25-26':'25-26_KBL_stats.xlsx'
+  };
+  const G_SEASONS = Object.keys(G_FILEMAP);
+  
+  const G_CATEGORY_DEFS = {
+    '공격 기여도':[
+      {key:'평균 득점',w:0.35,rev:false},{key:'Offensive_WS',w:0.35,rev:false},
+      {key:'평균 공격 리바운드',w:0.15,rev:false},{key:'Offensive_rating',w:0.15,rev:false}],
+    '슈팅 퀄리티':[
+      {key:'TS%',w:0.30,rev:false},{key:'eFG%',w:0.25,rev:false},
+      {key:'FG%',w:0.15,rev:false},{key:'3P%',w:0.15,rev:false},{key:'FTr',w:0.15,rev:false}],
+    '보드 장악력':[
+      {key:'평균 리바운드',w:0.30,rev:false},{key:'TRB%',w:0.25,rev:false},
+      {key:'ORB%',w:0.20,rev:false},{key:'DRB%',w:0.25,rev:false}],
+    '수비 기여도':[
+      {key:'Defensive_WS',w:0.20,rev:false},{key:'Defensive_rating',w:0.20,rev:true},
+      {key:'평균 수비 리바운드',w:0.15,rev:false},{key:'평균 스틸',w:0.15,rev:false},
+      {key:'평균 블록',w:0.15,rev:false},{key:'STL%',w:0.08,rev:false},{key:'BS%',w:0.07,rev:false}],
+    '플레이 메이킹':[
+      {key:'평균 어시스트',w:0.35,rev:false},{key:'AST%',w:0.30,rev:false},
+      {key:'평균 턴오버',w:0.20,rev:true},{key:'TOV%',w:0.15,rev:true}],
+    '효율성':[
+      {key:'PER',w:0.30,rev:false},{key:'EFF/40',w:0.25,rev:false},
+      {key:'WS/40',w:0.25,rev:false},{key:'USG%',w:0.20,rev:false}],
+    '내구성':[
+      {key:'출전 경기 수',w:0.60,rev:false},{key:'총 출전 시간(초)',w:0.40,rev:false}],
+  };
+  const G_CATEGORIES = Object.keys(G_CATEGORY_DEFS);
+  
+  const G_DATA = {};
+  let G_ACTIVE_TYPES = new Set(['국내','외국인','아시아쿼터']);
+  
+  async function fetchSeason(sn) {
+    if (G_DATA[sn]) return G_DATA[sn];
+    const res = await fetch(G_BASE_URL + G_FILEMAP[sn]);
+    const buf = await res.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+    data.forEach(r => {
+      const m = parseInt(r.m)||0, s = parseInt(r.s)||0;
+      const gp = parseFloat(r['출전 경기 수']) || 1;
+      r['총 출전 시간(초)'] = (m*60+s)*gp;
+      const raw = (r.Player||'').trim();
+      const team = (r.Team||'').trim();
+      r.Player = raw + ' (' + team + ')';
+      r.Team = team;
+      r['구분'] = (r['구분']||'').trim();
+      r['포지션'] = (r['포지션']||'').trim();
+      r._cleanName = raw;
+      r._season = sn;
+    });
+    G_DATA[sn] = data;
+    return data;
+  }
+  
+  function gTScore(val, vals, rev) {
+    const valid = vals.filter(v => !isNaN(v));
+    if (!valid.length || isNaN(val)) return 50;
+    const mean = valid.reduce((a,b)=>a+b,0)/valid.length;
+    const std = Math.sqrt(valid.reduce((a,b)=>a+(b-mean)**2,0)/valid.length) || 1;
+    let z = (val-mean)/std;
+    if (rev) z = -z;
+    return Math.max(0, Math.min(100, 50+z*10));
+  }
+  function gCatScores(row, pool) {
+    const sc = {};
+    for (const cat of G_CATEGORIES) {
+      const defs = G_CATEGORY_DEFS[cat];
+      let wSum=0, sSum=0;
+      for (let i=0; i<defs.length; i++) {
+        const d = defs[i];
+        const v = parseFloat(row[d.key]);
+        if (isNaN(v)) continue;
+        const vals = pool.map(r => parseFloat(r[d.key])).filter(x => !isNaN(x));
+        sSum += gTScore(v, vals, d.rev) * d.w;
+        wSum += d.w;
+      }
+      sc[cat] = wSum>0 ? sSum/wSum : 50;
+    }
+    return sc;
+  }
+  function gCalc3Axes(sc) {
+    return {
+      x: (sc['공격 기여도'] + sc['슈팅 퀄리티']) / 2,
+      y: (sc['수비 기여도'] + sc['보드 장악력']) / 2,
+      z: (sc['플레이 메이킹'] + sc['효율성'] + sc['내구성']) / 3,
+    };
+  }
+  function gOverall(sc) {
+    let sum = 0;
+    for (let i=0; i<G_CATEGORIES.length; i++) sum += sc[G_CATEGORIES[i]];
+    return sum / G_CATEGORIES.length;
+  }
+  
+  /* ===== Three.js ===== */
+  let g_scene, g_camera, g_renderer, g_controls;
+  let g_starGroup, g_constGroup;
+  let g_raycaster, g_mouse;
+  let g_pulsing = [];
+  let g_hover = null;
+  let g_initialized = false;
+  
+  const CUBE_HALF = 80;
+  const POINT_SCALE = 2.4;
+  
+  function initGalaxy() {
+    if (g_initialized) return;
+    g_initialized = true;
+    
+    g_scene = new THREE.Scene();
+    g_scene.background = new THREE.Color(0x000005);
+    g_scene.fog = new THREE.FogExp2(0x000010, 0.004);
+    
+    const container = document.getElementById('galaxy-canvas-container');
+    const w = container.clientWidth, h = container.clientHeight;
+    
+    g_camera = new THREE.PerspectiveCamera(60, w/h, 0.1, 2000);
+    g_camera.position.set(140, 100, 170);
+    g_camera.lookAt(0, 0, 0);
+    
+    g_renderer = new THREE.WebGLRenderer({antialias:true});
+    g_renderer.setSize(w, h);
+    g_renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(g_renderer.domElement);
+    
+    g_controls = new THREE.OrbitControls(g_camera, g_renderer.domElement);
+    g_controls.enableDamping = true;
+    g_controls.dampingFactor = 0.05;
+    
+    g_scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const dl1 = new THREE.DirectionalLight(0xffffff, 0.9);
+    dl1.position.set(120, 150, 120);
+    g_scene.add(dl1);
+    const dl2 = new THREE.DirectionalLight(0xffffff, 0.4);
+    dl2.position.set(-100, -50, -80);
+    g_scene.add(dl2);
+    
+    // 배경 별가루
+    const bgGeo = new THREE.BufferGeometry();
+    const bgPos = [];
+    for (let i = 0; i < 2500; i++) {
+      bgPos.push((Math.random()-0.5)*700, (Math.random()-0.5)*700, (Math.random()-0.5)*700);
+    }
+    bgGeo.setAttribute('position', new THREE.Float32BufferAttribute(bgPos, 3));
+    g_scene.add(new THREE.Points(bgGeo, new THREE.PointsMaterial({size:0.5, color:0xffffff, transparent:true, opacity:0.4})));
+    
+    g_starGroup = new THREE.Group();
+    g_constGroup = new THREE.Group();
+    g_scene.add(g_starGroup);
+    g_scene.add(g_constGroup);
+    
+    // 축 화살표 6방향
+    function addArrow(dir, color, opacity, len) {
+      const v = new THREE.Vector3(dir[0], dir[1], dir[2]).normalize();
+      const arr = new THREE.ArrowHelper(v, new THREE.Vector3(0,0,0), len, color, len*0.03, len*0.02);
+      arr.line.material.transparent = true;
+      arr.line.material.opacity = opacity;
+      arr.cone.material.transparent = true;
+      arr.cone.material.opacity = opacity;
+      return arr;
+    }
+    g_scene.add(addArrow([1,0,0], 0xbbbbbb, 0.7, CUBE_HALF));
+    g_scene.add(addArrow([0,1,0], 0xbbbbbb, 0.7, CUBE_HALF));
+    g_scene.add(addArrow([0,0,1], 0xbbbbbb, 0.7, CUBE_HALF));
+    g_scene.add(addArrow([-1,0,0], 0x666666, 0.4, CUBE_HALF));
+    g_scene.add(addArrow([0,-1,0], 0x666666, 0.4, CUBE_HALF));
+    g_scene.add(addArrow([0,0,-1], 0x666666, 0.4, CUBE_HALF));
+    
+    // +++ 엘리트 큐브 (음영)
+    const eGeo = new THREE.BoxGeometry(CUBE_HALF, CUBE_HALF, CUBE_HALF);
+    const eMat = new THREE.MeshBasicMaterial({color:0xe8c96a, transparent:true, opacity:0.08, side:THREE.DoubleSide});
+    const eBox = new THREE.Mesh(eGeo, eMat);
+    eBox.position.set(CUBE_HALF/2, CUBE_HALF/2, CUBE_HALF/2);
+    g_scene.add(eBox);
+    
+    // 원점 점
+    g_scene.add(new THREE.Mesh(new THREE.SphereGeometry(0.7, 12, 12), new THREE.MeshBasicMaterial({color:0x999999, transparent:true, opacity:0.6})));
+    
+    // 축 라벨 (흰색)
+    function makeLabel(text, pos) {
+      const cv = document.createElement('canvas');
+      cv.width = 256; cv.height = 80;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 48px Noto Sans KR, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(text, 128, 58);
+      const tex = new THREE.CanvasTexture(cv);
+      const mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false});
+      const sprite = new THREE.Sprite(mat);
+      sprite.position.set(pos[0], pos[1], pos[2]);
+      sprite.scale.set(18, 5.5, 1);
+      return sprite;
+    }
+    g_scene.add(makeLabel('공격', [CUBE_HALF + 10, 0, 0]));
+    g_scene.add(makeLabel('수비', [0, CUBE_HALF + 10, 0]));
+    g_scene.add(makeLabel('운영', [0, 0, CUBE_HALF + 10]));
+    
+    g_raycaster = new THREE.Raycaster();
+    g_mouse = new THREE.Vector2();
+    
+    g_renderer.domElement.addEventListener('mousemove', onGMouseMove);
+    g_renderer.domElement.addEventListener('click', onGMouseClick);
+    window.addEventListener('resize', onGResize);
+    
+    animateGalaxy();
+  }
+  
+  function onGResize() {
+    const container = document.getElementById('galaxy-canvas-container');
+    if (!container || !g_renderer) return;
+    const w = container.clientWidth, h = container.clientHeight;
+    if (w > 0 && h > 0) {
+      g_camera.aspect = w/h;
+      g_camera.updateProjectionMatrix();
+      g_renderer.setSize(w, h);
+    }
+  }
+  
+  function onGMouseMove(event) {
+    const rect = g_renderer.domElement.getBoundingClientRect();
+    g_mouse.x = ((event.clientX - rect.left)/rect.width)*2 - 1;
+    g_mouse.y = -((event.clientY - rect.top)/rect.height)*2 + 1;
+    g_raycaster.setFromCamera(g_mouse, g_camera);
+    const intersects = g_raycaster.intersectObjects(g_starGroup.children, false);
+    const tooltip = document.getElementById('galaxy-tooltip');
+    if (intersects.length > 0) {
+      const star = intersects[0].object;
+      if (star.userData && star.userData.name) {
+        tooltip.style.display = 'block';
+        const containerRect = document.getElementById('galaxy-canvas-container').getBoundingClientRect();
+        tooltip.style.left = (event.clientX - containerRect.left + 12) + 'px';
+        tooltip.style.top = (event.clientY - containerRect.top + 12) + 'px';
+        tooltip.textContent = star.userData.name + ' (' + star.userData.season + ')';
+        g_hover = star;
+        return;
+      }
+    }
+    tooltip.style.display = 'none';
+    g_hover = null;
+  }
+  
+  function onGMouseClick() {
+    if (g_hover && g_hover.userData) showGalaxyPlayerInfo(g_hover.userData);
+  }
+  
+  function showGalaxyPlayerInfo(data) {
+    const panel = document.getElementById('galaxy-info-panel');
+    panel.style.display = 'block';
+    document.getElementById('galaxy-info-name').textContent = data.name;
+    document.getElementById('galaxy-info-meta').textContent =
+      (data.team||'-') + ' · ' + (data.position||'-') + ' · ' + (data.type||'-') + ' · ' + data.season + ' 시즌';
+    
+    const axesDiv = document.getElementById('galaxy-info-axes');
+    axesDiv.innerHTML = '';
+    if (data.axes) {
+      const axes = [
+        {label:'공격', value:data.axes.x},
+        {label:'수비', value:data.axes.y},
+        {label:'운영', value:data.axes.z},
+      ];
+      axes.forEach(a => {
+        const div = document.createElement('div');
+        div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin:3px 0;';
+        div.innerHTML = '<span style="color:#a0a0b0;">' + a.label + '</span><span style="font-weight:700;">' + a.value.toFixed(1) + '</span>';
+        axesDiv.appendChild(div);
+      });
+    }
+    const catDiv = document.getElementById('galaxy-info-categories');
+    catDiv.innerHTML = '';
+    G_CATEGORIES.forEach(c => {
+      const s = (data.scores && data.scores[c]) ? data.scores[c].toFixed(1) : '-';
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin:3px 0;';
+      div.innerHTML = '<span style="color:#a0a0b0;">' + c + '</span><span style="font-weight:700;">' + s + '</span>';
+      catDiv.appendChild(div);
+    });
+  }
+  
+  function animateGalaxy() {
+    requestAnimationFrame(animateGalaxy);
+    if (!g_controls) return;
+    g_controls.update();
+    const t = Date.now() * 0.003;
+    g_pulsing.forEach(p => {
+      const scale = 1 + Math.sin(t)*0.25;
+      if (p.glow) p.glow.scale.setScalar(scale);
+      if (p.glow && p.glow.material) p.glow.material.opacity = 0.3 + Math.sin(t)*0.18;
+    });
+    if (g_hover) g_hover.scale.setScalar(1 + Math.sin(Date.now()*0.008)*0.12);
+    g_renderer.render(g_scene, g_camera);
+  }
+  
+  function clearGalaxy() {
+    if (!g_starGroup) return;
+    while (g_starGroup.children.length) {
+      const c = g_starGroup.children[0];
+      g_starGroup.remove(c);
+      c.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) o.material.dispose();
+      });
+    }
+    while (g_constGroup.children.length) {
+      const c = g_constGroup.children[0];
+      g_constGroup.remove(c);
+      if (c.geometry) c.geometry.dispose();
+      if (c.material) c.material.dispose();
+    }
+    g_pulsing = [];
+  }
+  
+  function getGTypeColor(type, isAnalysis) {
+    if (isAnalysis) return 0xffd84a;
+    if (type === '국내') return 0x3a90ff;
+    if (type === '외국인') return 0xff3a3a;
+    if (type === '아시아쿼터') return 0x2ad864;
+    return 0x888888;
+  }
+  
+  function addGStar(pos, color, size, userData, opts) {
+    const geo = new THREE.SphereGeometry(size, 24, 24);
+    const mat = new THREE.MeshStandardMaterial({
+      color, roughness:0.4, metalness:0.2,
+      emissive:color, emissiveIntensity: opts.isAnalysis ? 0.8 : 0.55,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(pos[0], pos[1], pos[2]);
+    mesh.userData = userData;
+    g_starGroup.add(mesh);
+    if (opts.isAnalysis) {
+      const glowGeo = new THREE.SphereGeometry(size*2.0, 16, 16);
+      const glowMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.3});
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      mesh.add(glow);
+      if (opts.isBest) g_pulsing.push({mesh, glow});
+    }
+    return mesh;
+  }
+  
+  function drawGConstellation(positions, color) {
+    if (positions.length < 2) return;
+    const geo = new THREE.BufferGeometry();
+    const pts = [];
+    positions.forEach(p => pts.push(p[0], p[1], p[2]));
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    const mat = new THREE.LineBasicMaterial({color, transparent:true, opacity:0.85});
+    g_constGroup.add(new THREE.Line(geo, mat));
+  }
+  
+  async function loadAndRenderGalaxy(targetName, bgSeason) {
+    document.getElementById('galaxy-loading').style.display = 'flex';
+    clearGalaxy();
+    try {
+      const bgDataRaw = await fetchSeason(bgSeason);
+      // 국적 필터 적용
+      const bgData = bgDataRaw.filter(r => G_ACTIVE_TYPES.has(r['구분']));
+      
+      const playerSeasons = [];
+      if (targetName) {
+        for (let i=0; i<G_SEASONS.length; i++) {
+          const sd = await fetchSeason(G_SEASONS[i]);
+          const found = sd.find(r => r._cleanName === targetName);
+          if (found) playerSeasons.push(Object.assign({}, found, {_season: G_SEASONS[i]}));
+        }
+      }
+      
+      const allRows = bgData.slice();
+      playerSeasons.forEach(ps => {
+        if (!allRows.find(r => r._cleanName === ps._cleanName && r._season === ps._season)) {
+          allRows.push(ps);
+        }
+      });
+      
+      const scoresArr = allRows.map(r => gCatScores(r, allRows));
+      const axesArr = scoresArr.map(s => gCalc3Axes(s));
+      const overallArr = scoresArr.map(s => gOverall(s));
+      
+      const playerKeys = new Set(playerSeasons.map(p => p._cleanName+'__'+p._season));
+      let bestKey = null, latestKey = null;
+      if (playerSeasons.length > 0) {
+        let maxScore = -Infinity, bestIdx = -1;
+        playerSeasons.forEach(ps => {
+          const idx = allRows.findIndex(r => r._cleanName === ps._cleanName && r._season === ps._season);
+          if (overallArr[idx] > maxScore) { maxScore = overallArr[idx]; bestIdx = idx; }
+        });
+        if (bestIdx >= 0) bestKey = allRows[bestIdx]._cleanName + '__' + allRows[bestIdx]._season;
+        const sorted = playerSeasons.slice().sort((a,b) => G_SEASONS.indexOf(b._season) - G_SEASONS.indexOf(a._season));
+        latestKey = sorted[0]._cleanName + '__' + sorted[0]._season;
+      }
+      
+      allRows.forEach((r, i) => {
+        const key = r._cleanName + '__' + r._season;
+        const isAnalysis = playerKeys.has(key);
+        const isBest = (key === bestKey);
+        const isLatest = (key === latestKey);
+        const color = getGTypeColor(r['구분'], isAnalysis);
+        let size = 0.7;
+        if (isAnalysis) size = 1.6;
+        if (isLatest) size = 2.4;
+        const ax = axesArr[i];
+        const pos = [(ax.x-50)*POINT_SCALE, (ax.y-50)*POINT_SCALE, (ax.z-50)*POINT_SCALE];
+        const userData = {
+          name: r._cleanName, team: r.Team, position: r['포지션'], type: r['구분'],
+          season: r._season, scores: scoresArr[i], axes: ax,
+          isAnalysis, isBest, isLatest,
+        };
+        addGStar(pos, color, size, userData, {isAnalysis, isBest, isLatest});
+      });
+      
+      if (playerSeasons.length >= 2) {
+        const sorted = playerSeasons.slice().sort((a,b) => G_SEASONS.indexOf(a._season) - G_SEASONS.indexOf(b._season));
+        const linePos = sorted.map(ps => {
+          const idx = allRows.findIndex(r => r._cleanName === ps._cleanName && r._season === ps._season);
+          const ax = axesArr[idx];
+          return [(ax.x-50)*POINT_SCALE, (ax.y-50)*POINT_SCALE, (ax.z-50)*POINT_SCALE];
+        });
+        drawGConstellation(linePos, 0xffd84a);
+      }
+    } catch (err) {
+      console.error('Galaxy 렌더 오류:', err);
+    } finally {
+      document.getElementById('galaxy-loading').style.display = 'none';
+    }
+  }
+  
+  /* ===== 이벤트 / 초기화 ===== */
+  let g_listInitialized = false;
+  async function populatePlayerList() {
+    if (g_listInitialized) return;
+    g_listInitialized = true;
+    for (let i=0; i<G_SEASONS.length; i++) await fetchSeason(G_SEASONS[i]);
+    const all = new Set();
+    G_SEASONS.forEach(sn => (G_DATA[sn]||[]).forEach(r => all.add(r._cleanName)));
+    const names = Array.from(all).sort();
+    if (typeof buildDdList === 'function') {
+      buildDdList('dd-list-galaxy', names);
+    }
+  }
+  
+  function bindGalaxyEvents() {
+    const btn = document.getElementById('galaxyRenderBtn');
+    if (btn) btn.addEventListener('click', async () => {
+      const name = document.getElementById('galaxyPlayerSearch').value.trim();
+      const season = document.getElementById('galaxySeasonSelect').value;
+      await loadAndRenderGalaxy(name, season);
+    });
+    const input = document.getElementById('galaxyPlayerSearch');
+    if (input) input.addEventListener('keypress', async (e) => {
+      if (e.key === 'Enter') {
+        const season = document.getElementById('galaxySeasonSelect').value;
+        await loadAndRenderGalaxy(input.value.trim(), season);
+      }
+    });
+    const sel = document.getElementById('galaxySeasonSelect');
+    if (sel) sel.addEventListener('change', async () => {
+      const name = document.getElementById('galaxyPlayerSearch').value.trim();
+      await loadAndRenderGalaxy(name, sel.value);
+    });
+    document.querySelectorAll('#tab-galaxy .filter-tag[data-galaxy-type]').forEach(b => {
+      b.addEventListener('click', async () => {
+        const t = b.dataset.galaxyType;
+        if (G_ACTIVE_TYPES.has(t)) { G_ACTIVE_TYPES.delete(t); b.classList.remove('active'); }
+        else { G_ACTIVE_TYPES.add(t); b.classList.add('active'); }
+        const name = document.getElementById('galaxyPlayerSearch').value.trim();
+        const season = document.getElementById('galaxySeasonSelect').value;
+        await loadAndRenderGalaxy(name, season);
+      });
+    });
+    
+    // 전체화면 토글
+    const fsBtn = document.getElementById('galaxy-fullscreen-btn');
+    const wrapper = document.getElementById('galaxy-wrapper');
+    if (fsBtn && wrapper) {
+      fsBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+          else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      });
+      // 전체화면 상태 변경 시 아이콘/텍스트 + 캔버스 리사이즈
+      const onFsChange = () => {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        const icon = document.getElementById('galaxy-fs-icon');
+        const text = document.getElementById('galaxy-fs-text');
+        if (icon) icon.textContent = isFs ? '⛌' : '⛶';
+        if (text) text.textContent = isFs ? '종료' : '전체화면';
+        // 캔버스 리사이즈
+        setTimeout(() => { if (typeof onGResize === 'function') onGResize(); }, 100);
+      };
+      document.addEventListener('fullscreenchange', onFsChange);
+      document.addEventListener('webkitfullscreenchange', onFsChange);
+    }
+  }
+  
+  // 탭 활성화 감지 - 첫 활성화 때만 init
+  function watchGalaxyTab() {
+    document.querySelectorAll('[data-tab="tab-galaxy"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        setTimeout(async () => {
+          if (!g_initialized) {
+            initGalaxy();
+            await populatePlayerList();
+            await loadAndRenderGalaxy('', '25-26');
+          }
+          onGResize();
+        }, 100);
+      });
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { bindGalaxyEvents(); watchGalaxyTab(); });
+  } else {
+    bindGalaxyEvents();
+    watchGalaxyTab();
+  }
+})();
+
+}
 
 </script>
 </body>
@@ -6421,6 +7035,7 @@ document.getElementById('searchPlayerContribution').addEventListener('keypress',
     <button class="tab-btn" data-tab="tab-player-compare">경기력 추이</button>
     <button class="tab-btn" data-tab="tab-contribution">KBL 공헌도</button>
     <button class="tab-btn" data-tab="tab-evaluation">TERS-Rating</button>
+    <button class="tab-btn" data-tab="tab-galaxy">TERS-Galaxy</button>
     <button class="tab-btn" data-tab="tab-report">AI 선수 리포트</button>
   </nav>
 
@@ -6760,7 +7375,82 @@ document.getElementById('searchPlayerContribution').addEventListener('keypress',
   </div>
 
   <!-- ══════════════════════════════════════
-       TAB 7 — 선수 리포트
+       TAB 7 — TERS-Galaxy (3D 별자리)
+  ══════════════════════════════════════ -->
+  <div id="tab-galaxy" class="tab-content eval-tab-root">
+    <div class="eval-fixed-area" style="padding-bottom:0;margin-bottom:0;border-bottom:none;">
+      <div class="controls-row">
+        <div class="custom-dropdown" id="dd-galaxy">
+          <input type="text" id="galaxyPlayerSearch" class="ctrl-input" placeholder="선수 검색..." autocomplete="off">
+          <span class="dd-arrow" data-dd="dd-galaxy">▼</span>
+          <div class="dd-list" id="dd-list-galaxy"></div>
+        </div>
+        <button class="btn-primary" id="galaxyRenderBtn">조회</button>
+        <div class="filter-group" style="margin-left: 8px;">
+          <button class="filter-tag active" data-galaxy-type="국내">국내</button>
+          <button class="filter-tag active" data-galaxy-type="외국인">외국인</button>
+          <button class="filter-tag active" data-galaxy-type="아시아쿼터">아시아쿼터</button>
+        </div>
+      </div>
+    </div>
+    <div id="galaxy-wrapper" style="position:relative;height:calc(100vh - 240px);min-height:520px;border-radius:10px;overflow:hidden;border:1px solid #222;background:#000;margin-top:14px;">
+      <div id="galaxy-canvas-container" style="position:absolute;inset:0;"></div>
+      
+      <!-- 좌상단: 배경 시즌 선택 패널 -->
+      <div id="galaxy-season-panel" style="position:absolute;top:20px;left:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;color:#fff;z-index:11;">
+        <label style="font-size:0.72rem;font-weight:700;color:#a0a0b0;display:block;margin-bottom:6px;letter-spacing:0.04em;">배경 시즌</label>
+        <select id="galaxySeasonSelect" style="padding:7px 10px;background:#111;color:#fff;border:1px solid #333;border-radius:6px;font-family:inherit;font-size:0.85rem;min-width:130px;">
+          <option value="25-26">25-26 시즌</option>
+          <option value="24-25">24-25 시즌</option>
+          <option value="23-24">23-24 시즌</option>
+          <option value="22-23">22-23 시즌</option>
+          <option value="21-22">21-22 시즌</option>
+          <option value="20-21">20-21 시즌</option>
+        </select>
+      </div>
+      
+      <!-- 우상단: 전체화면 토글 버튼 -->
+      <button id="galaxy-fullscreen-btn" title="전체화면 (ESC로 종료)" style="position:absolute;top:20px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;z-index:11;display:flex;align-items:center;gap:6px;">
+        <span id="galaxy-fs-icon">⛶</span><span id="galaxy-fs-text">전체화면</span>
+      </button>
+      
+      <div id="galaxy-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:100;flex-direction:column;gap:10px;">
+        <div style="width:50px;height:50px;border:3px solid #333;border-top-color:#e8c96a;border-radius:50%;animation:galaxySpin 1s linear infinite;"></div>
+        <div style="font-size:0.85rem;color:var(--text-secondary);">우주 생성 중...</div>
+      </div>
+      <div id="galaxy-tooltip" style="position:absolute;pointer-events:none;background:rgba(0,0,0,0.9);border:1px solid #e8c96a;padding:6px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;z-index:50;display:none;color:#fff;"></div>
+      <div id="galaxy-info-panel" style="position:absolute;top:80px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;color:#fff;z-index:10;min-width:280px;max-width:340px;display:none;">
+        <div id="galaxy-info-name" style="font-size:1.15rem;font-weight:900;margin-bottom:4px;">—</div>
+        <div id="galaxy-info-meta" style="font-size:0.75rem;color:#a0a0b0;margin-bottom:10px;">—</div>
+        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:6px;">3축 점수</div>
+        <div id="galaxy-info-axes"></div>
+        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:6px;margin-top:10px;">TERS-Rating 카테고리</div>
+        <div id="galaxy-info-categories"></div>
+      </div>
+      <div id="galaxy-legend-panel" style="position:absolute;bottom:20px;left:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;color:#fff;z-index:10;font-size:0.78rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:8px;">범례</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#ffd84a;display:inline-block;"></span>분석 선수 별자리</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#3a90ff;display:inline-block;"></span>국내</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#ff3a3a;display:inline-block;"></span>외국인</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#2ad864;display:inline-block;"></span>아시아쿼터</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);font-size:0.7rem;color:#888;">
+          ✦ 최신 시즌 = 가장 큰 별<br>
+          ◯ 최고 시즌 = 펄스 글로우<br>
+          마우스 드래그 · 휠 줌 · 별 클릭
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    @keyframes galaxySpin { to { transform:rotate(360deg); } }
+    #tab-galaxy .filter-tag[data-galaxy-type="국내"].active { background:rgba(58,144,255,0.13); color:#3a90ff; border-color:rgba(58,144,255,0.4); }
+    #tab-galaxy .filter-tag[data-galaxy-type="외국인"].active { background:rgba(255,58,58,0.13); color:#ff3a3a; border-color:rgba(255,58,58,0.4); }
+    #tab-galaxy .filter-tag[data-galaxy-type="아시아쿼터"].active { background:rgba(42,216,100,0.13); color:#2ad864; border-color:rgba(42,216,100,0.4); }
+  </style>
+
+
+  <!-- ══════════════════════════════════════
+       TAB 8 — 선수 리포트
   ══════════════════════════════════════ -->
   <div id="tab-report" class="tab-content eval-tab-root">
 
@@ -7120,6 +7810,7 @@ const ddConfigs = [
   { ddId: 'dd-eval',        inputId: 'searchPlayerEval',     listId: 'dd-list-eval' },
   { ddId: 'dd-contribution', inputId: 'searchPlayerContribution', listId: 'dd-list-contribution' },
   { ddId: 'dd-report',     inputId: 'searchPlayerReport',   listId: 'dd-list-report' },
+  { ddId: 'dd-galaxy',     inputId: 'galaxyPlayerSearch',   listId: 'dd-list-galaxy' },
 ];
 
 let ddNames = {}; // listId → string[]
@@ -10777,6 +11468,541 @@ document.getElementById('searchPlayerContribButton').addEventListener('click', s
 document.getElementById('searchPlayerContribution').addEventListener('keypress', e => {
   if (e.key === 'Enter') searchContribPlayer();
 });
+
+if (!window.__galaxyLoaded) {
+  window.__galaxyLoaded = true;
+
+/* ═══════════════════════════════════════════════════════
+   TERS-Galaxy 통합 모듈 (IIFE)
+═══════════════════════════════════════════════════════ */
+(function(){
+  const G_BASE_URL = 'https://raw.githubusercontent.com/dookie777/KBL-Player-Performance-Analyzer/main/';
+  const G_FILEMAP = {
+    '20-21':'20-21_KBL_stats.xlsx','21-22':'21-22_KBL_stats.xlsx',
+    '22-23':'22-23_KBL_stats.xlsx','23-24':'23-24_KBL_stats.xlsx',
+    '24-25':'24-25_KBL_stats.xlsx','25-26':'25-26_KBL_stats.xlsx'
+  };
+  const G_SEASONS = Object.keys(G_FILEMAP);
+  
+  const G_CATEGORY_DEFS = {
+    '공격 기여도':[
+      {key:'평균 득점',w:0.35,rev:false},{key:'Offensive_WS',w:0.35,rev:false},
+      {key:'평균 공격 리바운드',w:0.15,rev:false},{key:'Offensive_rating',w:0.15,rev:false}],
+    '슈팅 퀄리티':[
+      {key:'TS%',w:0.30,rev:false},{key:'eFG%',w:0.25,rev:false},
+      {key:'FG%',w:0.15,rev:false},{key:'3P%',w:0.15,rev:false},{key:'FTr',w:0.15,rev:false}],
+    '보드 장악력':[
+      {key:'평균 리바운드',w:0.30,rev:false},{key:'TRB%',w:0.25,rev:false},
+      {key:'ORB%',w:0.20,rev:false},{key:'DRB%',w:0.25,rev:false}],
+    '수비 기여도':[
+      {key:'Defensive_WS',w:0.20,rev:false},{key:'Defensive_rating',w:0.20,rev:true},
+      {key:'평균 수비 리바운드',w:0.15,rev:false},{key:'평균 스틸',w:0.15,rev:false},
+      {key:'평균 블록',w:0.15,rev:false},{key:'STL%',w:0.08,rev:false},{key:'BS%',w:0.07,rev:false}],
+    '플레이 메이킹':[
+      {key:'평균 어시스트',w:0.35,rev:false},{key:'AST%',w:0.30,rev:false},
+      {key:'평균 턴오버',w:0.20,rev:true},{key:'TOV%',w:0.15,rev:true}],
+    '효율성':[
+      {key:'PER',w:0.30,rev:false},{key:'EFF/40',w:0.25,rev:false},
+      {key:'WS/40',w:0.25,rev:false},{key:'USG%',w:0.20,rev:false}],
+    '내구성':[
+      {key:'출전 경기 수',w:0.60,rev:false},{key:'총 출전 시간(초)',w:0.40,rev:false}],
+  };
+  const G_CATEGORIES = Object.keys(G_CATEGORY_DEFS);
+  
+  const G_DATA = {};
+  let G_ACTIVE_TYPES = new Set(['국내','외국인','아시아쿼터']);
+  
+  async function fetchSeason(sn) {
+    if (G_DATA[sn]) return G_DATA[sn];
+    const res = await fetch(G_BASE_URL + G_FILEMAP[sn]);
+    const buf = await res.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+    data.forEach(r => {
+      const m = parseInt(r.m)||0, s = parseInt(r.s)||0;
+      const gp = parseFloat(r['출전 경기 수']) || 1;
+      r['총 출전 시간(초)'] = (m*60+s)*gp;
+      const raw = (r.Player||'').trim();
+      const team = (r.Team||'').trim();
+      r.Player = raw + ' (' + team + ')';
+      r.Team = team;
+      r['구분'] = (r['구분']||'').trim();
+      r['포지션'] = (r['포지션']||'').trim();
+      r._cleanName = raw;
+      r._season = sn;
+    });
+    G_DATA[sn] = data;
+    return data;
+  }
+  
+  function gTScore(val, vals, rev) {
+    const valid = vals.filter(v => !isNaN(v));
+    if (!valid.length || isNaN(val)) return 50;
+    const mean = valid.reduce((a,b)=>a+b,0)/valid.length;
+    const std = Math.sqrt(valid.reduce((a,b)=>a+(b-mean)**2,0)/valid.length) || 1;
+    let z = (val-mean)/std;
+    if (rev) z = -z;
+    return Math.max(0, Math.min(100, 50+z*10));
+  }
+  function gCatScores(row, pool) {
+    const sc = {};
+    for (const cat of G_CATEGORIES) {
+      const defs = G_CATEGORY_DEFS[cat];
+      let wSum=0, sSum=0;
+      for (let i=0; i<defs.length; i++) {
+        const d = defs[i];
+        const v = parseFloat(row[d.key]);
+        if (isNaN(v)) continue;
+        const vals = pool.map(r => parseFloat(r[d.key])).filter(x => !isNaN(x));
+        sSum += gTScore(v, vals, d.rev) * d.w;
+        wSum += d.w;
+      }
+      sc[cat] = wSum>0 ? sSum/wSum : 50;
+    }
+    return sc;
+  }
+  function gCalc3Axes(sc) {
+    return {
+      x: (sc['공격 기여도'] + sc['슈팅 퀄리티']) / 2,
+      y: (sc['수비 기여도'] + sc['보드 장악력']) / 2,
+      z: (sc['플레이 메이킹'] + sc['효율성'] + sc['내구성']) / 3,
+    };
+  }
+  function gOverall(sc) {
+    let sum = 0;
+    for (let i=0; i<G_CATEGORIES.length; i++) sum += sc[G_CATEGORIES[i]];
+    return sum / G_CATEGORIES.length;
+  }
+  
+  /* ===== Three.js ===== */
+  let g_scene, g_camera, g_renderer, g_controls;
+  let g_starGroup, g_constGroup;
+  let g_raycaster, g_mouse;
+  let g_pulsing = [];
+  let g_hover = null;
+  let g_initialized = false;
+  
+  const CUBE_HALF = 80;
+  const POINT_SCALE = 2.4;
+  
+  function initGalaxy() {
+    if (g_initialized) return;
+    g_initialized = true;
+    
+    g_scene = new THREE.Scene();
+    g_scene.background = new THREE.Color(0x000005);
+    g_scene.fog = new THREE.FogExp2(0x000010, 0.004);
+    
+    const container = document.getElementById('galaxy-canvas-container');
+    const w = container.clientWidth, h = container.clientHeight;
+    
+    g_camera = new THREE.PerspectiveCamera(60, w/h, 0.1, 2000);
+    g_camera.position.set(140, 100, 170);
+    g_camera.lookAt(0, 0, 0);
+    
+    g_renderer = new THREE.WebGLRenderer({antialias:true});
+    g_renderer.setSize(w, h);
+    g_renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(g_renderer.domElement);
+    
+    g_controls = new THREE.OrbitControls(g_camera, g_renderer.domElement);
+    g_controls.enableDamping = true;
+    g_controls.dampingFactor = 0.05;
+    
+    g_scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const dl1 = new THREE.DirectionalLight(0xffffff, 0.9);
+    dl1.position.set(120, 150, 120);
+    g_scene.add(dl1);
+    const dl2 = new THREE.DirectionalLight(0xffffff, 0.4);
+    dl2.position.set(-100, -50, -80);
+    g_scene.add(dl2);
+    
+    // 배경 별가루
+    const bgGeo = new THREE.BufferGeometry();
+    const bgPos = [];
+    for (let i = 0; i < 2500; i++) {
+      bgPos.push((Math.random()-0.5)*700, (Math.random()-0.5)*700, (Math.random()-0.5)*700);
+    }
+    bgGeo.setAttribute('position', new THREE.Float32BufferAttribute(bgPos, 3));
+    g_scene.add(new THREE.Points(bgGeo, new THREE.PointsMaterial({size:0.5, color:0xffffff, transparent:true, opacity:0.4})));
+    
+    g_starGroup = new THREE.Group();
+    g_constGroup = new THREE.Group();
+    g_scene.add(g_starGroup);
+    g_scene.add(g_constGroup);
+    
+    // 축 화살표 6방향
+    function addArrow(dir, color, opacity, len) {
+      const v = new THREE.Vector3(dir[0], dir[1], dir[2]).normalize();
+      const arr = new THREE.ArrowHelper(v, new THREE.Vector3(0,0,0), len, color, len*0.03, len*0.02);
+      arr.line.material.transparent = true;
+      arr.line.material.opacity = opacity;
+      arr.cone.material.transparent = true;
+      arr.cone.material.opacity = opacity;
+      return arr;
+    }
+    g_scene.add(addArrow([1,0,0], 0xbbbbbb, 0.7, CUBE_HALF));
+    g_scene.add(addArrow([0,1,0], 0xbbbbbb, 0.7, CUBE_HALF));
+    g_scene.add(addArrow([0,0,1], 0xbbbbbb, 0.7, CUBE_HALF));
+    g_scene.add(addArrow([-1,0,0], 0x666666, 0.4, CUBE_HALF));
+    g_scene.add(addArrow([0,-1,0], 0x666666, 0.4, CUBE_HALF));
+    g_scene.add(addArrow([0,0,-1], 0x666666, 0.4, CUBE_HALF));
+    
+    // +++ 엘리트 큐브 (음영)
+    const eGeo = new THREE.BoxGeometry(CUBE_HALF, CUBE_HALF, CUBE_HALF);
+    const eMat = new THREE.MeshBasicMaterial({color:0xe8c96a, transparent:true, opacity:0.08, side:THREE.DoubleSide});
+    const eBox = new THREE.Mesh(eGeo, eMat);
+    eBox.position.set(CUBE_HALF/2, CUBE_HALF/2, CUBE_HALF/2);
+    g_scene.add(eBox);
+    
+    // 원점 점
+    g_scene.add(new THREE.Mesh(new THREE.SphereGeometry(0.7, 12, 12), new THREE.MeshBasicMaterial({color:0x999999, transparent:true, opacity:0.6})));
+    
+    // 축 라벨 (흰색)
+    function makeLabel(text, pos) {
+      const cv = document.createElement('canvas');
+      cv.width = 256; cv.height = 80;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 48px Noto Sans KR, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(text, 128, 58);
+      const tex = new THREE.CanvasTexture(cv);
+      const mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false});
+      const sprite = new THREE.Sprite(mat);
+      sprite.position.set(pos[0], pos[1], pos[2]);
+      sprite.scale.set(18, 5.5, 1);
+      return sprite;
+    }
+    g_scene.add(makeLabel('공격', [CUBE_HALF + 10, 0, 0]));
+    g_scene.add(makeLabel('수비', [0, CUBE_HALF + 10, 0]));
+    g_scene.add(makeLabel('운영', [0, 0, CUBE_HALF + 10]));
+    
+    g_raycaster = new THREE.Raycaster();
+    g_mouse = new THREE.Vector2();
+    
+    g_renderer.domElement.addEventListener('mousemove', onGMouseMove);
+    g_renderer.domElement.addEventListener('click', onGMouseClick);
+    window.addEventListener('resize', onGResize);
+    
+    animateGalaxy();
+  }
+  
+  function onGResize() {
+    const container = document.getElementById('galaxy-canvas-container');
+    if (!container || !g_renderer) return;
+    const w = container.clientWidth, h = container.clientHeight;
+    if (w > 0 && h > 0) {
+      g_camera.aspect = w/h;
+      g_camera.updateProjectionMatrix();
+      g_renderer.setSize(w, h);
+    }
+  }
+  
+  function onGMouseMove(event) {
+    const rect = g_renderer.domElement.getBoundingClientRect();
+    g_mouse.x = ((event.clientX - rect.left)/rect.width)*2 - 1;
+    g_mouse.y = -((event.clientY - rect.top)/rect.height)*2 + 1;
+    g_raycaster.setFromCamera(g_mouse, g_camera);
+    const intersects = g_raycaster.intersectObjects(g_starGroup.children, false);
+    const tooltip = document.getElementById('galaxy-tooltip');
+    if (intersects.length > 0) {
+      const star = intersects[0].object;
+      if (star.userData && star.userData.name) {
+        tooltip.style.display = 'block';
+        const containerRect = document.getElementById('galaxy-canvas-container').getBoundingClientRect();
+        tooltip.style.left = (event.clientX - containerRect.left + 12) + 'px';
+        tooltip.style.top = (event.clientY - containerRect.top + 12) + 'px';
+        tooltip.textContent = star.userData.name + ' (' + star.userData.season + ')';
+        g_hover = star;
+        return;
+      }
+    }
+    tooltip.style.display = 'none';
+    g_hover = null;
+  }
+  
+  function onGMouseClick() {
+    if (g_hover && g_hover.userData) showGalaxyPlayerInfo(g_hover.userData);
+  }
+  
+  function showGalaxyPlayerInfo(data) {
+    const panel = document.getElementById('galaxy-info-panel');
+    panel.style.display = 'block';
+    document.getElementById('galaxy-info-name').textContent = data.name;
+    document.getElementById('galaxy-info-meta').textContent =
+      (data.team||'-') + ' · ' + (data.position||'-') + ' · ' + (data.type||'-') + ' · ' + data.season + ' 시즌';
+    
+    const axesDiv = document.getElementById('galaxy-info-axes');
+    axesDiv.innerHTML = '';
+    if (data.axes) {
+      const axes = [
+        {label:'공격', value:data.axes.x},
+        {label:'수비', value:data.axes.y},
+        {label:'운영', value:data.axes.z},
+      ];
+      axes.forEach(a => {
+        const div = document.createElement('div');
+        div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin:3px 0;';
+        div.innerHTML = '<span style="color:#a0a0b0;">' + a.label + '</span><span style="font-weight:700;">' + a.value.toFixed(1) + '</span>';
+        axesDiv.appendChild(div);
+      });
+    }
+    const catDiv = document.getElementById('galaxy-info-categories');
+    catDiv.innerHTML = '';
+    G_CATEGORIES.forEach(c => {
+      const s = (data.scores && data.scores[c]) ? data.scores[c].toFixed(1) : '-';
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin:3px 0;';
+      div.innerHTML = '<span style="color:#a0a0b0;">' + c + '</span><span style="font-weight:700;">' + s + '</span>';
+      catDiv.appendChild(div);
+    });
+  }
+  
+  function animateGalaxy() {
+    requestAnimationFrame(animateGalaxy);
+    if (!g_controls) return;
+    g_controls.update();
+    const t = Date.now() * 0.003;
+    g_pulsing.forEach(p => {
+      const scale = 1 + Math.sin(t)*0.25;
+      if (p.glow) p.glow.scale.setScalar(scale);
+      if (p.glow && p.glow.material) p.glow.material.opacity = 0.3 + Math.sin(t)*0.18;
+    });
+    if (g_hover) g_hover.scale.setScalar(1 + Math.sin(Date.now()*0.008)*0.12);
+    g_renderer.render(g_scene, g_camera);
+  }
+  
+  function clearGalaxy() {
+    if (!g_starGroup) return;
+    while (g_starGroup.children.length) {
+      const c = g_starGroup.children[0];
+      g_starGroup.remove(c);
+      c.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) o.material.dispose();
+      });
+    }
+    while (g_constGroup.children.length) {
+      const c = g_constGroup.children[0];
+      g_constGroup.remove(c);
+      if (c.geometry) c.geometry.dispose();
+      if (c.material) c.material.dispose();
+    }
+    g_pulsing = [];
+  }
+  
+  function getGTypeColor(type, isAnalysis) {
+    if (isAnalysis) return 0xffd84a;
+    if (type === '국내') return 0x3a90ff;
+    if (type === '외국인') return 0xff3a3a;
+    if (type === '아시아쿼터') return 0x2ad864;
+    return 0x888888;
+  }
+  
+  function addGStar(pos, color, size, userData, opts) {
+    const geo = new THREE.SphereGeometry(size, 24, 24);
+    const mat = new THREE.MeshStandardMaterial({
+      color, roughness:0.4, metalness:0.2,
+      emissive:color, emissiveIntensity: opts.isAnalysis ? 0.8 : 0.55,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(pos[0], pos[1], pos[2]);
+    mesh.userData = userData;
+    g_starGroup.add(mesh);
+    if (opts.isAnalysis) {
+      const glowGeo = new THREE.SphereGeometry(size*2.0, 16, 16);
+      const glowMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.3});
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      mesh.add(glow);
+      if (opts.isBest) g_pulsing.push({mesh, glow});
+    }
+    return mesh;
+  }
+  
+  function drawGConstellation(positions, color) {
+    if (positions.length < 2) return;
+    const geo = new THREE.BufferGeometry();
+    const pts = [];
+    positions.forEach(p => pts.push(p[0], p[1], p[2]));
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    const mat = new THREE.LineBasicMaterial({color, transparent:true, opacity:0.85});
+    g_constGroup.add(new THREE.Line(geo, mat));
+  }
+  
+  async function loadAndRenderGalaxy(targetName, bgSeason) {
+    document.getElementById('galaxy-loading').style.display = 'flex';
+    clearGalaxy();
+    try {
+      const bgDataRaw = await fetchSeason(bgSeason);
+      // 국적 필터 적용
+      const bgData = bgDataRaw.filter(r => G_ACTIVE_TYPES.has(r['구분']));
+      
+      const playerSeasons = [];
+      if (targetName) {
+        for (let i=0; i<G_SEASONS.length; i++) {
+          const sd = await fetchSeason(G_SEASONS[i]);
+          const found = sd.find(r => r._cleanName === targetName);
+          if (found) playerSeasons.push(Object.assign({}, found, {_season: G_SEASONS[i]}));
+        }
+      }
+      
+      const allRows = bgData.slice();
+      playerSeasons.forEach(ps => {
+        if (!allRows.find(r => r._cleanName === ps._cleanName && r._season === ps._season)) {
+          allRows.push(ps);
+        }
+      });
+      
+      const scoresArr = allRows.map(r => gCatScores(r, allRows));
+      const axesArr = scoresArr.map(s => gCalc3Axes(s));
+      const overallArr = scoresArr.map(s => gOverall(s));
+      
+      const playerKeys = new Set(playerSeasons.map(p => p._cleanName+'__'+p._season));
+      let bestKey = null, latestKey = null;
+      if (playerSeasons.length > 0) {
+        let maxScore = -Infinity, bestIdx = -1;
+        playerSeasons.forEach(ps => {
+          const idx = allRows.findIndex(r => r._cleanName === ps._cleanName && r._season === ps._season);
+          if (overallArr[idx] > maxScore) { maxScore = overallArr[idx]; bestIdx = idx; }
+        });
+        if (bestIdx >= 0) bestKey = allRows[bestIdx]._cleanName + '__' + allRows[bestIdx]._season;
+        const sorted = playerSeasons.slice().sort((a,b) => G_SEASONS.indexOf(b._season) - G_SEASONS.indexOf(a._season));
+        latestKey = sorted[0]._cleanName + '__' + sorted[0]._season;
+      }
+      
+      allRows.forEach((r, i) => {
+        const key = r._cleanName + '__' + r._season;
+        const isAnalysis = playerKeys.has(key);
+        const isBest = (key === bestKey);
+        const isLatest = (key === latestKey);
+        const color = getGTypeColor(r['구분'], isAnalysis);
+        let size = 0.7;
+        if (isAnalysis) size = 1.6;
+        if (isLatest) size = 2.4;
+        const ax = axesArr[i];
+        const pos = [(ax.x-50)*POINT_SCALE, (ax.y-50)*POINT_SCALE, (ax.z-50)*POINT_SCALE];
+        const userData = {
+          name: r._cleanName, team: r.Team, position: r['포지션'], type: r['구분'],
+          season: r._season, scores: scoresArr[i], axes: ax,
+          isAnalysis, isBest, isLatest,
+        };
+        addGStar(pos, color, size, userData, {isAnalysis, isBest, isLatest});
+      });
+      
+      if (playerSeasons.length >= 2) {
+        const sorted = playerSeasons.slice().sort((a,b) => G_SEASONS.indexOf(a._season) - G_SEASONS.indexOf(b._season));
+        const linePos = sorted.map(ps => {
+          const idx = allRows.findIndex(r => r._cleanName === ps._cleanName && r._season === ps._season);
+          const ax = axesArr[idx];
+          return [(ax.x-50)*POINT_SCALE, (ax.y-50)*POINT_SCALE, (ax.z-50)*POINT_SCALE];
+        });
+        drawGConstellation(linePos, 0xffd84a);
+      }
+    } catch (err) {
+      console.error('Galaxy 렌더 오류:', err);
+    } finally {
+      document.getElementById('galaxy-loading').style.display = 'none';
+    }
+  }
+  
+  /* ===== 이벤트 / 초기화 ===== */
+  let g_listInitialized = false;
+  async function populatePlayerList() {
+    if (g_listInitialized) return;
+    g_listInitialized = true;
+    for (let i=0; i<G_SEASONS.length; i++) await fetchSeason(G_SEASONS[i]);
+    const all = new Set();
+    G_SEASONS.forEach(sn => (G_DATA[sn]||[]).forEach(r => all.add(r._cleanName)));
+    const names = Array.from(all).sort();
+    if (typeof buildDdList === 'function') {
+      buildDdList('dd-list-galaxy', names);
+    }
+  }
+  
+  function bindGalaxyEvents() {
+    const btn = document.getElementById('galaxyRenderBtn');
+    if (btn) btn.addEventListener('click', async () => {
+      const name = document.getElementById('galaxyPlayerSearch').value.trim();
+      const season = document.getElementById('galaxySeasonSelect').value;
+      await loadAndRenderGalaxy(name, season);
+    });
+    const input = document.getElementById('galaxyPlayerSearch');
+    if (input) input.addEventListener('keypress', async (e) => {
+      if (e.key === 'Enter') {
+        const season = document.getElementById('galaxySeasonSelect').value;
+        await loadAndRenderGalaxy(input.value.trim(), season);
+      }
+    });
+    const sel = document.getElementById('galaxySeasonSelect');
+    if (sel) sel.addEventListener('change', async () => {
+      const name = document.getElementById('galaxyPlayerSearch').value.trim();
+      await loadAndRenderGalaxy(name, sel.value);
+    });
+    document.querySelectorAll('#tab-galaxy .filter-tag[data-galaxy-type]').forEach(b => {
+      b.addEventListener('click', async () => {
+        const t = b.dataset.galaxyType;
+        if (G_ACTIVE_TYPES.has(t)) { G_ACTIVE_TYPES.delete(t); b.classList.remove('active'); }
+        else { G_ACTIVE_TYPES.add(t); b.classList.add('active'); }
+        const name = document.getElementById('galaxyPlayerSearch').value.trim();
+        const season = document.getElementById('galaxySeasonSelect').value;
+        await loadAndRenderGalaxy(name, season);
+      });
+    });
+    
+    // 전체화면 토글
+    const fsBtn = document.getElementById('galaxy-fullscreen-btn');
+    const wrapper = document.getElementById('galaxy-wrapper');
+    if (fsBtn && wrapper) {
+      fsBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+          else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      });
+      // 전체화면 상태 변경 시 아이콘/텍스트 + 캔버스 리사이즈
+      const onFsChange = () => {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        const icon = document.getElementById('galaxy-fs-icon');
+        const text = document.getElementById('galaxy-fs-text');
+        if (icon) icon.textContent = isFs ? '⛌' : '⛶';
+        if (text) text.textContent = isFs ? '종료' : '전체화면';
+        // 캔버스 리사이즈
+        setTimeout(() => { if (typeof onGResize === 'function') onGResize(); }, 100);
+      };
+      document.addEventListener('fullscreenchange', onFsChange);
+      document.addEventListener('webkitfullscreenchange', onFsChange);
+    }
+  }
+  
+  // 탭 활성화 감지 - 첫 활성화 때만 init
+  function watchGalaxyTab() {
+    document.querySelectorAll('[data-tab="tab-galaxy"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        setTimeout(async () => {
+          if (!g_initialized) {
+            initGalaxy();
+            await populatePlayerList();
+            await loadAndRenderGalaxy('', '25-26');
+          }
+          onGResize();
+        }, 100);
+      });
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { bindGalaxyEvents(); watchGalaxyTab(); });
+  } else {
+    bindGalaxyEvents();
+    watchGalaxyTab();
+  }
+})();
+
+}
 
 </script>
 </body>
