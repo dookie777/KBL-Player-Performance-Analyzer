@@ -17,6 +17,8 @@
   </script>
 
   <style>
+    /* 모바일에서도 PC 레이아웃 그대로 유지 - 핀치 줌으로 확대/축소 */
+    html, body { min-width: 1400px; }
     /* ─── CSS Variables ─── */
     :root {
       --bg-primary:    #0a0a0a;
@@ -7136,6 +7138,7 @@ if (!window.__galaxyLoaded) {
             const data = {
               name: r._cleanName, team: r.Team, position: r['포지션'], type: r['구분'],
               season: r._season, scores: scoresArr[idx], axes: axesArr[idx],
+              poolMean: {x: POOL_MEAN_X, y: POOL_MEAN_Y, z: POOL_MEAN_Z},
             };
             showGalaxyPlayerInfo(data);
           }
@@ -12430,6 +12433,7 @@ if (!window.__galaxyLoaded) {
             const data = {
               name: r._cleanName, team: r.Team, position: r['포지션'], type: r['구분'],
               season: r._season, scores: scoresArr[idx], axes: axesArr[idx],
+              poolMean: {x: POOL_MEAN_X, y: POOL_MEAN_Y, z: POOL_MEAN_Z},
             };
             showGalaxyPlayerInfo(data);
           }
