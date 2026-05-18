@@ -2434,10 +2434,13 @@
         </select>
       </div>
       
-      <!-- 우상단: 초기화 + 전체화면 버튼 -->
+      <!-- 우상단: 초기화 + 분석 선수만 + 전체화면 버튼 -->
       <div style="position:absolute;top:20px;right:20px;display:flex;gap:8px;z-index:11;">
         <button id="galaxy-reset-btn" title="선택 초기화" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
           <span>↺</span><span>초기화</span>
+        </button>
+        <button id="galaxy-soloview-btn" title="검색 선수만 표시 (타 선수 제외)" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
+          <span id="galaxy-solo-icon">◯</span><span>검색 선수만</span>
         </button>
         <button id="galaxy-fullscreen-btn" title="전체화면 (ESC로 종료)" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
           <span id="galaxy-fs-icon">⛶</span><span id="galaxy-fs-text">전체화면</span>
@@ -2452,7 +2455,7 @@
       <div id="galaxy-info-panel" style="position:absolute;top:80px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 20px;color:#fff;z-index:10;min-width:260px;max-width:320px;display:none;">
         <div id="galaxy-info-name" style="font-size:1.15rem;font-weight:900;margin-bottom:4px;">—</div>
         <div id="galaxy-info-meta" style="font-size:0.75rem;color:#a0a0b0;margin-bottom:14px;">—</div>
-        <div style="font-size:0.72rem;font-weight:700;color:#a0a0b0;letter-spacing:0.05em;margin-bottom:4px;">중심으로부터 거리</div>
+        <div style="font-size:0.72rem;font-weight:700;color:#a0a0b0;letter-spacing:0.05em;margin-bottom:4px;">중심(리그 평균)으로 부터의 거리</div>
         <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
           <span id="galaxy-info-distance" style="font-size:1.5rem;font-weight:900;color:#e8c96a;">—</span>
           <span style="font-size:1rem;color:#a0a0b0;font-weight:700;">BU</span>
@@ -6594,6 +6597,7 @@ if (!window.__galaxyLoaded) {
   const G_DATA = {};
   let G_ACTIVE_TYPES = new Set(['국내','외국인','아시아쿼터']);
   let G_HIDE_LOWGAMES = false;
+  let G_SOLO_MODE = false;
   
   async function fetchSeason(sn) {
     if (G_DATA[sn]) return G_DATA[sn];
@@ -7004,7 +7008,7 @@ if (!window.__galaxyLoaded) {
   }
   
   // 분석 선수 색상 (최대 3명)
-  const ANALYSIS_COLORS = [0xffd84a, 0x4aa3ff, 0xff5a5a]; // 노랑, 파랑, 빨강
+  const ANALYSIS_COLORS = [0xffd84a, 0xff8a1f, 0x00e5ff]; // 노랑, 주황, 시안
   
   async function loadAndRenderGalaxy(targetNames, bgSeason) {
     // 단일 문자열도 허용 (호환성)
@@ -7205,6 +7209,8 @@ if (!window.__galaxyLoaded) {
         if (!mesh || !mesh.userData) return;
         if (mesh.userData.isAnalysis) {
           mesh.visible = true; // 분석 선수는 항상 표시
+        } else if (G_SOLO_MODE) {
+          mesh.visible = false; // 분석 선수만 모드 - 일반 선수 모두 숨김
         } else {
           let v = G_ACTIVE_TYPES.has(mesh.userData.type);
           if (G_HIDE_LOWGAMES && mesh.userData.isLowGames) v = false;
@@ -7235,8 +7241,34 @@ if (!window.__galaxyLoaded) {
       });
       document.getElementById('galaxy-info-panel').style.display = 'none';
       g_selectedStar = null;
+      // 분석 선수만 모드도 해제
+      G_SOLO_MODE = false;
+      const soloBtn = document.getElementById('galaxy-soloview-btn');
+      if (soloBtn) {
+        soloBtn.style.background = 'rgba(15,15,25,0.85)';
+        soloBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+        const ico = document.getElementById('galaxy-solo-icon');
+        if (ico) ico.textContent = '◯';
+      }
       const season = document.getElementById('galaxySeasonSelect').value;
       await loadAndRenderGalaxy([], season);
+    });
+    
+    // 분석 선수만 토글
+    const soloBtn = document.getElementById('galaxy-soloview-btn');
+    if (soloBtn) soloBtn.addEventListener('click', () => {
+      G_SOLO_MODE = !G_SOLO_MODE;
+      const ico = document.getElementById('galaxy-solo-icon');
+      if (G_SOLO_MODE) {
+        soloBtn.style.background = 'rgba(232,201,106,0.25)';
+        soloBtn.style.borderColor = 'rgba(232,201,106,0.6)';
+        if (ico) ico.textContent = '●';
+      } else {
+        soloBtn.style.background = 'rgba(15,15,25,0.85)';
+        soloBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+        if (ico) ico.textContent = '◯';
+      }
+      applyGalaxyVisibility();
     });
     
     // 전체화면 토글
@@ -7729,10 +7761,13 @@ if (!window.__galaxyLoaded) {
         </select>
       </div>
       
-      <!-- 우상단: 초기화 + 전체화면 버튼 -->
+      <!-- 우상단: 초기화 + 분석 선수만 + 전체화면 버튼 -->
       <div style="position:absolute;top:20px;right:20px;display:flex;gap:8px;z-index:11;">
         <button id="galaxy-reset-btn" title="선택 초기화" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
           <span>↺</span><span>초기화</span>
+        </button>
+        <button id="galaxy-soloview-btn" title="검색 선수만 표시 (타 선수 제외)" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
+          <span id="galaxy-solo-icon">◯</span><span>검색 선수만</span>
         </button>
         <button id="galaxy-fullscreen-btn" title="전체화면 (ESC로 종료)" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
           <span id="galaxy-fs-icon">⛶</span><span id="galaxy-fs-text">전체화면</span>
@@ -7747,7 +7782,7 @@ if (!window.__galaxyLoaded) {
       <div id="galaxy-info-panel" style="position:absolute;top:80px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 20px;color:#fff;z-index:10;min-width:260px;max-width:320px;display:none;">
         <div id="galaxy-info-name" style="font-size:1.15rem;font-weight:900;margin-bottom:4px;">—</div>
         <div id="galaxy-info-meta" style="font-size:0.75rem;color:#a0a0b0;margin-bottom:14px;">—</div>
-        <div style="font-size:0.72rem;font-weight:700;color:#a0a0b0;letter-spacing:0.05em;margin-bottom:4px;">중심으로부터 거리</div>
+        <div style="font-size:0.72rem;font-weight:700;color:#a0a0b0;letter-spacing:0.05em;margin-bottom:4px;">중심(리그 평균)으로 부터의 거리</div>
         <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
           <span id="galaxy-info-distance" style="font-size:1.5rem;font-weight:900;color:#e8c96a;">—</span>
           <span style="font-size:1rem;color:#a0a0b0;font-weight:700;">BU</span>
@@ -11889,6 +11924,7 @@ if (!window.__galaxyLoaded) {
   const G_DATA = {};
   let G_ACTIVE_TYPES = new Set(['국내','외국인','아시아쿼터']);
   let G_HIDE_LOWGAMES = false;
+  let G_SOLO_MODE = false;
   
   async function fetchSeason(sn) {
     if (G_DATA[sn]) return G_DATA[sn];
@@ -12299,7 +12335,7 @@ if (!window.__galaxyLoaded) {
   }
   
   // 분석 선수 색상 (최대 3명)
-  const ANALYSIS_COLORS = [0xffd84a, 0x4aa3ff, 0xff5a5a]; // 노랑, 파랑, 빨강
+  const ANALYSIS_COLORS = [0xffd84a, 0xff8a1f, 0x00e5ff]; // 노랑, 주황, 시안
   
   async function loadAndRenderGalaxy(targetNames, bgSeason) {
     // 단일 문자열도 허용 (호환성)
@@ -12500,6 +12536,8 @@ if (!window.__galaxyLoaded) {
         if (!mesh || !mesh.userData) return;
         if (mesh.userData.isAnalysis) {
           mesh.visible = true; // 분석 선수는 항상 표시
+        } else if (G_SOLO_MODE) {
+          mesh.visible = false; // 분석 선수만 모드 - 일반 선수 모두 숨김
         } else {
           let v = G_ACTIVE_TYPES.has(mesh.userData.type);
           if (G_HIDE_LOWGAMES && mesh.userData.isLowGames) v = false;
@@ -12530,8 +12568,34 @@ if (!window.__galaxyLoaded) {
       });
       document.getElementById('galaxy-info-panel').style.display = 'none';
       g_selectedStar = null;
+      // 분석 선수만 모드도 해제
+      G_SOLO_MODE = false;
+      const soloBtn = document.getElementById('galaxy-soloview-btn');
+      if (soloBtn) {
+        soloBtn.style.background = 'rgba(15,15,25,0.85)';
+        soloBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+        const ico = document.getElementById('galaxy-solo-icon');
+        if (ico) ico.textContent = '◯';
+      }
       const season = document.getElementById('galaxySeasonSelect').value;
       await loadAndRenderGalaxy([], season);
+    });
+    
+    // 분석 선수만 토글
+    const soloBtn = document.getElementById('galaxy-soloview-btn');
+    if (soloBtn) soloBtn.addEventListener('click', () => {
+      G_SOLO_MODE = !G_SOLO_MODE;
+      const ico = document.getElementById('galaxy-solo-icon');
+      if (G_SOLO_MODE) {
+        soloBtn.style.background = 'rgba(232,201,106,0.25)';
+        soloBtn.style.borderColor = 'rgba(232,201,106,0.6)';
+        if (ico) ico.textContent = '●';
+      } else {
+        soloBtn.style.background = 'rgba(15,15,25,0.85)';
+        soloBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+        if (ico) ico.textContent = '◯';
+      }
+      applyGalaxyVisibility();
     });
     
     // 전체화면 토글
