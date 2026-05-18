@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=1400, initial-scale=0.3, minimum-scale=0.2, maximum-scale=5.0, user-scalable=yes">
   <title>KBL Player Stats Analyzer</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -623,6 +623,11 @@
     }
 
     /* ── 방사형 그래프 카드 ── */
+    .eval-radar-warn {
+      position:absolute; top:8px; left:12px;
+      font-size:0.85rem; color:#999999; font-weight:500;
+      z-index:5;
+    }
     .eval-radar-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -1997,6 +2002,19 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
+  <div id="mobileNotice" style="display:none;position:fixed;top:0;left:0;right:0;background:rgba(232,201,106,0.95);color:#000;text-align:center;padding:10px 14px;font-size:13px;font-weight:700;z-index:99999;font-family:'Noto Sans KR',sans-serif;line-height:1.4;">
+    📱 모바일 화면입니다 · PC에서 보는 것을 권장합니다
+    <button onclick="document.getElementById('mobileNotice').style.display='none'" style="margin-left:10px;background:rgba(0,0,0,0.15);border:none;border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700;color:#000;font-size:12px;">닫기</button>
+  </div>
+  <script>
+    (function(){
+      // 모바일 감지 - 화면 너비 768px 이하
+      if (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        const el = document.getElementById('mobileNotice');
+        if (el) el.style.display = 'block';
+      }
+    })();
+  </script>
 
 <div class="app-wrapper">
 
@@ -2287,6 +2305,10 @@
         <div id="evalSeasonBtnGroup" class="eval-season-btn-group"></div>
         <div class="eval-season-pos-divider"></div>
         <div id="evalPosGroup" class="eval-pos-group"></div>
+        <div class="min-games-wrap" style="margin-left:14px;">
+          <input type="checkbox" id="evalMinGames" checked>
+          <label for="evalMinGames">최소 경기(14G)</label>
+        </div>
         <div style="margin-left:auto">
           <div class="rank-legend-title" style="margin-bottom:4px">총점 색상</div>
           <div class="rank-legend-items">
@@ -2366,17 +2388,31 @@
   ══════════════════════════════════════ -->
   <div id="tab-galaxy" class="tab-content eval-tab-root">
     <div class="eval-fixed-area" style="padding-bottom:0;margin-bottom:0;border-bottom:none;">
-      <div class="controls-row">
-        <div class="custom-dropdown" id="dd-galaxy">
-          <input type="text" id="galaxyPlayerSearch" class="ctrl-input" placeholder="선수 검색..." autocomplete="off">
-          <span class="dd-arrow" data-dd="dd-galaxy">▼</span>
-          <div class="dd-list" id="dd-list-galaxy"></div>
+      <div class="cmp-row-players">
+        <div class="custom-dropdown" id="dd-galaxy1">
+          <input type="text" id="galaxyPlayer1" class="ctrl-input" placeholder="Player 1" autocomplete="off">
+          <span class="dd-arrow" data-dd="dd-galaxy1">▼</span>
+          <div class="dd-list" id="dd-list-galaxy1"></div>
+        </div>
+        <div class="custom-dropdown" id="dd-galaxy2">
+          <input type="text" id="galaxyPlayer2" class="ctrl-input" placeholder="Player 2 (선택)" autocomplete="off">
+          <span class="dd-arrow" data-dd="dd-galaxy2">▼</span>
+          <div class="dd-list" id="dd-list-galaxy2"></div>
+        </div>
+        <div class="custom-dropdown" id="dd-galaxy3">
+          <input type="text" id="galaxyPlayer3" class="ctrl-input" placeholder="Player 3 (선택)" autocomplete="off">
+          <span class="dd-arrow" data-dd="dd-galaxy3">▼</span>
+          <div class="dd-list" id="dd-list-galaxy3"></div>
         </div>
         <button class="btn-primary" id="galaxyRenderBtn">조회</button>
-        <div class="filter-group" style="margin-left: 8px;">
+        <div class="filter-group">
           <button class="filter-tag active" data-galaxy-type="국내">국내</button>
           <button class="filter-tag active" data-galaxy-type="외국인">외국인</button>
           <button class="filter-tag active" data-galaxy-type="아시아쿼터">아시아쿼터</button>
+          <div class="min-games-wrap">
+            <input type="checkbox" id="galaxyMinGames">
+            <label for="galaxyMinGames">14G 미만 제외</label>
+          </div>
         </div>
       </div>
     </div>
@@ -2396,23 +2432,32 @@
         </select>
       </div>
       
-      <!-- 우상단: 전체화면 토글 버튼 -->
-      <button id="galaxy-fullscreen-btn" title="전체화면 (ESC로 종료)" style="position:absolute;top:20px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;z-index:11;display:flex;align-items:center;gap:6px;">
-        <span id="galaxy-fs-icon">⛶</span><span id="galaxy-fs-text">전체화면</span>
-      </button>
+      <!-- 우상단: 초기화 + 전체화면 버튼 -->
+      <div style="position:absolute;top:20px;right:20px;display:flex;gap:8px;z-index:11;">
+        <button id="galaxy-reset-btn" title="선택 초기화" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
+          <span>↺</span><span>초기화</span>
+        </button>
+        <button id="galaxy-fullscreen-btn" title="전체화면 (ESC로 종료)" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
+          <span id="galaxy-fs-icon">⛶</span><span id="galaxy-fs-text">전체화면</span>
+        </button>
+      </div>
       
       <div id="galaxy-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:100;flex-direction:column;gap:10px;">
         <div style="width:50px;height:50px;border:3px solid #333;border-top-color:#e8c96a;border-radius:50%;animation:galaxySpin 1s linear infinite;"></div>
         <div style="font-size:0.85rem;color:var(--text-secondary);">우주 생성 중...</div>
       </div>
       <div id="galaxy-tooltip" style="position:absolute;pointer-events:none;background:rgba(0,0,0,0.9);border:1px solid #e8c96a;padding:6px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;z-index:50;display:none;color:#fff;"></div>
-      <div id="galaxy-info-panel" style="position:absolute;top:80px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;color:#fff;z-index:10;min-width:280px;max-width:340px;display:none;">
+      <div id="galaxy-info-panel" style="position:absolute;top:80px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 20px;color:#fff;z-index:10;min-width:260px;max-width:320px;display:none;">
         <div id="galaxy-info-name" style="font-size:1.15rem;font-weight:900;margin-bottom:4px;">—</div>
-        <div id="galaxy-info-meta" style="font-size:0.75rem;color:#a0a0b0;margin-bottom:10px;">—</div>
-        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:6px;">3축 점수</div>
+        <div id="galaxy-info-meta" style="font-size:0.75rem;color:#a0a0b0;margin-bottom:14px;">—</div>
+        <div style="font-size:0.72rem;font-weight:700;color:#a0a0b0;letter-spacing:0.05em;margin-bottom:4px;">중심으로부터 거리</div>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+          <span id="galaxy-info-distance" style="font-size:1.5rem;font-weight:900;color:#e8c96a;">—</span>
+          <span style="font-size:1rem;color:#a0a0b0;font-weight:700;">BU</span>
+          <span style="font-size:0.7rem;color:#888;font-weight:500;">(Basketball Unit)</span>
+        </div>
+        <div style="font-size:0.78rem;font-weight:700;color:#e8c96a;margin-bottom:6px;">3축 점수</div>
         <div id="galaxy-info-axes"></div>
-        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:6px;margin-top:10px;">TERS-Rating 카테고리</div>
-        <div id="galaxy-info-categories"></div>
       </div>
       <div id="galaxy-legend-panel" style="position:absolute;bottom:20px;left:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;color:#fff;z-index:10;font-size:0.78rem;">
         <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:8px;">범례</div>
@@ -2420,10 +2465,10 @@
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#3a90ff;display:inline-block;"></span>국내</div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#ff3a3a;display:inline-block;"></span>외국인</div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#2ad864;display:inline-block;"></span>아시아쿼터</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#666666;display:inline-block;"></span>14경기 미만 출전</div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);font-size:0.7rem;color:#888;">
           ✦ 최신 시즌 = 가장 큰 별<br>
-          ◯ 최고 시즌 = 펄스 글로우<br>
-          마우스 드래그 · 휠 줌 · 별 클릭
+          ◯ 최고 시즌 = 펄스 글로우
         </div>
       </div>
     </div>
@@ -2797,7 +2842,9 @@ const ddConfigs = [
   { ddId: 'dd-eval',        inputId: 'searchPlayerEval',     listId: 'dd-list-eval' },
   { ddId: 'dd-contribution', inputId: 'searchPlayerContribution', listId: 'dd-list-contribution' },
   { ddId: 'dd-report',     inputId: 'searchPlayerReport',   listId: 'dd-list-report' },
-  { ddId: 'dd-galaxy',     inputId: 'galaxyPlayerSearch',   listId: 'dd-list-galaxy' },
+  { ddId: 'dd-galaxy1',    inputId: 'galaxyPlayer1',        listId: 'dd-list-galaxy1' },
+  { ddId: 'dd-galaxy2',    inputId: 'galaxyPlayer2',        listId: 'dd-list-galaxy2' },
+  { ddId: 'dd-galaxy3',    inputId: 'galaxyPlayer3',        listId: 'dd-list-galaxy3' },
 ];
 
 let ddNames = {}; // listId → string[]
@@ -5414,6 +5461,19 @@ async function showEvalStats() {
     btnGroup.appendChild(btn);
   });
 
+  // 최소 경기 체크박스 이벤트 (한 번만 바인딩)
+  const minGamesEl = document.getElementById('evalMinGames');
+  if (minGamesEl && !minGamesEl.__bound) {
+    minGamesEl.__bound = true;
+    minGamesEl.checked = evalMinGamesActive;
+    minGamesEl.addEventListener('change', () => {
+      evalMinGamesActive = minGamesEl.checked;
+      if (evalCurrentSelectedSeasons && evalCurrentSelectedSeasons.length > 0) {
+        renderEvalContent(evalCurrentPlayerName, evalCurrentSelectedSeasons, evalCurrentSeasonStatus);
+      }
+    });
+  }
+  
   // 포지션 버튼 (매 검색 시 재생성)
   const posGroup = document.getElementById('evalPosGroup');
   posGroup.innerHTML = '';
@@ -5546,6 +5606,7 @@ function getScoreColor(score) {
   return SCORE_COLOR.other;
 }
 let evalCurrentPosition = '전체';
+let evalMinGamesActive = true;
 let evalActiveCat = '공격 기여도';
 let evalActiveMetric = null; // 현재 선택된 세부 지표 key
 let evalCurrentSeasonStatus = {};
@@ -5594,6 +5655,19 @@ function calcCategoryScores(playerRow, poolData) {
     }
     scores[cat] = wSum > 0 ? sSum / wSum : 50;
   }
+  // 내구성 카테고리 페널티 적용 (출전 경기 수 + 경기당 출전 시간)
+  const gp = parseFloat(playerRow['출전 경기 수']) || 0;
+  const m = parseInt(playerRow.m) || 0;
+  const s = parseInt(playerRow.s) || 0;
+  const minPerGame = (m * 60 + s) / 60;
+  let penalty = 1.0;
+  if (gp <= 20) penalty *= 0.70;
+  else if (gp <= 30) penalty *= 0.85;
+  if (minPerGame < 10) penalty *= 0.60;
+  else if (minPerGame < 20) penalty *= 0.80;
+  if (penalty < 1.0 && scores['내구성'] !== undefined) {
+    scores['내구성'] = scores['내구성'] * penalty;
+  }
   return scores;
 }
 
@@ -5603,11 +5677,16 @@ function calcTotalScore(catScores, position) {
 }
 
 function getPosFilteredPool(poolData, posFilter) {
-  if (!posFilter || posFilter === '전체') return poolData;
-  if (posFilter === 'G') return poolData.filter(r => r['포지션'] === 'PG' || r['포지션'] === 'SG' || r['포지션'] === 'G');
-  if (posFilter === 'F') return poolData.filter(r => r['포지션'] === 'SF' || r['포지션'] === 'PF' || r['포지션'] === 'F');
-  if (posFilter === 'C') return poolData.filter(r => r['포지션'] === 'C');
-  return poolData;
+  let pool = poolData;
+  // 최소 경기 필터 (14경기 미만 제외)
+  if (typeof evalMinGamesActive !== 'undefined' && evalMinGamesActive) {
+    pool = pool.filter(r => (parseFloat(r['출전 경기 수']) || 0) >= 14);
+  }
+  if (!posFilter || posFilter === '전체') return pool;
+  if (posFilter === 'G') return pool.filter(r => r['포지션'] === 'PG' || r['포지션'] === 'SG' || r['포지션'] === 'G');
+  if (posFilter === 'F') return pool.filter(r => r['포지션'] === 'SF' || r['포지션'] === 'PF' || r['포지션'] === 'F');
+  if (posFilter === 'C') return pool.filter(r => r['포지션'] === 'C');
+  return pool;
 }
 
 function calcRanks(season, playerName, position, posFilter) {
@@ -5990,9 +6069,23 @@ function renderGraphPanel(playerName, selectedSeasons, position) {
     return { catScores, color, season: s };
   });
 
+  // 14경기 미만 출전 시즌 체크 (선택된 시즌 중)
+  const lowGameSeasons = selectedSeasons.map(s => {
+    const poolData = fullSeasonDataMap[s] || [];
+    const playerRow = poolData.find(r => r.Player.split(' (')[0].trim().toLowerCase()===playerName.toLowerCase());
+    if (!playerRow) return null;
+    const gp = parseFloat(playerRow['출전 경기 수']) || 0;
+    if (gp < 14) return { s, gp };
+    return null;
+  }).filter(Boolean);
+  
+  const lowGameNote = lowGameSeasons.length > 0
+    ? '<div class="eval-radar-warn">' + lowGameSeasons.map(x => '※ ' + x.s + ' 최소경기 미만 출전(' + x.gp + '경기)').join(' &nbsp;·&nbsp; ') + '</div>'
+    : '';
+
   graphPanel.innerHTML = `
     <div class="eval-total-card">${totalItems || '<span style="color:#444;font-size:0.8rem;">시즌을 선택하면 총점이 표시됩니다</span>'}</div>
-    <div class="eval-radar-card">${drawRadarSVG(radarData)}</div>`;
+    <div class="eval-radar-card" style="position:relative;">${lowGameNote}${drawRadarSVG(radarData)}</div>`;
 
   graphPanel.querySelectorAll('.radar-cat-hit').forEach(el => {
     el.addEventListener('click', () => {
@@ -6498,6 +6591,7 @@ if (!window.__galaxyLoaded) {
   
   const G_DATA = {};
   let G_ACTIVE_TYPES = new Set(['국내','외국인','아시아쿼터']);
+  let G_HIDE_LOWGAMES = false;
   
   async function fetchSeason(sn) {
     if (G_DATA[sn]) return G_DATA[sn];
@@ -6546,13 +6640,26 @@ if (!window.__galaxyLoaded) {
       }
       sc[cat] = wSum>0 ? sSum/wSum : 50;
     }
+    // 내구성 페널티
+    const gp = parseFloat(row['출전 경기 수']) || 0;
+    const m = parseInt(row.m) || 0;
+    const s = parseInt(row.s) || 0;
+    const minPerGame = (m * 60 + s) / 60;
+    let penalty = 1.0;
+    if (gp <= 20) penalty *= 0.70;
+    else if (gp <= 30) penalty *= 0.85;
+    if (minPerGame < 10) penalty *= 0.60;
+    else if (minPerGame < 20) penalty *= 0.80;
+    if (penalty < 1.0 && sc['내구성'] !== undefined) {
+      sc['내구성'] = sc['내구성'] * penalty;
+    }
     return sc;
   }
   function gCalc3Axes(sc) {
     return {
-      x: (sc['공격 기여도'] + sc['슈팅 퀄리티']) / 2,
-      y: (sc['수비 기여도'] + sc['보드 장악력']) / 2,
-      z: (sc['플레이 메이킹'] + sc['효율성'] + sc['내구성']) / 3,
+      x: sc['공격 기여도']*0.65 + sc['슈팅 퀄리티']*0.35,
+      y: sc['수비 기여도']*0.6 + sc['보드 장악력']*0.4,
+      z: sc['플레이 메이킹']*0.5 + sc['효율성']*0.25 + sc['내구성']*0.25,
     };
   }
   function gOverall(sc) {
@@ -6568,6 +6675,8 @@ if (!window.__galaxyLoaded) {
   let g_pulsing = [];
   let g_hover = null;
   let g_initialized = false;
+  let g_starByKey = {};
+  let g_selectedStar = null; // 클릭한 별 (깜빡임용)
   
   const CUBE_HALF = 80;
   const POINT_SCALE = 2.4;
@@ -6613,6 +6722,51 @@ if (!window.__galaxyLoaded) {
     bgGeo.setAttribute('position', new THREE.Float32BufferAttribute(bgPos, 3));
     g_scene.add(new THREE.Points(bgGeo, new THREE.PointsMaterial({size:0.5, color:0xffffff, transparent:true, opacity:0.4})));
     
+    /* ===== 우주를 둘러싸는 타원형 별띠 (Milky Way 스타일) ===== */
+    function makeSurroundingGalaxy() {
+      const positions = [];
+      const colors = [];
+      // 우주 영역(±80) 바깥을 둘러싸는 타원형 디스크
+      // 내부 반경 ~ 220, 외부 반경 ~ 360 (도넛 형태로 우리 우주를 감쌈)
+      const innerR = 220, outerR = 360;
+      const count = 4500;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        // 거리 분포 - 중간이 두꺼움 (가우시안 비슷)
+        const u = Math.random();
+        const r = innerR + (outerR - innerR) * u;
+        // 디스크 두께 - 가장자리로 갈수록 얇음
+        const distFromMid = Math.abs(r - (innerR + outerR)/2) / ((outerR - innerR)/2);
+        const thickness = (1 - distFromMid * 0.7) * 22;
+        const x = Math.cos(angle) * r;
+        const z = Math.sin(angle) * r;
+        const y = (Math.random() - 0.5) * thickness * 2;
+        positions.push(x, y, z);
+        // 색상 - 중간이 가장 밝고 양 끝은 어둡게
+        const brightness = (1 - distFromMid * 0.6) * 0.8 + 0.2;
+        // 약간의 색 변화 (블루 ~ 화이트 ~ 골드)
+        const hue = Math.random();
+        let cr, cg, cb;
+        if (hue < 0.5) { cr = 0.7; cg = 0.8; cb = 1.0; }      // 푸른 별
+        else if (hue < 0.85) { cr = 1.0; cg = 1.0; cb = 1.0; } // 흰 별
+        else { cr = 1.0; cg = 0.85; cb = 0.6; }                // 노란 별
+        colors.push(cr * brightness, cg * brightness, cb * brightness);
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      const mat = new THREE.PointsMaterial({
+        size: 0.7, vertexColors: true,
+        transparent: true, opacity: 0.55,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+      });
+      const galaxy = new THREE.Points(geo, mat);
+      // 살짝 기울임 (X·Z 약간)
+      galaxy.rotation.set(0.35, 0.0, 0.15);
+      return galaxy;
+    }
+    g_scene.add(makeSurroundingGalaxy());
+    
     g_starGroup = new THREE.Group();
     g_constGroup = new THREE.Group();
     g_scene.add(g_starGroup);
@@ -6637,7 +6791,7 @@ if (!window.__galaxyLoaded) {
     
     // +++ 엘리트 큐브 (음영)
     const eGeo = new THREE.BoxGeometry(CUBE_HALF, CUBE_HALF, CUBE_HALF);
-    const eMat = new THREE.MeshBasicMaterial({color:0xe8c96a, transparent:true, opacity:0.08, side:THREE.DoubleSide});
+    const eMat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.06, side:THREE.DoubleSide, depthWrite:false});
     const eBox = new THREE.Mesh(eGeo, eMat);
     eBox.position.set(CUBE_HALF/2, CUBE_HALF/2, CUBE_HALF/2);
     g_scene.add(eBox);
@@ -6709,8 +6863,22 @@ if (!window.__galaxyLoaded) {
     g_hover = null;
   }
   
+  function restoreStar(mesh) {
+    if (!mesh || !mesh.material || mesh.userData._origEmissive === undefined) return;
+    mesh.material.emissiveIntensity = mesh.userData._origEmissive;
+    mesh.scale.setScalar(1);
+  }
   function onGMouseClick() {
-    if (g_hover && g_hover.userData) showGalaxyPlayerInfo(g_hover.userData);
+    if (g_hover && g_hover.userData) {
+      // 이전 선택 별 원복
+      if (g_selectedStar && g_selectedStar !== g_hover) restoreStar(g_selectedStar);
+      showGalaxyPlayerInfo(g_hover.userData);
+      // 원본 emissive 저장
+      if (g_hover.material && g_hover.userData._origEmissive === undefined) {
+        g_hover.userData._origEmissive = g_hover.material.emissiveIntensity;
+      }
+      g_selectedStar = g_hover;
+    }
   }
   
   function showGalaxyPlayerInfo(data) {
@@ -6719,6 +6887,16 @@ if (!window.__galaxyLoaded) {
     document.getElementById('galaxy-info-name').textContent = data.name;
     document.getElementById('galaxy-info-meta').textContent =
       (data.team||'-') + ' · ' + (data.position||'-') + ' · ' + (data.type||'-') + ' · ' + data.season + ' 시즌';
+    
+    // 풀 평균 기준 중심으로부터 거리 = BU
+    let bu = 0;
+    if (data.axes && data.poolMean) {
+      const dx = data.axes.x - data.poolMean.x;
+      const dy = data.axes.y - data.poolMean.y;
+      const dz = data.axes.z - data.poolMean.z;
+      bu = Math.sqrt(dx*dx + dy*dy + dz*dz);
+    }
+    document.getElementById('galaxy-info-distance').textContent = bu.toFixed(1);
     
     const axesDiv = document.getElementById('galaxy-info-axes');
     axesDiv.innerHTML = '';
@@ -6730,20 +6908,11 @@ if (!window.__galaxyLoaded) {
       ];
       axes.forEach(a => {
         const div = document.createElement('div');
-        div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin:3px 0;';
+        div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.85rem;margin:4px 0;';
         div.innerHTML = '<span style="color:#a0a0b0;">' + a.label + '</span><span style="font-weight:700;">' + a.value.toFixed(1) + '</span>';
         axesDiv.appendChild(div);
       });
     }
-    const catDiv = document.getElementById('galaxy-info-categories');
-    catDiv.innerHTML = '';
-    G_CATEGORIES.forEach(c => {
-      const s = (data.scores && data.scores[c]) ? data.scores[c].toFixed(1) : '-';
-      const div = document.createElement('div');
-      div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin:3px 0;';
-      div.innerHTML = '<span style="color:#a0a0b0;">' + c + '</span><span style="font-weight:700;">' + s + '</span>';
-      catDiv.appendChild(div);
-    });
   }
   
   function animateGalaxy() {
@@ -6757,6 +6926,14 @@ if (!window.__galaxyLoaded) {
       if (p.glow && p.glow.material) p.glow.material.opacity = 0.3 + Math.sin(t)*0.18;
     });
     if (g_hover) g_hover.scale.setScalar(1 + Math.sin(Date.now()*0.008)*0.12);
+    // 클릭으로 선택된 별 깜빡임 (호버랑 다른 별일 때만)
+    if (g_selectedStar && g_selectedStar !== g_hover) {
+      const blink = 1 + Math.sin(t) * 0.35;
+      g_selectedStar.scale.setScalar(blink);
+      if (g_selectedStar.material) {
+        g_selectedStar.material.emissiveIntensity = 0.5 + Math.abs(Math.sin(t)) * 1.2;
+      }
+    }
     g_renderer.render(g_scene, g_camera);
   }
   
@@ -6777,6 +6954,8 @@ if (!window.__galaxyLoaded) {
       if (c.material) c.material.dispose();
     }
     g_pulsing = [];
+    g_selectedStar = null;
+    g_starByKey = {};
   }
   
   function getGTypeColor(type, isAnalysis) {
@@ -6789,9 +6968,11 @@ if (!window.__galaxyLoaded) {
   
   function addGStar(pos, color, size, userData, opts) {
     const geo = new THREE.SphereGeometry(size, 24, 24);
+    const emissiveI = opts.isAnalysis ? 0.85 : (opts.dimmed ? 0.15 : 0.55);
     const mat = new THREE.MeshStandardMaterial({
       color, roughness:0.4, metalness:0.2,
-      emissive:color, emissiveIntensity: opts.isAnalysis ? 0.8 : 0.55,
+      emissive:color, emissiveIntensity: emissiveI,
+      transparent: opts.dimmed, opacity: opts.dimmed ? 0.55 : 1.0,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(pos[0], pos[1], pos[2]);
@@ -6799,8 +6980,9 @@ if (!window.__galaxyLoaded) {
     g_starGroup.add(mesh);
     if (opts.isAnalysis) {
       const glowGeo = new THREE.SphereGeometry(size*2.0, 16, 16);
-      const glowMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.3});
+      const glowMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.32, depthWrite:false});
       const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.renderOrder = 1;
       mesh.add(glow);
       if (opts.isBest) g_pulsing.push({mesh, glow});
     }
@@ -6813,79 +6995,156 @@ if (!window.__galaxyLoaded) {
     const pts = [];
     positions.forEach(p => pts.push(p[0], p[1], p[2]));
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-    const mat = new THREE.LineBasicMaterial({color, transparent:true, opacity:0.85});
-    g_constGroup.add(new THREE.Line(geo, mat));
+    const mat = new THREE.LineBasicMaterial({color, transparent:true, opacity:0.9, depthWrite:false});
+    const line = new THREE.Line(geo, mat);
+    line.renderOrder = 2;
+    g_constGroup.add(line);
   }
   
-  async function loadAndRenderGalaxy(targetName, bgSeason) {
+  // 분석 선수 색상 (최대 3명)
+  const ANALYSIS_COLORS = [0xffd84a, 0x4aa3ff, 0xff5a5a]; // 노랑, 파랑, 빨강
+  
+  async function loadAndRenderGalaxy(targetNames, bgSeason) {
+    // 단일 문자열도 허용 (호환성)
+    if (typeof targetNames === 'string') targetNames = targetNames ? [targetNames] : [];
+    if (!Array.isArray(targetNames)) targetNames = [];
+    targetNames = targetNames.filter(n => n && n.trim()).slice(0, 3);
+    
     document.getElementById('galaxy-loading').style.display = 'flex';
     clearGalaxy();
     try {
-      const bgDataRaw = await fetchSeason(bgSeason);
-      // 국적 필터 적용
-      const bgData = bgDataRaw.filter(r => G_ACTIVE_TYPES.has(r['구분']));
+      // 국적 필터는 표시 토글로만 적용 - T-Score는 항상 전체 풀 기준
+      const bgData = await fetchSeason(bgSeason);
       
-      const playerSeasons = [];
-      if (targetName) {
+      // 각 분석 선수의 6시즌 데이터를 별도 배열로 수집
+      const playerGroups = []; // [{name, seasons: [{...row, _season}]}, ...]
+      for (const name of targetNames) {
+        const seasons = [];
         for (let i=0; i<G_SEASONS.length; i++) {
           const sd = await fetchSeason(G_SEASONS[i]);
-          const found = sd.find(r => r._cleanName === targetName);
-          if (found) playerSeasons.push(Object.assign({}, found, {_season: G_SEASONS[i]}));
+          const found = sd.find(r => r._cleanName === name);
+          if (found) seasons.push(Object.assign({}, found, {_season: G_SEASONS[i]}));
         }
+        if (seasons.length) playerGroups.push({name, seasons});
       }
       
       const allRows = bgData.slice();
-      playerSeasons.forEach(ps => {
-        if (!allRows.find(r => r._cleanName === ps._cleanName && r._season === ps._season)) {
-          allRows.push(ps);
-        }
+      playerGroups.forEach(g => {
+        g.seasons.forEach(ps => {
+          if (!allRows.find(r => r._cleanName === ps._cleanName && r._season === ps._season)) {
+            allRows.push(ps);
+          }
+        });
       });
       
       const scoresArr = allRows.map(r => gCatScores(r, allRows));
       const axesArr = scoresArr.map(s => gCalc3Axes(s));
       const overallArr = scoresArr.map(s => gOverall(s));
       
-      const playerKeys = new Set(playerSeasons.map(p => p._cleanName+'__'+p._season));
-      let bestKey = null, latestKey = null;
-      if (playerSeasons.length > 0) {
+      // 풀 평균을 원점으로 (현재 시즌의 X/Y/Z 평균)
+      const POOL_MEAN_X = axesArr.reduce((s,a)=>s+a.x, 0) / axesArr.length;
+      const POOL_MEAN_Y = axesArr.reduce((s,a)=>s+a.y, 0) / axesArr.length;
+      const POOL_MEAN_Z = axesArr.reduce((s,a)=>s+a.z, 0) / axesArr.length;
+      
+      // 각 선수별 key 집합 + 색상 인덱스 매핑
+      const keyToGroupIdx = new Map(); // key → group index (몇번째 분석 선수)
+      const bestKeyByGroup = new Map(); // groupIdx → bestKey
+      const latestKeyByGroup = new Map();
+      playerGroups.forEach((g, gIdx) => {
+        g.seasons.forEach(ps => {
+          keyToGroupIdx.set(ps._cleanName + '__' + ps._season, gIdx);
+        });
+        // best
         let maxScore = -Infinity, bestIdx = -1;
-        playerSeasons.forEach(ps => {
+        g.seasons.forEach(ps => {
           const idx = allRows.findIndex(r => r._cleanName === ps._cleanName && r._season === ps._season);
           if (overallArr[idx] > maxScore) { maxScore = overallArr[idx]; bestIdx = idx; }
         });
-        if (bestIdx >= 0) bestKey = allRows[bestIdx]._cleanName + '__' + allRows[bestIdx]._season;
-        const sorted = playerSeasons.slice().sort((a,b) => G_SEASONS.indexOf(b._season) - G_SEASONS.indexOf(a._season));
-        latestKey = sorted[0]._cleanName + '__' + sorted[0]._season;
-      }
+        if (bestIdx >= 0) bestKeyByGroup.set(gIdx, allRows[bestIdx]._cleanName + '__' + allRows[bestIdx]._season);
+        // latest
+        const sorted = g.seasons.slice().sort((a,b) => G_SEASONS.indexOf(b._season) - G_SEASONS.indexOf(a._season));
+        if (sorted.length) latestKeyByGroup.set(gIdx, sorted[0]._cleanName + '__' + sorted[0]._season);
+      });
       
+      const multiMode = playerGroups.length >= 2;
+      
+      g_starByKey = {}; // 외부 클릭/검색에서 별 찾기용
       allRows.forEach((r, i) => {
         const key = r._cleanName + '__' + r._season;
-        const isAnalysis = playerKeys.has(key);
-        const isBest = (key === bestKey);
-        const isLatest = (key === latestKey);
-        const color = getGTypeColor(r['구분'], isAnalysis);
+        const gIdx = keyToGroupIdx.has(key) ? keyToGroupIdx.get(key) : -1;
+        const isAnalysis = gIdx >= 0;
+        const isBest = isAnalysis && (bestKeyByGroup.get(gIdx) === key);
+        const isLatest = isAnalysis && (latestKeyByGroup.get(gIdx) === key);
+        
+        const gpVal = parseFloat(r['출전 경기 수']) || 0;
+        const isLowGames = gpVal < 14;
+        let color;
+        if (isAnalysis) {
+          color = ANALYSIS_COLORS[gIdx] || 0xffffff;
+        } else if (multiMode) {
+          color = 0x555555; // 2명 이상일 때 일반 선수 회색
+        } else if (isLowGames) {
+          color = 0x666666; // 14경기 미만 출전 = 회색
+        } else {
+          color = getGTypeColor(r['구분'], false);
+        }
+        
         let size = 0.7;
         if (isAnalysis) size = 1.6;
         if (isLatest) size = 2.4;
+        
         const ax = axesArr[i];
-        const pos = [(ax.x-50)*POINT_SCALE, (ax.y-50)*POINT_SCALE, (ax.z-50)*POINT_SCALE];
+        const pos = [(ax.x-POOL_MEAN_X)*POINT_SCALE, (ax.y-POOL_MEAN_Y)*POINT_SCALE, (ax.z-POOL_MEAN_Z)*POINT_SCALE];
         const userData = {
           name: r._cleanName, team: r.Team, position: r['포지션'], type: r['구분'],
           season: r._season, scores: scoresArr[i], axes: ax,
-          isAnalysis, isBest, isLatest,
+          poolMean: {x: POOL_MEAN_X, y: POOL_MEAN_Y, z: POOL_MEAN_Z},
+          isAnalysis, isBest, isLatest, isLowGames,
         };
-        addGStar(pos, color, size, userData, {isAnalysis, isBest, isLatest});
+        const mesh = addGStar(pos, color, size, userData, {isAnalysis, isBest, isLatest, dimmed: multiMode && !isAnalysis});
+        // 국적 필터 + 14G 미만 토글 적용
+        let visible = true;
+        if (!isAnalysis) {
+          if (!G_ACTIVE_TYPES.has(r['구분'])) visible = false;
+          if (G_HIDE_LOWGAMES && isLowGames) visible = false;
+        }
+        mesh.visible = visible;
+        g_starByKey[key] = mesh;
       });
       
-      if (playerSeasons.length >= 2) {
-        const sorted = playerSeasons.slice().sort((a,b) => G_SEASONS.indexOf(a._season) - G_SEASONS.indexOf(b._season));
+      // 각 분석 선수마다 별자리 라인 (해당 색상으로)
+      playerGroups.forEach((g, gIdx) => {
+        if (g.seasons.length < 2) return;
+        const sorted = g.seasons.slice().sort((a,b) => G_SEASONS.indexOf(a._season) - G_SEASONS.indexOf(b._season));
         const linePos = sorted.map(ps => {
           const idx = allRows.findIndex(r => r._cleanName === ps._cleanName && r._season === ps._season);
           const ax = axesArr[idx];
-          return [(ax.x-50)*POINT_SCALE, (ax.y-50)*POINT_SCALE, (ax.z-50)*POINT_SCALE];
+          return [(ax.x-POOL_MEAN_X)*POINT_SCALE, (ax.y-POOL_MEAN_Y)*POINT_SCALE, (ax.z-POOL_MEAN_Z)*POINT_SCALE];
         });
-        drawGConstellation(linePos, 0xffd84a);
+        drawGConstellation(linePos, ANALYSIS_COLORS[gIdx]);
+      });
+      
+      // 검색 선수가 있으면 첫 선수의 최신 시즌 정보 자동 표시
+      if (playerGroups.length > 0) {
+        const firstGroup = playerGroups[0];
+        const sorted = firstGroup.seasons.slice().sort((a,b) => G_SEASONS.indexOf(b._season) - G_SEASONS.indexOf(a._season));
+        const latestPs = sorted[0];
+        if (latestPs) {
+          const idx = allRows.findIndex(r => r._cleanName === latestPs._cleanName && r._season === latestPs._season);
+          if (idx >= 0) {
+            const r = allRows[idx];
+            const data = {
+              name: r._cleanName, team: r.Team, position: r['포지션'], type: r['구분'],
+              season: r._season, scores: scoresArr[idx], axes: axesArr[idx],
+            };
+            showGalaxyPlayerInfo(data);
+          }
+        }
+      } else {
+        // 검색 없으면 정보 패널 숨김
+        document.getElementById('galaxy-info-panel').style.display = 'none';
       }
+      
     } catch (err) {
       console.error('Galaxy 렌더 오류:', err);
     } finally {
@@ -6903,38 +7162,78 @@ if (!window.__galaxyLoaded) {
     G_SEASONS.forEach(sn => (G_DATA[sn]||[]).forEach(r => all.add(r._cleanName)));
     const names = Array.from(all).sort();
     if (typeof buildDdList === 'function') {
-      buildDdList('dd-list-galaxy', names);
+      buildDdList('dd-list-galaxy1', names);
+      buildDdList('dd-list-galaxy2', names);
+      buildDdList('dd-list-galaxy3', names);
     }
+  }
+  
+  function getGalaxyNames() {
+    const names = [];
+    ['galaxyPlayer1','galaxyPlayer2','galaxyPlayer3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.value.trim()) names.push(el.value.trim());
+    });
+    return names;
   }
   
   function bindGalaxyEvents() {
     const btn = document.getElementById('galaxyRenderBtn');
     if (btn) btn.addEventListener('click', async () => {
-      const name = document.getElementById('galaxyPlayerSearch').value.trim();
+      const names = getGalaxyNames();
       const season = document.getElementById('galaxySeasonSelect').value;
-      await loadAndRenderGalaxy(name, season);
+      await loadAndRenderGalaxy(names, season);
     });
-    const input = document.getElementById('galaxyPlayerSearch');
-    if (input) input.addEventListener('keypress', async (e) => {
-      if (e.key === 'Enter') {
-        const season = document.getElementById('galaxySeasonSelect').value;
-        await loadAndRenderGalaxy(input.value.trim(), season);
-      }
+    ['galaxyPlayer1','galaxyPlayer2','galaxyPlayer3'].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) input.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+          const season = document.getElementById('galaxySeasonSelect').value;
+          await loadAndRenderGalaxy(getGalaxyNames(), season);
+        }
+      });
     });
     const sel = document.getElementById('galaxySeasonSelect');
     if (sel) sel.addEventListener('change', async () => {
-      const name = document.getElementById('galaxyPlayerSearch').value.trim();
-      await loadAndRenderGalaxy(name, sel.value);
+      await loadAndRenderGalaxy(getGalaxyNames(), sel.value);
     });
+    function applyGalaxyVisibility() {
+      Object.values(g_starByKey).forEach(mesh => {
+        if (!mesh || !mesh.userData) return;
+        if (mesh.userData.isAnalysis) {
+          mesh.visible = true; // 분석 선수는 항상 표시
+        } else {
+          let v = G_ACTIVE_TYPES.has(mesh.userData.type);
+          if (G_HIDE_LOWGAMES && mesh.userData.isLowGames) v = false;
+          mesh.visible = v;
+        }
+      });
+    }
     document.querySelectorAll('#tab-galaxy .filter-tag[data-galaxy-type]').forEach(b => {
-      b.addEventListener('click', async () => {
+      b.addEventListener('click', () => {
         const t = b.dataset.galaxyType;
         if (G_ACTIVE_TYPES.has(t)) { G_ACTIVE_TYPES.delete(t); b.classList.remove('active'); }
         else { G_ACTIVE_TYPES.add(t); b.classList.add('active'); }
-        const name = document.getElementById('galaxyPlayerSearch').value.trim();
-        const season = document.getElementById('galaxySeasonSelect').value;
-        await loadAndRenderGalaxy(name, season);
+        applyGalaxyVisibility();
       });
+    });
+    const minGamesCheck = document.getElementById('galaxyMinGames');
+    if (minGamesCheck) minGamesCheck.addEventListener('change', () => {
+      G_HIDE_LOWGAMES = minGamesCheck.checked;
+      applyGalaxyVisibility();
+    });
+    
+    // 초기화 버튼
+    const resetBtn = document.getElementById('galaxy-reset-btn');
+    if (resetBtn) resetBtn.addEventListener('click', async () => {
+      ['galaxyPlayer1','galaxyPlayer2','galaxyPlayer3'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('galaxy-info-panel').style.display = 'none';
+      g_selectedStar = null;
+      const season = document.getElementById('galaxySeasonSelect').value;
+      await loadAndRenderGalaxy([], season);
     });
     
     // 전체화면 토글
@@ -6973,7 +7272,7 @@ if (!window.__galaxyLoaded) {
           if (!g_initialized) {
             initGalaxy();
             await populatePlayerList();
-            await loadAndRenderGalaxy('', '25-26');
+            await loadAndRenderGalaxy([], '25-26');
           }
           onGResize();
         }, 100);
@@ -7300,6 +7599,10 @@ if (!window.__galaxyLoaded) {
         <div id="evalSeasonBtnGroup" class="eval-season-btn-group"></div>
         <div class="eval-season-pos-divider"></div>
         <div id="evalPosGroup" class="eval-pos-group"></div>
+        <div class="min-games-wrap" style="margin-left:14px;">
+          <input type="checkbox" id="evalMinGames" checked>
+          <label for="evalMinGames">최소 경기(14G)</label>
+        </div>
         <div style="margin-left:auto">
           <div class="rank-legend-title" style="margin-bottom:4px">총점 색상</div>
           <div class="rank-legend-items">
@@ -7379,17 +7682,31 @@ if (!window.__galaxyLoaded) {
   ══════════════════════════════════════ -->
   <div id="tab-galaxy" class="tab-content eval-tab-root">
     <div class="eval-fixed-area" style="padding-bottom:0;margin-bottom:0;border-bottom:none;">
-      <div class="controls-row">
-        <div class="custom-dropdown" id="dd-galaxy">
-          <input type="text" id="galaxyPlayerSearch" class="ctrl-input" placeholder="선수 검색..." autocomplete="off">
-          <span class="dd-arrow" data-dd="dd-galaxy">▼</span>
-          <div class="dd-list" id="dd-list-galaxy"></div>
+      <div class="cmp-row-players">
+        <div class="custom-dropdown" id="dd-galaxy1">
+          <input type="text" id="galaxyPlayer1" class="ctrl-input" placeholder="Player 1" autocomplete="off">
+          <span class="dd-arrow" data-dd="dd-galaxy1">▼</span>
+          <div class="dd-list" id="dd-list-galaxy1"></div>
+        </div>
+        <div class="custom-dropdown" id="dd-galaxy2">
+          <input type="text" id="galaxyPlayer2" class="ctrl-input" placeholder="Player 2 (선택)" autocomplete="off">
+          <span class="dd-arrow" data-dd="dd-galaxy2">▼</span>
+          <div class="dd-list" id="dd-list-galaxy2"></div>
+        </div>
+        <div class="custom-dropdown" id="dd-galaxy3">
+          <input type="text" id="galaxyPlayer3" class="ctrl-input" placeholder="Player 3 (선택)" autocomplete="off">
+          <span class="dd-arrow" data-dd="dd-galaxy3">▼</span>
+          <div class="dd-list" id="dd-list-galaxy3"></div>
         </div>
         <button class="btn-primary" id="galaxyRenderBtn">조회</button>
-        <div class="filter-group" style="margin-left: 8px;">
+        <div class="filter-group">
           <button class="filter-tag active" data-galaxy-type="국내">국내</button>
           <button class="filter-tag active" data-galaxy-type="외국인">외국인</button>
           <button class="filter-tag active" data-galaxy-type="아시아쿼터">아시아쿼터</button>
+          <div class="min-games-wrap">
+            <input type="checkbox" id="galaxyMinGames">
+            <label for="galaxyMinGames">14G 미만 제외</label>
+          </div>
         </div>
       </div>
     </div>
@@ -7409,23 +7726,32 @@ if (!window.__galaxyLoaded) {
         </select>
       </div>
       
-      <!-- 우상단: 전체화면 토글 버튼 -->
-      <button id="galaxy-fullscreen-btn" title="전체화면 (ESC로 종료)" style="position:absolute;top:20px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;z-index:11;display:flex;align-items:center;gap:6px;">
-        <span id="galaxy-fs-icon">⛶</span><span id="galaxy-fs-text">전체화면</span>
-      </button>
+      <!-- 우상단: 초기화 + 전체화면 버튼 -->
+      <div style="position:absolute;top:20px;right:20px;display:flex;gap:8px;z-index:11;">
+        <button id="galaxy-reset-btn" title="선택 초기화" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
+          <span>↺</span><span>초기화</span>
+        </button>
+        <button id="galaxy-fullscreen-btn" title="전체화면 (ESC로 종료)" style="background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;padding:8px 12px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;">
+          <span id="galaxy-fs-icon">⛶</span><span id="galaxy-fs-text">전체화면</span>
+        </button>
+      </div>
       
       <div id="galaxy-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:100;flex-direction:column;gap:10px;">
         <div style="width:50px;height:50px;border:3px solid #333;border-top-color:#e8c96a;border-radius:50%;animation:galaxySpin 1s linear infinite;"></div>
         <div style="font-size:0.85rem;color:var(--text-secondary);">우주 생성 중...</div>
       </div>
       <div id="galaxy-tooltip" style="position:absolute;pointer-events:none;background:rgba(0,0,0,0.9);border:1px solid #e8c96a;padding:6px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;z-index:50;display:none;color:#fff;"></div>
-      <div id="galaxy-info-panel" style="position:absolute;top:80px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;color:#fff;z-index:10;min-width:280px;max-width:340px;display:none;">
+      <div id="galaxy-info-panel" style="position:absolute;top:80px;right:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 20px;color:#fff;z-index:10;min-width:260px;max-width:320px;display:none;">
         <div id="galaxy-info-name" style="font-size:1.15rem;font-weight:900;margin-bottom:4px;">—</div>
-        <div id="galaxy-info-meta" style="font-size:0.75rem;color:#a0a0b0;margin-bottom:10px;">—</div>
-        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:6px;">3축 점수</div>
+        <div id="galaxy-info-meta" style="font-size:0.75rem;color:#a0a0b0;margin-bottom:14px;">—</div>
+        <div style="font-size:0.72rem;font-weight:700;color:#a0a0b0;letter-spacing:0.05em;margin-bottom:4px;">중심으로부터 거리</div>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+          <span id="galaxy-info-distance" style="font-size:1.5rem;font-weight:900;color:#e8c96a;">—</span>
+          <span style="font-size:1rem;color:#a0a0b0;font-weight:700;">BU</span>
+          <span style="font-size:0.7rem;color:#888;font-weight:500;">(Basketball Unit)</span>
+        </div>
+        <div style="font-size:0.78rem;font-weight:700;color:#e8c96a;margin-bottom:6px;">3축 점수</div>
         <div id="galaxy-info-axes"></div>
-        <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:6px;margin-top:10px;">TERS-Rating 카테고리</div>
-        <div id="galaxy-info-categories"></div>
       </div>
       <div id="galaxy-legend-panel" style="position:absolute;bottom:20px;left:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;color:#fff;z-index:10;font-size:0.78rem;">
         <div style="font-size:0.85rem;font-weight:700;color:#e8c96a;margin-bottom:8px;">범례</div>
@@ -7433,10 +7759,10 @@ if (!window.__galaxyLoaded) {
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#3a90ff;display:inline-block;"></span>국내</div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#ff3a3a;display:inline-block;"></span>외국인</div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#2ad864;display:inline-block;"></span>아시아쿼터</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#666666;display:inline-block;"></span>14경기 미만 출전</div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);font-size:0.7rem;color:#888;">
           ✦ 최신 시즌 = 가장 큰 별<br>
-          ◯ 최고 시즌 = 펄스 글로우<br>
-          마우스 드래그 · 휠 줌 · 별 클릭
+          ◯ 최고 시즌 = 펄스 글로우
         </div>
       </div>
     </div>
@@ -7810,7 +8136,9 @@ const ddConfigs = [
   { ddId: 'dd-eval',        inputId: 'searchPlayerEval',     listId: 'dd-list-eval' },
   { ddId: 'dd-contribution', inputId: 'searchPlayerContribution', listId: 'dd-list-contribution' },
   { ddId: 'dd-report',     inputId: 'searchPlayerReport',   listId: 'dd-list-report' },
-  { ddId: 'dd-galaxy',     inputId: 'galaxyPlayerSearch',   listId: 'dd-list-galaxy' },
+  { ddId: 'dd-galaxy1',    inputId: 'galaxyPlayer1',        listId: 'dd-list-galaxy1' },
+  { ddId: 'dd-galaxy2',    inputId: 'galaxyPlayer2',        listId: 'dd-list-galaxy2' },
+  { ddId: 'dd-galaxy3',    inputId: 'galaxyPlayer3',        listId: 'dd-list-galaxy3' },
 ];
 
 let ddNames = {}; // listId → string[]
@@ -10427,6 +10755,19 @@ async function showEvalStats() {
     btnGroup.appendChild(btn);
   });
 
+  // 최소 경기 체크박스 이벤트 (한 번만 바인딩)
+  const minGamesEl = document.getElementById('evalMinGames');
+  if (minGamesEl && !minGamesEl.__bound) {
+    minGamesEl.__bound = true;
+    minGamesEl.checked = evalMinGamesActive;
+    minGamesEl.addEventListener('change', () => {
+      evalMinGamesActive = minGamesEl.checked;
+      if (evalCurrentSelectedSeasons && evalCurrentSelectedSeasons.length > 0) {
+        renderEvalContent(evalCurrentPlayerName, evalCurrentSelectedSeasons, evalCurrentSeasonStatus);
+      }
+    });
+  }
+  
   // 포지션 버튼 (매 검색 시 재생성)
   const posGroup = document.getElementById('evalPosGroup');
   posGroup.innerHTML = '';
@@ -10559,6 +10900,7 @@ function getScoreColor(score) {
   return SCORE_COLOR.other;
 }
 let evalCurrentPosition = '전체';
+let evalMinGamesActive = true;
 let evalActiveCat = '공격 기여도';
 let evalActiveMetric = null; // 현재 선택된 세부 지표 key
 let evalCurrentSeasonStatus = {};
@@ -10607,6 +10949,19 @@ function calcCategoryScores(playerRow, poolData) {
     }
     scores[cat] = wSum > 0 ? sSum / wSum : 50;
   }
+  // 내구성 카테고리 페널티 적용 (출전 경기 수 + 경기당 출전 시간)
+  const gp = parseFloat(playerRow['출전 경기 수']) || 0;
+  const m = parseInt(playerRow.m) || 0;
+  const s = parseInt(playerRow.s) || 0;
+  const minPerGame = (m * 60 + s) / 60;
+  let penalty = 1.0;
+  if (gp <= 20) penalty *= 0.70;
+  else if (gp <= 30) penalty *= 0.85;
+  if (minPerGame < 10) penalty *= 0.60;
+  else if (minPerGame < 20) penalty *= 0.80;
+  if (penalty < 1.0 && scores['내구성'] !== undefined) {
+    scores['내구성'] = scores['내구성'] * penalty;
+  }
   return scores;
 }
 
@@ -10616,11 +10971,16 @@ function calcTotalScore(catScores, position) {
 }
 
 function getPosFilteredPool(poolData, posFilter) {
-  if (!posFilter || posFilter === '전체') return poolData;
-  if (posFilter === 'G') return poolData.filter(r => r['포지션'] === 'PG' || r['포지션'] === 'SG' || r['포지션'] === 'G');
-  if (posFilter === 'F') return poolData.filter(r => r['포지션'] === 'SF' || r['포지션'] === 'PF' || r['포지션'] === 'F');
-  if (posFilter === 'C') return poolData.filter(r => r['포지션'] === 'C');
-  return poolData;
+  let pool = poolData;
+  // 최소 경기 필터 (14경기 미만 제외)
+  if (typeof evalMinGamesActive !== 'undefined' && evalMinGamesActive) {
+    pool = pool.filter(r => (parseFloat(r['출전 경기 수']) || 0) >= 14);
+  }
+  if (!posFilter || posFilter === '전체') return pool;
+  if (posFilter === 'G') return pool.filter(r => r['포지션'] === 'PG' || r['포지션'] === 'SG' || r['포지션'] === 'G');
+  if (posFilter === 'F') return pool.filter(r => r['포지션'] === 'SF' || r['포지션'] === 'PF' || r['포지션'] === 'F');
+  if (posFilter === 'C') return pool.filter(r => r['포지션'] === 'C');
+  return pool;
 }
 
 function calcRanks(season, playerName, position, posFilter) {
@@ -11003,9 +11363,23 @@ function renderGraphPanel(playerName, selectedSeasons, position) {
     return { catScores, color, season: s };
   });
 
+  // 14경기 미만 출전 시즌 체크 (선택된 시즌 중)
+  const lowGameSeasons = selectedSeasons.map(s => {
+    const poolData = fullSeasonDataMap[s] || [];
+    const playerRow = poolData.find(r => r.Player.split(' (')[0].trim().toLowerCase()===playerName.toLowerCase());
+    if (!playerRow) return null;
+    const gp = parseFloat(playerRow['출전 경기 수']) || 0;
+    if (gp < 14) return { s, gp };
+    return null;
+  }).filter(Boolean);
+  
+  const lowGameNote = lowGameSeasons.length > 0
+    ? '<div class="eval-radar-warn">' + lowGameSeasons.map(x => '※ ' + x.s + ' 최소경기 미만 출전(' + x.gp + '경기)').join(' &nbsp;·&nbsp; ') + '</div>'
+    : '';
+
   graphPanel.innerHTML = `
     <div class="eval-total-card">${totalItems || '<span style="color:#444;font-size:0.8rem;">시즌을 선택하면 총점이 표시됩니다</span>'}</div>
-    <div class="eval-radar-card">${drawRadarSVG(radarData)}</div>`;
+    <div class="eval-radar-card" style="position:relative;">${lowGameNote}${drawRadarSVG(radarData)}</div>`;
 
   graphPanel.querySelectorAll('.radar-cat-hit').forEach(el => {
     el.addEventListener('click', () => {
@@ -11511,6 +11885,7 @@ if (!window.__galaxyLoaded) {
   
   const G_DATA = {};
   let G_ACTIVE_TYPES = new Set(['국내','외국인','아시아쿼터']);
+  let G_HIDE_LOWGAMES = false;
   
   async function fetchSeason(sn) {
     if (G_DATA[sn]) return G_DATA[sn];
@@ -11559,13 +11934,26 @@ if (!window.__galaxyLoaded) {
       }
       sc[cat] = wSum>0 ? sSum/wSum : 50;
     }
+    // 내구성 페널티
+    const gp = parseFloat(row['출전 경기 수']) || 0;
+    const m = parseInt(row.m) || 0;
+    const s = parseInt(row.s) || 0;
+    const minPerGame = (m * 60 + s) / 60;
+    let penalty = 1.0;
+    if (gp <= 20) penalty *= 0.70;
+    else if (gp <= 30) penalty *= 0.85;
+    if (minPerGame < 10) penalty *= 0.60;
+    else if (minPerGame < 20) penalty *= 0.80;
+    if (penalty < 1.0 && sc['내구성'] !== undefined) {
+      sc['내구성'] = sc['내구성'] * penalty;
+    }
     return sc;
   }
   function gCalc3Axes(sc) {
     return {
-      x: (sc['공격 기여도'] + sc['슈팅 퀄리티']) / 2,
-      y: (sc['수비 기여도'] + sc['보드 장악력']) / 2,
-      z: (sc['플레이 메이킹'] + sc['효율성'] + sc['내구성']) / 3,
+      x: sc['공격 기여도']*0.65 + sc['슈팅 퀄리티']*0.35,
+      y: sc['수비 기여도']*0.6 + sc['보드 장악력']*0.4,
+      z: sc['플레이 메이킹']*0.5 + sc['효율성']*0.25 + sc['내구성']*0.25,
     };
   }
   function gOverall(sc) {
@@ -11581,6 +11969,8 @@ if (!window.__galaxyLoaded) {
   let g_pulsing = [];
   let g_hover = null;
   let g_initialized = false;
+  let g_starByKey = {};
+  let g_selectedStar = null; // 클릭한 별 (깜빡임용)
   
   const CUBE_HALF = 80;
   const POINT_SCALE = 2.4;
@@ -11626,6 +12016,51 @@ if (!window.__galaxyLoaded) {
     bgGeo.setAttribute('position', new THREE.Float32BufferAttribute(bgPos, 3));
     g_scene.add(new THREE.Points(bgGeo, new THREE.PointsMaterial({size:0.5, color:0xffffff, transparent:true, opacity:0.4})));
     
+    /* ===== 우주를 둘러싸는 타원형 별띠 (Milky Way 스타일) ===== */
+    function makeSurroundingGalaxy() {
+      const positions = [];
+      const colors = [];
+      // 우주 영역(±80) 바깥을 둘러싸는 타원형 디스크
+      // 내부 반경 ~ 220, 외부 반경 ~ 360 (도넛 형태로 우리 우주를 감쌈)
+      const innerR = 220, outerR = 360;
+      const count = 4500;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        // 거리 분포 - 중간이 두꺼움 (가우시안 비슷)
+        const u = Math.random();
+        const r = innerR + (outerR - innerR) * u;
+        // 디스크 두께 - 가장자리로 갈수록 얇음
+        const distFromMid = Math.abs(r - (innerR + outerR)/2) / ((outerR - innerR)/2);
+        const thickness = (1 - distFromMid * 0.7) * 22;
+        const x = Math.cos(angle) * r;
+        const z = Math.sin(angle) * r;
+        const y = (Math.random() - 0.5) * thickness * 2;
+        positions.push(x, y, z);
+        // 색상 - 중간이 가장 밝고 양 끝은 어둡게
+        const brightness = (1 - distFromMid * 0.6) * 0.8 + 0.2;
+        // 약간의 색 변화 (블루 ~ 화이트 ~ 골드)
+        const hue = Math.random();
+        let cr, cg, cb;
+        if (hue < 0.5) { cr = 0.7; cg = 0.8; cb = 1.0; }      // 푸른 별
+        else if (hue < 0.85) { cr = 1.0; cg = 1.0; cb = 1.0; } // 흰 별
+        else { cr = 1.0; cg = 0.85; cb = 0.6; }                // 노란 별
+        colors.push(cr * brightness, cg * brightness, cb * brightness);
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      const mat = new THREE.PointsMaterial({
+        size: 0.7, vertexColors: true,
+        transparent: true, opacity: 0.55,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+      });
+      const galaxy = new THREE.Points(geo, mat);
+      // 살짝 기울임 (X·Z 약간)
+      galaxy.rotation.set(0.35, 0.0, 0.15);
+      return galaxy;
+    }
+    g_scene.add(makeSurroundingGalaxy());
+    
     g_starGroup = new THREE.Group();
     g_constGroup = new THREE.Group();
     g_scene.add(g_starGroup);
@@ -11650,7 +12085,7 @@ if (!window.__galaxyLoaded) {
     
     // +++ 엘리트 큐브 (음영)
     const eGeo = new THREE.BoxGeometry(CUBE_HALF, CUBE_HALF, CUBE_HALF);
-    const eMat = new THREE.MeshBasicMaterial({color:0xe8c96a, transparent:true, opacity:0.08, side:THREE.DoubleSide});
+    const eMat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.06, side:THREE.DoubleSide, depthWrite:false});
     const eBox = new THREE.Mesh(eGeo, eMat);
     eBox.position.set(CUBE_HALF/2, CUBE_HALF/2, CUBE_HALF/2);
     g_scene.add(eBox);
@@ -11722,8 +12157,22 @@ if (!window.__galaxyLoaded) {
     g_hover = null;
   }
   
+  function restoreStar(mesh) {
+    if (!mesh || !mesh.material || mesh.userData._origEmissive === undefined) return;
+    mesh.material.emissiveIntensity = mesh.userData._origEmissive;
+    mesh.scale.setScalar(1);
+  }
   function onGMouseClick() {
-    if (g_hover && g_hover.userData) showGalaxyPlayerInfo(g_hover.userData);
+    if (g_hover && g_hover.userData) {
+      // 이전 선택 별 원복
+      if (g_selectedStar && g_selectedStar !== g_hover) restoreStar(g_selectedStar);
+      showGalaxyPlayerInfo(g_hover.userData);
+      // 원본 emissive 저장
+      if (g_hover.material && g_hover.userData._origEmissive === undefined) {
+        g_hover.userData._origEmissive = g_hover.material.emissiveIntensity;
+      }
+      g_selectedStar = g_hover;
+    }
   }
   
   function showGalaxyPlayerInfo(data) {
@@ -11732,6 +12181,16 @@ if (!window.__galaxyLoaded) {
     document.getElementById('galaxy-info-name').textContent = data.name;
     document.getElementById('galaxy-info-meta').textContent =
       (data.team||'-') + ' · ' + (data.position||'-') + ' · ' + (data.type||'-') + ' · ' + data.season + ' 시즌';
+    
+    // 풀 평균 기준 중심으로부터 거리 = BU
+    let bu = 0;
+    if (data.axes && data.poolMean) {
+      const dx = data.axes.x - data.poolMean.x;
+      const dy = data.axes.y - data.poolMean.y;
+      const dz = data.axes.z - data.poolMean.z;
+      bu = Math.sqrt(dx*dx + dy*dy + dz*dz);
+    }
+    document.getElementById('galaxy-info-distance').textContent = bu.toFixed(1);
     
     const axesDiv = document.getElementById('galaxy-info-axes');
     axesDiv.innerHTML = '';
@@ -11743,20 +12202,11 @@ if (!window.__galaxyLoaded) {
       ];
       axes.forEach(a => {
         const div = document.createElement('div');
-        div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin:3px 0;';
+        div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.85rem;margin:4px 0;';
         div.innerHTML = '<span style="color:#a0a0b0;">' + a.label + '</span><span style="font-weight:700;">' + a.value.toFixed(1) + '</span>';
         axesDiv.appendChild(div);
       });
     }
-    const catDiv = document.getElementById('galaxy-info-categories');
-    catDiv.innerHTML = '';
-    G_CATEGORIES.forEach(c => {
-      const s = (data.scores && data.scores[c]) ? data.scores[c].toFixed(1) : '-';
-      const div = document.createElement('div');
-      div.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin:3px 0;';
-      div.innerHTML = '<span style="color:#a0a0b0;">' + c + '</span><span style="font-weight:700;">' + s + '</span>';
-      catDiv.appendChild(div);
-    });
   }
   
   function animateGalaxy() {
@@ -11770,6 +12220,14 @@ if (!window.__galaxyLoaded) {
       if (p.glow && p.glow.material) p.glow.material.opacity = 0.3 + Math.sin(t)*0.18;
     });
     if (g_hover) g_hover.scale.setScalar(1 + Math.sin(Date.now()*0.008)*0.12);
+    // 클릭으로 선택된 별 깜빡임 (호버랑 다른 별일 때만)
+    if (g_selectedStar && g_selectedStar !== g_hover) {
+      const blink = 1 + Math.sin(t) * 0.35;
+      g_selectedStar.scale.setScalar(blink);
+      if (g_selectedStar.material) {
+        g_selectedStar.material.emissiveIntensity = 0.5 + Math.abs(Math.sin(t)) * 1.2;
+      }
+    }
     g_renderer.render(g_scene, g_camera);
   }
   
@@ -11790,6 +12248,8 @@ if (!window.__galaxyLoaded) {
       if (c.material) c.material.dispose();
     }
     g_pulsing = [];
+    g_selectedStar = null;
+    g_starByKey = {};
   }
   
   function getGTypeColor(type, isAnalysis) {
@@ -11802,9 +12262,11 @@ if (!window.__galaxyLoaded) {
   
   function addGStar(pos, color, size, userData, opts) {
     const geo = new THREE.SphereGeometry(size, 24, 24);
+    const emissiveI = opts.isAnalysis ? 0.85 : (opts.dimmed ? 0.15 : 0.55);
     const mat = new THREE.MeshStandardMaterial({
       color, roughness:0.4, metalness:0.2,
-      emissive:color, emissiveIntensity: opts.isAnalysis ? 0.8 : 0.55,
+      emissive:color, emissiveIntensity: emissiveI,
+      transparent: opts.dimmed, opacity: opts.dimmed ? 0.55 : 1.0,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(pos[0], pos[1], pos[2]);
@@ -11812,8 +12274,9 @@ if (!window.__galaxyLoaded) {
     g_starGroup.add(mesh);
     if (opts.isAnalysis) {
       const glowGeo = new THREE.SphereGeometry(size*2.0, 16, 16);
-      const glowMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.3});
+      const glowMat = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.32, depthWrite:false});
       const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.renderOrder = 1;
       mesh.add(glow);
       if (opts.isBest) g_pulsing.push({mesh, glow});
     }
@@ -11826,79 +12289,156 @@ if (!window.__galaxyLoaded) {
     const pts = [];
     positions.forEach(p => pts.push(p[0], p[1], p[2]));
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-    const mat = new THREE.LineBasicMaterial({color, transparent:true, opacity:0.85});
-    g_constGroup.add(new THREE.Line(geo, mat));
+    const mat = new THREE.LineBasicMaterial({color, transparent:true, opacity:0.9, depthWrite:false});
+    const line = new THREE.Line(geo, mat);
+    line.renderOrder = 2;
+    g_constGroup.add(line);
   }
   
-  async function loadAndRenderGalaxy(targetName, bgSeason) {
+  // 분석 선수 색상 (최대 3명)
+  const ANALYSIS_COLORS = [0xffd84a, 0x4aa3ff, 0xff5a5a]; // 노랑, 파랑, 빨강
+  
+  async function loadAndRenderGalaxy(targetNames, bgSeason) {
+    // 단일 문자열도 허용 (호환성)
+    if (typeof targetNames === 'string') targetNames = targetNames ? [targetNames] : [];
+    if (!Array.isArray(targetNames)) targetNames = [];
+    targetNames = targetNames.filter(n => n && n.trim()).slice(0, 3);
+    
     document.getElementById('galaxy-loading').style.display = 'flex';
     clearGalaxy();
     try {
-      const bgDataRaw = await fetchSeason(bgSeason);
-      // 국적 필터 적용
-      const bgData = bgDataRaw.filter(r => G_ACTIVE_TYPES.has(r['구분']));
+      // 국적 필터는 표시 토글로만 적용 - T-Score는 항상 전체 풀 기준
+      const bgData = await fetchSeason(bgSeason);
       
-      const playerSeasons = [];
-      if (targetName) {
+      // 각 분석 선수의 6시즌 데이터를 별도 배열로 수집
+      const playerGroups = []; // [{name, seasons: [{...row, _season}]}, ...]
+      for (const name of targetNames) {
+        const seasons = [];
         for (let i=0; i<G_SEASONS.length; i++) {
           const sd = await fetchSeason(G_SEASONS[i]);
-          const found = sd.find(r => r._cleanName === targetName);
-          if (found) playerSeasons.push(Object.assign({}, found, {_season: G_SEASONS[i]}));
+          const found = sd.find(r => r._cleanName === name);
+          if (found) seasons.push(Object.assign({}, found, {_season: G_SEASONS[i]}));
         }
+        if (seasons.length) playerGroups.push({name, seasons});
       }
       
       const allRows = bgData.slice();
-      playerSeasons.forEach(ps => {
-        if (!allRows.find(r => r._cleanName === ps._cleanName && r._season === ps._season)) {
-          allRows.push(ps);
-        }
+      playerGroups.forEach(g => {
+        g.seasons.forEach(ps => {
+          if (!allRows.find(r => r._cleanName === ps._cleanName && r._season === ps._season)) {
+            allRows.push(ps);
+          }
+        });
       });
       
       const scoresArr = allRows.map(r => gCatScores(r, allRows));
       const axesArr = scoresArr.map(s => gCalc3Axes(s));
       const overallArr = scoresArr.map(s => gOverall(s));
       
-      const playerKeys = new Set(playerSeasons.map(p => p._cleanName+'__'+p._season));
-      let bestKey = null, latestKey = null;
-      if (playerSeasons.length > 0) {
+      // 풀 평균을 원점으로 (현재 시즌의 X/Y/Z 평균)
+      const POOL_MEAN_X = axesArr.reduce((s,a)=>s+a.x, 0) / axesArr.length;
+      const POOL_MEAN_Y = axesArr.reduce((s,a)=>s+a.y, 0) / axesArr.length;
+      const POOL_MEAN_Z = axesArr.reduce((s,a)=>s+a.z, 0) / axesArr.length;
+      
+      // 각 선수별 key 집합 + 색상 인덱스 매핑
+      const keyToGroupIdx = new Map(); // key → group index (몇번째 분석 선수)
+      const bestKeyByGroup = new Map(); // groupIdx → bestKey
+      const latestKeyByGroup = new Map();
+      playerGroups.forEach((g, gIdx) => {
+        g.seasons.forEach(ps => {
+          keyToGroupIdx.set(ps._cleanName + '__' + ps._season, gIdx);
+        });
+        // best
         let maxScore = -Infinity, bestIdx = -1;
-        playerSeasons.forEach(ps => {
+        g.seasons.forEach(ps => {
           const idx = allRows.findIndex(r => r._cleanName === ps._cleanName && r._season === ps._season);
           if (overallArr[idx] > maxScore) { maxScore = overallArr[idx]; bestIdx = idx; }
         });
-        if (bestIdx >= 0) bestKey = allRows[bestIdx]._cleanName + '__' + allRows[bestIdx]._season;
-        const sorted = playerSeasons.slice().sort((a,b) => G_SEASONS.indexOf(b._season) - G_SEASONS.indexOf(a._season));
-        latestKey = sorted[0]._cleanName + '__' + sorted[0]._season;
-      }
+        if (bestIdx >= 0) bestKeyByGroup.set(gIdx, allRows[bestIdx]._cleanName + '__' + allRows[bestIdx]._season);
+        // latest
+        const sorted = g.seasons.slice().sort((a,b) => G_SEASONS.indexOf(b._season) - G_SEASONS.indexOf(a._season));
+        if (sorted.length) latestKeyByGroup.set(gIdx, sorted[0]._cleanName + '__' + sorted[0]._season);
+      });
       
+      const multiMode = playerGroups.length >= 2;
+      
+      g_starByKey = {}; // 외부 클릭/검색에서 별 찾기용
       allRows.forEach((r, i) => {
         const key = r._cleanName + '__' + r._season;
-        const isAnalysis = playerKeys.has(key);
-        const isBest = (key === bestKey);
-        const isLatest = (key === latestKey);
-        const color = getGTypeColor(r['구분'], isAnalysis);
+        const gIdx = keyToGroupIdx.has(key) ? keyToGroupIdx.get(key) : -1;
+        const isAnalysis = gIdx >= 0;
+        const isBest = isAnalysis && (bestKeyByGroup.get(gIdx) === key);
+        const isLatest = isAnalysis && (latestKeyByGroup.get(gIdx) === key);
+        
+        const gpVal = parseFloat(r['출전 경기 수']) || 0;
+        const isLowGames = gpVal < 14;
+        let color;
+        if (isAnalysis) {
+          color = ANALYSIS_COLORS[gIdx] || 0xffffff;
+        } else if (multiMode) {
+          color = 0x555555; // 2명 이상일 때 일반 선수 회색
+        } else if (isLowGames) {
+          color = 0x666666; // 14경기 미만 출전 = 회색
+        } else {
+          color = getGTypeColor(r['구분'], false);
+        }
+        
         let size = 0.7;
         if (isAnalysis) size = 1.6;
         if (isLatest) size = 2.4;
+        
         const ax = axesArr[i];
-        const pos = [(ax.x-50)*POINT_SCALE, (ax.y-50)*POINT_SCALE, (ax.z-50)*POINT_SCALE];
+        const pos = [(ax.x-POOL_MEAN_X)*POINT_SCALE, (ax.y-POOL_MEAN_Y)*POINT_SCALE, (ax.z-POOL_MEAN_Z)*POINT_SCALE];
         const userData = {
           name: r._cleanName, team: r.Team, position: r['포지션'], type: r['구분'],
           season: r._season, scores: scoresArr[i], axes: ax,
-          isAnalysis, isBest, isLatest,
+          poolMean: {x: POOL_MEAN_X, y: POOL_MEAN_Y, z: POOL_MEAN_Z},
+          isAnalysis, isBest, isLatest, isLowGames,
         };
-        addGStar(pos, color, size, userData, {isAnalysis, isBest, isLatest});
+        const mesh = addGStar(pos, color, size, userData, {isAnalysis, isBest, isLatest, dimmed: multiMode && !isAnalysis});
+        // 국적 필터 + 14G 미만 토글 적용
+        let visible = true;
+        if (!isAnalysis) {
+          if (!G_ACTIVE_TYPES.has(r['구분'])) visible = false;
+          if (G_HIDE_LOWGAMES && isLowGames) visible = false;
+        }
+        mesh.visible = visible;
+        g_starByKey[key] = mesh;
       });
       
-      if (playerSeasons.length >= 2) {
-        const sorted = playerSeasons.slice().sort((a,b) => G_SEASONS.indexOf(a._season) - G_SEASONS.indexOf(b._season));
+      // 각 분석 선수마다 별자리 라인 (해당 색상으로)
+      playerGroups.forEach((g, gIdx) => {
+        if (g.seasons.length < 2) return;
+        const sorted = g.seasons.slice().sort((a,b) => G_SEASONS.indexOf(a._season) - G_SEASONS.indexOf(b._season));
         const linePos = sorted.map(ps => {
           const idx = allRows.findIndex(r => r._cleanName === ps._cleanName && r._season === ps._season);
           const ax = axesArr[idx];
-          return [(ax.x-50)*POINT_SCALE, (ax.y-50)*POINT_SCALE, (ax.z-50)*POINT_SCALE];
+          return [(ax.x-POOL_MEAN_X)*POINT_SCALE, (ax.y-POOL_MEAN_Y)*POINT_SCALE, (ax.z-POOL_MEAN_Z)*POINT_SCALE];
         });
-        drawGConstellation(linePos, 0xffd84a);
+        drawGConstellation(linePos, ANALYSIS_COLORS[gIdx]);
+      });
+      
+      // 검색 선수가 있으면 첫 선수의 최신 시즌 정보 자동 표시
+      if (playerGroups.length > 0) {
+        const firstGroup = playerGroups[0];
+        const sorted = firstGroup.seasons.slice().sort((a,b) => G_SEASONS.indexOf(b._season) - G_SEASONS.indexOf(a._season));
+        const latestPs = sorted[0];
+        if (latestPs) {
+          const idx = allRows.findIndex(r => r._cleanName === latestPs._cleanName && r._season === latestPs._season);
+          if (idx >= 0) {
+            const r = allRows[idx];
+            const data = {
+              name: r._cleanName, team: r.Team, position: r['포지션'], type: r['구분'],
+              season: r._season, scores: scoresArr[idx], axes: axesArr[idx],
+            };
+            showGalaxyPlayerInfo(data);
+          }
+        }
+      } else {
+        // 검색 없으면 정보 패널 숨김
+        document.getElementById('galaxy-info-panel').style.display = 'none';
       }
+      
     } catch (err) {
       console.error('Galaxy 렌더 오류:', err);
     } finally {
@@ -11916,38 +12456,78 @@ if (!window.__galaxyLoaded) {
     G_SEASONS.forEach(sn => (G_DATA[sn]||[]).forEach(r => all.add(r._cleanName)));
     const names = Array.from(all).sort();
     if (typeof buildDdList === 'function') {
-      buildDdList('dd-list-galaxy', names);
+      buildDdList('dd-list-galaxy1', names);
+      buildDdList('dd-list-galaxy2', names);
+      buildDdList('dd-list-galaxy3', names);
     }
+  }
+  
+  function getGalaxyNames() {
+    const names = [];
+    ['galaxyPlayer1','galaxyPlayer2','galaxyPlayer3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.value.trim()) names.push(el.value.trim());
+    });
+    return names;
   }
   
   function bindGalaxyEvents() {
     const btn = document.getElementById('galaxyRenderBtn');
     if (btn) btn.addEventListener('click', async () => {
-      const name = document.getElementById('galaxyPlayerSearch').value.trim();
+      const names = getGalaxyNames();
       const season = document.getElementById('galaxySeasonSelect').value;
-      await loadAndRenderGalaxy(name, season);
+      await loadAndRenderGalaxy(names, season);
     });
-    const input = document.getElementById('galaxyPlayerSearch');
-    if (input) input.addEventListener('keypress', async (e) => {
-      if (e.key === 'Enter') {
-        const season = document.getElementById('galaxySeasonSelect').value;
-        await loadAndRenderGalaxy(input.value.trim(), season);
-      }
+    ['galaxyPlayer1','galaxyPlayer2','galaxyPlayer3'].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) input.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+          const season = document.getElementById('galaxySeasonSelect').value;
+          await loadAndRenderGalaxy(getGalaxyNames(), season);
+        }
+      });
     });
     const sel = document.getElementById('galaxySeasonSelect');
     if (sel) sel.addEventListener('change', async () => {
-      const name = document.getElementById('galaxyPlayerSearch').value.trim();
-      await loadAndRenderGalaxy(name, sel.value);
+      await loadAndRenderGalaxy(getGalaxyNames(), sel.value);
     });
+    function applyGalaxyVisibility() {
+      Object.values(g_starByKey).forEach(mesh => {
+        if (!mesh || !mesh.userData) return;
+        if (mesh.userData.isAnalysis) {
+          mesh.visible = true; // 분석 선수는 항상 표시
+        } else {
+          let v = G_ACTIVE_TYPES.has(mesh.userData.type);
+          if (G_HIDE_LOWGAMES && mesh.userData.isLowGames) v = false;
+          mesh.visible = v;
+        }
+      });
+    }
     document.querySelectorAll('#tab-galaxy .filter-tag[data-galaxy-type]').forEach(b => {
-      b.addEventListener('click', async () => {
+      b.addEventListener('click', () => {
         const t = b.dataset.galaxyType;
         if (G_ACTIVE_TYPES.has(t)) { G_ACTIVE_TYPES.delete(t); b.classList.remove('active'); }
         else { G_ACTIVE_TYPES.add(t); b.classList.add('active'); }
-        const name = document.getElementById('galaxyPlayerSearch').value.trim();
-        const season = document.getElementById('galaxySeasonSelect').value;
-        await loadAndRenderGalaxy(name, season);
+        applyGalaxyVisibility();
       });
+    });
+    const minGamesCheck = document.getElementById('galaxyMinGames');
+    if (minGamesCheck) minGamesCheck.addEventListener('change', () => {
+      G_HIDE_LOWGAMES = minGamesCheck.checked;
+      applyGalaxyVisibility();
+    });
+    
+    // 초기화 버튼
+    const resetBtn = document.getElementById('galaxy-reset-btn');
+    if (resetBtn) resetBtn.addEventListener('click', async () => {
+      ['galaxyPlayer1','galaxyPlayer2','galaxyPlayer3'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('galaxy-info-panel').style.display = 'none';
+      g_selectedStar = null;
+      const season = document.getElementById('galaxySeasonSelect').value;
+      await loadAndRenderGalaxy([], season);
     });
     
     // 전체화면 토글
@@ -11986,7 +12566,7 @@ if (!window.__galaxyLoaded) {
           if (!g_initialized) {
             initGalaxy();
             await populatePlayerList();
-            await loadAndRenderGalaxy('', '25-26');
+            await loadAndRenderGalaxy([], '25-26');
           }
           onGResize();
         }, 100);
