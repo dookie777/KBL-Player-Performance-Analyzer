@@ -1891,34 +1891,36 @@
     .contrib-svg { width: 100%; height: 100%; display: block; }
 
     /* 차트 요소 - 강화 */
-    .nv-zero-line { stroke: rgba(255,255,255,0.5); stroke-width: 2; }
+    .nv-zero-line { stroke: rgba(255,255,255,0.5); stroke-width: 0.25; }
 
     /* X축 라벨 - 크게 */
     .nv-axis-x { font-size: 26px; font-weight: 800; }
     .nv-axis-x-team { fill: #d8d8d8; font-size: 19px; font-weight: 600; }
 
-    /* 가점 막대 = 붉은 계열 단색 (테두리 없음) */
+    /* 가점 막대 = 붉은 계열 테두리만 (속 없음) */
     .nv-bar-plus {
-      fill: #c95757;
-      stroke: none;
+      fill: rgba(201,87,87,0.08);
+      stroke: #c95757;
+      stroke-width: 0.25;
     }
-    /* 감점 막대 = 푸른 계열 단색 (테두리 없음) */
+    /* 감점 막대 = 푸른 계열 테두리만 (속 없음) */
     .nv-bar-minus {
-      fill: #5a8ec4;
-      stroke: none;
+      fill: rgba(90,142,196,0.08);
+      stroke: #5a8ec4;
+      stroke-width: 0.25;
     }
     /* 기존 캔들 클래스 호환 */
-    .nv-candle-plus { fill: #c95757; stroke: none; }
-    .nv-candle-minus { fill: #5a8ec4; stroke: none; }
+    .nv-candle-plus { fill: rgba(201,87,87,0.08); stroke: #c95757; stroke-width: 0.25; }
+    .nv-candle-minus { fill: rgba(90,142,196,0.08); stroke: #5a8ec4; stroke-width: 0.25; }
 
     /* 합산 라인 - 골드 메인 */
     .nv-ma-total {
       fill: none;
       stroke: #ffd54f;
-      stroke-width: 4;
+      stroke-width: 2;
       stroke-linejoin: round;
       stroke-linecap: round;
-      filter: drop-shadow(0 0 12px rgba(255,213,79,0.65));
+      filter: drop-shadow(0 0 8px rgba(255,213,79,0.5));
     }
     .nv-ma-area { fill: url(#contribGradLine); opacity: 0.28; }
     .nv-ma-dot-ring {
@@ -2421,7 +2423,7 @@
     <div id="galaxy-wrapper" style="position:relative;height:calc(100vh - 240px);min-height:520px;border-radius:10px;overflow:hidden;border:1px solid #222;background:#000;margin-top:14px;">
       <div id="galaxy-canvas-container" style="position:absolute;inset:0;"></div>
       
-      <!-- 좌상단: 배경 시즌 선택 패널 -->
+      <!-- 좌상단: 배경 시즌 선택 패널 + 검색 선수 범례 -->
       <div id="galaxy-season-panel" style="position:absolute;top:20px;left:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;color:#fff;z-index:11;">
         <label style="font-size:0.72rem;font-weight:700;color:#a0a0b0;display:block;margin-bottom:6px;letter-spacing:0.04em;">배경 시즌</label>
         <select id="galaxySeasonSelect" style="padding:7px 10px;background:#111;color:#fff;border:1px solid #333;border-radius:6px;font-family:inherit;font-size:0.85rem;min-width:130px;">
@@ -2432,6 +2434,7 @@
           <option value="21-22">21-22 시즌</option>
           <option value="20-21">20-21 시즌</option>
         </select>
+        <div id="galaxy-player-legend" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);"></div>
       </div>
       
       <!-- 우상단: 초기화 + 분석 선수만 + 전체화면 버튼 -->
@@ -2476,10 +2479,32 @@
           ◯ 최고 시즌 = 펄스 글로우
         </div>
       </div>
+      
+      <!-- 우하단: about TERS-Galaxy 호버 버튼 -->
+      <div id="galaxy-about-wrap" style="position:absolute;bottom:20px;right:20px;z-index:11;">
+        <div id="galaxy-about-btn" style="cursor:default;color:#888;font-size:0.78rem;letter-spacing:0.04em;padding:6px 12px;background:rgba(15,15,25,0.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);border-radius:8px;transition:all 0.2s;">
+          ❓ About TERS-Galaxy
+        </div>
+        <div id="galaxy-about-popup" style="display:none;position:absolute;bottom:calc(100% + 8px);right:0;width:420px;background:rgba(15,15,25,0.96);backdrop-filter:blur(12px);border:1px solid rgba(232,201,106,0.25);border-radius:10px;padding:18px 20px;color:#fff;font-size:0.82rem;line-height:1.65;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+          <div style="margin-bottom:14px;">
+            <span style="font-size:1rem;font-weight:900;color:#e8c96a;">TERS-Galaxy</span>
+            <span style="font-size:0.78rem;font-style:italic;color:#a0a0b0;margin-left:8px;">'모든 선수는 하나의 별'</span>
+          </div>
+          <ul style="list-style:none;padding:0;margin:0;">
+            <li style="margin-bottom:8px;padding-left:12px;position:relative;"><span style="position:absolute;left:0;color:#e8c96a;">·</span>KBL 선수의 종합 역량을 단일 점수가 아닌 <b style="color:#fff;">3차원 공간</b>으로 시각화</li>
+            <li style="margin-bottom:8px;padding-left:12px;position:relative;"><span style="position:absolute;left:0;color:#e8c96a;">·</span>TERS-Rating의 7개 카테고리를 <b style="color:#fff;">OFFENSE · DEFENSE · CONTROL</b> 3개 축으로 재구성</li>
+            <li style="margin-bottom:8px;padding-left:12px;position:relative;"><span style="position:absolute;left:0;color:#e8c96a;">·</span>각 선수는 고유 좌표를 가지며, 최근 6시즌의 좌표를 시간순으로 이어 <b style="color:#fff;">별자리(Constellation)</b>로 성장 궤적과 정체성 시각화</li>
+            <li style="padding-left:12px;position:relative;"><span style="position:absolute;left:0;color:#e8c96a;">·</span>거리 단위: <b style="color:#fff;">BU (Basketball Unit)</b> = 리그 평균 좌표로부터의 유클리드 거리</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
   <style>
     @keyframes galaxySpin { to { transform:rotate(360deg); } }
+    #tab-galaxy #dd-galaxy1 input.ctrl-input { border-color: rgba(255,216,74,0.55) !important; box-shadow: 0 0 0 1px rgba(255,216,74,0.25); }
+    #tab-galaxy #dd-galaxy2 input.ctrl-input { border-color: rgba(255,138,31,0.55) !important; box-shadow: 0 0 0 1px rgba(255,138,31,0.25); }
+    #tab-galaxy #dd-galaxy3 input.ctrl-input { border-color: rgba(0,229,255,0.55) !important; box-shadow: 0 0 0 1px rgba(0,229,255,0.25); }
     #tab-galaxy .filter-tag[data-galaxy-type="국내"].active { background:rgba(58,144,255,0.13); color:#3a90ff; border-color:rgba(58,144,255,0.4); }
     #tab-galaxy .filter-tag[data-galaxy-type="외국인"].active { background:rgba(255,58,58,0.13); color:#ff3a3a; border-color:rgba(255,58,58,0.4); }
     #tab-galaxy .filter-tag[data-galaxy-type="아시아쿼터"].active { background:rgba(42,216,100,0.13); color:#2ad864; border-color:rgba(42,216,100,0.4); }
@@ -6699,7 +6724,7 @@ if (!window.__galaxyLoaded) {
     const w = container.clientWidth, h = container.clientHeight;
     
     g_camera = new THREE.PerspectiveCamera(60, w/h, 0.1, 2000);
-    g_camera.position.set(140, 100, 170);
+    g_camera.position.set(140, 30, 170);
     g_camera.lookAt(0, 0, 0);
     
     g_renderer = new THREE.WebGLRenderer({antialias:true});
@@ -6710,6 +6735,8 @@ if (!window.__galaxyLoaded) {
     g_controls = new THREE.OrbitControls(g_camera, g_renderer.domElement);
     g_controls.enableDamping = true;
     g_controls.dampingFactor = 0.05;
+    g_controls.target.set(0, 20, 0); // 원점을 화면 하단으로 - 위쪽 분포 잘 보이게
+    g_controls.update();
     
     g_scene.add(new THREE.AmbientLight(0xffffff, 0.5));
     const dl1 = new THREE.DirectionalLight(0xffffff, 0.9);
@@ -6795,6 +6822,52 @@ if (!window.__galaxyLoaded) {
     g_scene.add(addArrow([0,-1,0], 0x666666, 0.4, CUBE_HALF));
     g_scene.add(addArrow([0,0,-1], 0x666666, 0.4, CUBE_HALF));
     
+    // 원점 → +++ 모서리 대각 가이드 (점선 + 콘 머리)
+    function addDiagGuide() {
+      const grp = new THREE.Group();
+      const dir = new THREE.Vector3(1, 1, 1).normalize();
+      const len = Math.sqrt(3) * CUBE_HALF; // 대각선 길이
+      const endPt = dir.clone().multiplyScalar(len);
+      
+      // 점선 라인
+      const geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        endPt,
+      ]);
+      const mat = new THREE.LineDashedMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        depthWrite: false,
+        dashSize: 0.8,
+        gapSize: 0.6,
+        linewidth: 1,
+      });
+      const line = new THREE.Line(geo, mat);
+      line.computeLineDistances(); // 점선 표시 필수
+      grp.add(line);
+      
+      // 콘 머리
+      const coneGeo = new THREE.ConeGeometry(len*0.01, len*0.03, 12);
+      const coneMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.2,
+        depthWrite: false,
+      });
+      const cone = new THREE.Mesh(coneGeo, coneMat);
+      // 콘을 끝점에 위치 + 대각 방향으로 회전
+      cone.position.copy(endPt);
+      // 기본 콘은 Y축 방향. 대각선 방향으로 정렬
+      const up = new THREE.Vector3(0, 1, 0);
+      const quaternion = new THREE.Quaternion().setFromUnitVectors(up, dir);
+      cone.quaternion.copy(quaternion);
+      grp.add(cone);
+      
+      return grp;
+    }
+    g_scene.add(addDiagGuide());
+    
     // +++ 엘리트 큐브 (음영)
     const eGeo = new THREE.BoxGeometry(CUBE_HALF, CUBE_HALF, CUBE_HALF);
     const eMat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.06, side:THREE.DoubleSide, depthWrite:false});
@@ -6811,19 +6884,22 @@ if (!window.__galaxyLoaded) {
       cv.width = 256; cv.height = 80;
       const ctx = cv.getContext('2d');
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 48px Noto Sans KR, sans-serif';
+      ctx.font = 'bold 35px Noto Sans KR, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(text, 128, 58);
       const tex = new THREE.CanvasTexture(cv);
       const mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false});
       const sprite = new THREE.Sprite(mat);
       sprite.position.set(pos[0], pos[1], pos[2]);
-      sprite.scale.set(18, 5.5, 1);
+      sprite.scale.set(22, 5.5, 1);
       return sprite;
     }
-    g_scene.add(makeLabel('공격', [CUBE_HALF + 10, 0, 0]));
-    g_scene.add(makeLabel('수비', [0, CUBE_HALF + 10, 0]));
-    g_scene.add(makeLabel('운영', [0, 0, CUBE_HALF + 10]));
+    g_scene.add(makeLabel('OFFENSE(+)', [CUBE_HALF + 10, 0, 0]));
+    g_scene.add(makeLabel('OFFENSE(-)', [-CUBE_HALF - 10, 0, 0]));
+    g_scene.add(makeLabel('DEFENSE(+)', [0, CUBE_HALF + 10, 0]));
+    g_scene.add(makeLabel('DEFENSE(-)', [0, -CUBE_HALF - 10, 0]));
+    g_scene.add(makeLabel('CONTROL(+)', [0, 0, CUBE_HALF + 10]));
+    g_scene.add(makeLabel('CONTROL(-)', [0, 0, -CUBE_HALF - 10]));
     
     g_raycaster = new THREE.Raycaster();
     g_mouse = new THREE.Vector2();
@@ -7130,6 +7206,25 @@ if (!window.__galaxyLoaded) {
         drawGConstellation(linePos, ANALYSIS_COLORS[gIdx]);
       });
       
+      // 좌상단 검색 선수 범례 동적 업데이트
+      const legendEl = document.getElementById('galaxy-player-legend');
+      if (legendEl) {
+        if (playerGroups.length > 0) {
+          const colorHexes = ['#ffd84a', '#ff8a1f', '#00e5ff'];
+          legendEl.innerHTML = '<div style="font-size:0.7rem;font-weight:700;color:#a0a0b0;letter-spacing:0.04em;margin-bottom:6px;">검색 선수</div>' +
+            playerGroups.map((g, idx) =>
+              '<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;font-size:0.82rem;font-weight:700;">' +
+              '<span style="width:9px;height:9px;border-radius:50%;background:' + colorHexes[idx] + ';display:inline-block;flex-shrink:0;"></span>' +
+              g.name +
+              '</div>'
+            ).join('');
+          legendEl.style.display = 'block';
+        } else {
+          legendEl.style.display = 'none';
+          legendEl.innerHTML = '';
+        }
+      }
+      
       // 검색 선수가 있으면 첫 선수의 최신 시즌 정보 자동 표시
       if (playerGroups.length > 0) {
         const firstGroup = playerGroups[0];
@@ -7232,6 +7327,21 @@ if (!window.__galaxyLoaded) {
       applyGalaxyVisibility();
     });
     
+    // about 호버 팝업
+    const aboutBtn = document.getElementById('galaxy-about-btn');
+    const aboutPopup = document.getElementById('galaxy-about-popup');
+    const aboutWrap = document.getElementById('galaxy-about-wrap');
+    if (aboutWrap && aboutPopup) {
+      aboutWrap.addEventListener('mouseenter', () => {
+        aboutPopup.style.display = 'block';
+        if (aboutBtn) { aboutBtn.style.color = '#e8c96a'; aboutBtn.style.borderColor = 'rgba(232,201,106,0.3)'; }
+      });
+      aboutWrap.addEventListener('mouseleave', () => {
+        aboutPopup.style.display = 'none';
+        if (aboutBtn) { aboutBtn.style.color = '#888'; aboutBtn.style.borderColor = 'rgba(255,255,255,0.08)'; }
+      });
+    }
+    
     // 초기화 버튼
     const resetBtn = document.getElementById('galaxy-reset-btn');
     if (resetBtn) resetBtn.addEventListener('click', async () => {
@@ -7250,6 +7360,9 @@ if (!window.__galaxyLoaded) {
         const ico = document.getElementById('galaxy-solo-icon');
         if (ico) ico.textContent = '◯';
       }
+      // 카메라 초기 위치/타겟 복귀
+      if (g_camera) g_camera.position.set(140, 30, 170);
+      if (g_controls) { g_controls.target.set(0, 20, 0); g_controls.update(); }
       const season = document.getElementById('galaxySeasonSelect').value;
       await loadAndRenderGalaxy([], season);
     });
@@ -7748,7 +7861,7 @@ if (!window.__galaxyLoaded) {
     <div id="galaxy-wrapper" style="position:relative;height:calc(100vh - 240px);min-height:520px;border-radius:10px;overflow:hidden;border:1px solid #222;background:#000;margin-top:14px;">
       <div id="galaxy-canvas-container" style="position:absolute;inset:0;"></div>
       
-      <!-- 좌상단: 배경 시즌 선택 패널 -->
+      <!-- 좌상단: 배경 시즌 선택 패널 + 검색 선수 범례 -->
       <div id="galaxy-season-panel" style="position:absolute;top:20px;left:20px;background:rgba(15,15,25,0.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;color:#fff;z-index:11;">
         <label style="font-size:0.72rem;font-weight:700;color:#a0a0b0;display:block;margin-bottom:6px;letter-spacing:0.04em;">배경 시즌</label>
         <select id="galaxySeasonSelect" style="padding:7px 10px;background:#111;color:#fff;border:1px solid #333;border-radius:6px;font-family:inherit;font-size:0.85rem;min-width:130px;">
@@ -7759,6 +7872,7 @@ if (!window.__galaxyLoaded) {
           <option value="21-22">21-22 시즌</option>
           <option value="20-21">20-21 시즌</option>
         </select>
+        <div id="galaxy-player-legend" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);"></div>
       </div>
       
       <!-- 우상단: 초기화 + 분석 선수만 + 전체화면 버튼 -->
@@ -7803,10 +7917,32 @@ if (!window.__galaxyLoaded) {
           ◯ 최고 시즌 = 펄스 글로우
         </div>
       </div>
+      
+      <!-- 우하단: about TERS-Galaxy 호버 버튼 -->
+      <div id="galaxy-about-wrap" style="position:absolute;bottom:20px;right:20px;z-index:11;">
+        <div id="galaxy-about-btn" style="cursor:default;color:#888;font-size:0.78rem;letter-spacing:0.04em;padding:6px 12px;background:rgba(15,15,25,0.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);border-radius:8px;transition:all 0.2s;">
+          ❓ About TERS-Galaxy
+        </div>
+        <div id="galaxy-about-popup" style="display:none;position:absolute;bottom:calc(100% + 8px);right:0;width:420px;background:rgba(15,15,25,0.96);backdrop-filter:blur(12px);border:1px solid rgba(232,201,106,0.25);border-radius:10px;padding:18px 20px;color:#fff;font-size:0.82rem;line-height:1.65;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+          <div style="margin-bottom:14px;">
+            <span style="font-size:1rem;font-weight:900;color:#e8c96a;">TERS-Galaxy</span>
+            <span style="font-size:0.78rem;font-style:italic;color:#a0a0b0;margin-left:8px;">'모든 선수는 하나의 별'</span>
+          </div>
+          <ul style="list-style:none;padding:0;margin:0;">
+            <li style="margin-bottom:8px;padding-left:12px;position:relative;"><span style="position:absolute;left:0;color:#e8c96a;">·</span>KBL 선수의 종합 역량을 단일 점수가 아닌 <b style="color:#fff;">3차원 공간</b>으로 시각화</li>
+            <li style="margin-bottom:8px;padding-left:12px;position:relative;"><span style="position:absolute;left:0;color:#e8c96a;">·</span>TERS-Rating의 7개 카테고리를 <b style="color:#fff;">OFFENSE · DEFENSE · CONTROL</b> 3개 축으로 재구성</li>
+            <li style="margin-bottom:8px;padding-left:12px;position:relative;"><span style="position:absolute;left:0;color:#e8c96a;">·</span>각 선수는 고유 좌표를 가지며, 최근 6시즌의 좌표를 시간순으로 이어 <b style="color:#fff;">별자리(Constellation)</b>로 성장 궤적과 정체성 시각화</li>
+            <li style="padding-left:12px;position:relative;"><span style="position:absolute;left:0;color:#e8c96a;">·</span>거리 단위: <b style="color:#fff;">BU (Basketball Unit)</b> = 리그 평균 좌표로부터의 유클리드 거리</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
   <style>
     @keyframes galaxySpin { to { transform:rotate(360deg); } }
+    #tab-galaxy #dd-galaxy1 input.ctrl-input { border-color: rgba(255,216,74,0.55) !important; box-shadow: 0 0 0 1px rgba(255,216,74,0.25); }
+    #tab-galaxy #dd-galaxy2 input.ctrl-input { border-color: rgba(255,138,31,0.55) !important; box-shadow: 0 0 0 1px rgba(255,138,31,0.25); }
+    #tab-galaxy #dd-galaxy3 input.ctrl-input { border-color: rgba(0,229,255,0.55) !important; box-shadow: 0 0 0 1px rgba(0,229,255,0.25); }
     #tab-galaxy .filter-tag[data-galaxy-type="국내"].active { background:rgba(58,144,255,0.13); color:#3a90ff; border-color:rgba(58,144,255,0.4); }
     #tab-galaxy .filter-tag[data-galaxy-type="외국인"].active { background:rgba(255,58,58,0.13); color:#ff3a3a; border-color:rgba(255,58,58,0.4); }
     #tab-galaxy .filter-tag[data-galaxy-type="아시아쿼터"].active { background:rgba(42,216,100,0.13); color:#2ad864; border-color:rgba(42,216,100,0.4); }
@@ -12026,7 +12162,7 @@ if (!window.__galaxyLoaded) {
     const w = container.clientWidth, h = container.clientHeight;
     
     g_camera = new THREE.PerspectiveCamera(60, w/h, 0.1, 2000);
-    g_camera.position.set(140, 100, 170);
+    g_camera.position.set(140, 30, 170);
     g_camera.lookAt(0, 0, 0);
     
     g_renderer = new THREE.WebGLRenderer({antialias:true});
@@ -12037,6 +12173,8 @@ if (!window.__galaxyLoaded) {
     g_controls = new THREE.OrbitControls(g_camera, g_renderer.domElement);
     g_controls.enableDamping = true;
     g_controls.dampingFactor = 0.05;
+    g_controls.target.set(0, 20, 0); // 원점을 화면 하단으로 - 위쪽 분포 잘 보이게
+    g_controls.update();
     
     g_scene.add(new THREE.AmbientLight(0xffffff, 0.5));
     const dl1 = new THREE.DirectionalLight(0xffffff, 0.9);
@@ -12122,6 +12260,52 @@ if (!window.__galaxyLoaded) {
     g_scene.add(addArrow([0,-1,0], 0x666666, 0.4, CUBE_HALF));
     g_scene.add(addArrow([0,0,-1], 0x666666, 0.4, CUBE_HALF));
     
+    // 원점 → +++ 모서리 대각 가이드 (점선 + 콘 머리)
+    function addDiagGuide() {
+      const grp = new THREE.Group();
+      const dir = new THREE.Vector3(1, 1, 1).normalize();
+      const len = Math.sqrt(3) * CUBE_HALF; // 대각선 길이
+      const endPt = dir.clone().multiplyScalar(len);
+      
+      // 점선 라인
+      const geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        endPt,
+      ]);
+      const mat = new THREE.LineDashedMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        depthWrite: false,
+        dashSize: 0.8,
+        gapSize: 0.6,
+        linewidth: 1,
+      });
+      const line = new THREE.Line(geo, mat);
+      line.computeLineDistances(); // 점선 표시 필수
+      grp.add(line);
+      
+      // 콘 머리
+      const coneGeo = new THREE.ConeGeometry(len*0.01, len*0.03, 12);
+      const coneMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.2,
+        depthWrite: false,
+      });
+      const cone = new THREE.Mesh(coneGeo, coneMat);
+      // 콘을 끝점에 위치 + 대각 방향으로 회전
+      cone.position.copy(endPt);
+      // 기본 콘은 Y축 방향. 대각선 방향으로 정렬
+      const up = new THREE.Vector3(0, 1, 0);
+      const quaternion = new THREE.Quaternion().setFromUnitVectors(up, dir);
+      cone.quaternion.copy(quaternion);
+      grp.add(cone);
+      
+      return grp;
+    }
+    g_scene.add(addDiagGuide());
+    
     // +++ 엘리트 큐브 (음영)
     const eGeo = new THREE.BoxGeometry(CUBE_HALF, CUBE_HALF, CUBE_HALF);
     const eMat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.06, side:THREE.DoubleSide, depthWrite:false});
@@ -12138,19 +12322,22 @@ if (!window.__galaxyLoaded) {
       cv.width = 256; cv.height = 80;
       const ctx = cv.getContext('2d');
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 48px Noto Sans KR, sans-serif';
+      ctx.font = 'bold 35px Noto Sans KR, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(text, 128, 58);
       const tex = new THREE.CanvasTexture(cv);
       const mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false});
       const sprite = new THREE.Sprite(mat);
       sprite.position.set(pos[0], pos[1], pos[2]);
-      sprite.scale.set(18, 5.5, 1);
+      sprite.scale.set(22, 5.5, 1);
       return sprite;
     }
-    g_scene.add(makeLabel('공격', [CUBE_HALF + 10, 0, 0]));
-    g_scene.add(makeLabel('수비', [0, CUBE_HALF + 10, 0]));
-    g_scene.add(makeLabel('운영', [0, 0, CUBE_HALF + 10]));
+    g_scene.add(makeLabel('OFFENSE(+)', [CUBE_HALF + 10, 0, 0]));
+    g_scene.add(makeLabel('OFFENSE(-)', [-CUBE_HALF - 10, 0, 0]));
+    g_scene.add(makeLabel('DEFENSE(+)', [0, CUBE_HALF + 10, 0]));
+    g_scene.add(makeLabel('DEFENSE(-)', [0, -CUBE_HALF - 10, 0]));
+    g_scene.add(makeLabel('CONTROL(+)', [0, 0, CUBE_HALF + 10]));
+    g_scene.add(makeLabel('CONTROL(-)', [0, 0, -CUBE_HALF - 10]));
     
     g_raycaster = new THREE.Raycaster();
     g_mouse = new THREE.Vector2();
@@ -12457,6 +12644,25 @@ if (!window.__galaxyLoaded) {
         drawGConstellation(linePos, ANALYSIS_COLORS[gIdx]);
       });
       
+      // 좌상단 검색 선수 범례 동적 업데이트
+      const legendEl = document.getElementById('galaxy-player-legend');
+      if (legendEl) {
+        if (playerGroups.length > 0) {
+          const colorHexes = ['#ffd84a', '#ff8a1f', '#00e5ff'];
+          legendEl.innerHTML = '<div style="font-size:0.7rem;font-weight:700;color:#a0a0b0;letter-spacing:0.04em;margin-bottom:6px;">검색 선수</div>' +
+            playerGroups.map((g, idx) =>
+              '<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;font-size:0.82rem;font-weight:700;">' +
+              '<span style="width:9px;height:9px;border-radius:50%;background:' + colorHexes[idx] + ';display:inline-block;flex-shrink:0;"></span>' +
+              g.name +
+              '</div>'
+            ).join('');
+          legendEl.style.display = 'block';
+        } else {
+          legendEl.style.display = 'none';
+          legendEl.innerHTML = '';
+        }
+      }
+      
       // 검색 선수가 있으면 첫 선수의 최신 시즌 정보 자동 표시
       if (playerGroups.length > 0) {
         const firstGroup = playerGroups[0];
@@ -12559,6 +12765,21 @@ if (!window.__galaxyLoaded) {
       applyGalaxyVisibility();
     });
     
+    // about 호버 팝업
+    const aboutBtn = document.getElementById('galaxy-about-btn');
+    const aboutPopup = document.getElementById('galaxy-about-popup');
+    const aboutWrap = document.getElementById('galaxy-about-wrap');
+    if (aboutWrap && aboutPopup) {
+      aboutWrap.addEventListener('mouseenter', () => {
+        aboutPopup.style.display = 'block';
+        if (aboutBtn) { aboutBtn.style.color = '#e8c96a'; aboutBtn.style.borderColor = 'rgba(232,201,106,0.3)'; }
+      });
+      aboutWrap.addEventListener('mouseleave', () => {
+        aboutPopup.style.display = 'none';
+        if (aboutBtn) { aboutBtn.style.color = '#888'; aboutBtn.style.borderColor = 'rgba(255,255,255,0.08)'; }
+      });
+    }
+    
     // 초기화 버튼
     const resetBtn = document.getElementById('galaxy-reset-btn');
     if (resetBtn) resetBtn.addEventListener('click', async () => {
@@ -12577,6 +12798,9 @@ if (!window.__galaxyLoaded) {
         const ico = document.getElementById('galaxy-solo-icon');
         if (ico) ico.textContent = '◯';
       }
+      // 카메라 초기 위치/타겟 복귀
+      if (g_camera) g_camera.position.set(140, 30, 170);
+      if (g_controls) { g_controls.target.set(0, 20, 0); g_controls.update(); }
       const season = document.getElementById('galaxySeasonSelect').value;
       await loadAndRenderGalaxy([], season);
     });
